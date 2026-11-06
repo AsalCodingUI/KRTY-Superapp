@@ -14,7 +14,7 @@ export const STROKE = 1.5
  *  from them (index.tsx): /icon-lab marks those as redrawn. */
 type GlyphProps = SVGProps<SVGSVGElement> & { size?: number; color?: string }
 
-function glyph(name: string, d: string) {
+export function glyph(name: string, d: string) {
   const Glyph = ({
     size = 24,
     color = "currentColor",
@@ -48,7 +48,7 @@ export const Coffee = glyph(
 /** A drag handle of six filled dots (2 × 3 standing, 3 × 2 lying): the
  *  set's own grip is a 3 × 3 grid, heavier than a handle needs. Filled,
  *  so the stroke setting doesn't change them. */
-function dots(name: string, xs: number[], ys: number[]) {
+export function dots(name: string, xs: number[], ys: number[], r = 1.75) {
   const Dots = ({
     size = 24,
     color = "currentColor",
@@ -57,7 +57,7 @@ function dots(name: string, xs: number[], ys: number[]) {
   }: GlyphProps) => (
     <svg viewBox="0 0 24 24" width={size} height={size} fill={color} {...props}>
       {ys.flatMap((cy) =>
-        xs.map((cx) => <circle key={`${cx}-${cy}`} cx={cx} cy={cy} r={1.75} />),
+        xs.map((cx) => <circle key={`${cx}-${cy}`} cx={cx} cy={cy} r={r} />),
       )}
     </svg>
   )
