@@ -47,7 +47,7 @@ props are accepted and ignored. Every icon is listed on /ui → Icons.
   files, LayoutAlt04 kanban, Dotpoints02 numbered list).
 - **Solid on "on"**: every glyph with a body has a solid twin (filled
   outline, inner strokes cut out with a mask, so it works on any
-  background, edged at half the stroke so it looks as big as the outline), drawn by `glyph()` from `solid-map.ts` (generated from the
+  background), drawn by `glyph()` from `solid-map.ts` (generated from the
   geometry, with hand overrides for open drawings: bells, calendars with a
   badge, book, building, flag, trash, bar chart, people). CSS shows it in
   the active sidebar row, the selected tab (`role="tab"` +
