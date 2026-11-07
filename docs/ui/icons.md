@@ -45,16 +45,7 @@ props are accepted and ignored. Every icon is listed on /ui → Icons.
   something else (Phone01 a phone, Heading02 H2, Copy04 copy-plus,
   Columns03 three columns, File02/03/05/06 text, chart and document
   files, LayoutAlt04 kanban, Dotpoints02 numbered list).
-- **Solid on "on"**: every glyph with a body has a solid twin (filled
-  outline, inner strokes cut out with a mask, so it works on any
-  background), drawn by `glyph()` from `solid-map.ts` (generated from the
-  geometry, with hand overrides for open drawings: bells, calendars with a
-  badge, book, building, flag, trash, bar chart, people). CSS shows it in
-  the active sidebar row, the selected tab (`role="tab"` +
-  `aria-selected`), or under `data-solid-icons`; lines, arrows and
-  chevrons have none and stay as they are. Don't pass a "filled" icon by
-  hand for an active state.
-- Line icons otherwise. Show a state with color or a dot, not a filled icon.
+- Line icons only. Show a state with color or a dot, not a filled icon.
 - One icon per meaning: edit = `SquarePen`, delete = `Delete` (trash),
   more = `MoreHorizontal`, close = `X`, add = `Plus`, open in new =
   `ExternalLink`, copy = `Copy`, status done = `CircleCheck`, warning =

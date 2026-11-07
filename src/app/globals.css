@@ -1155,24 +1155,3 @@
     --app-tabs-height: 3.25rem;
   }
 }
-
-/* Solid icons where the icon is "on": the active nav row and the selected
-   tab show each glyph's solid twin (components/icons/custom.tsx); any
-   wrapper can ask for it with data-solid-icons (the icon lab's toggle). */
-.glyph-solid {
-  display: none;
-}
-:is(
-    [data-sidebar="menu-button"][data-active],
-    [data-sidebar="menu-sub-button"][data-active],
-    [role="tab"][aria-selected="true"],
-    [data-solid-icons]
-  )
-  svg[data-solid] {
-  & .glyph-line {
-    display: none;
-  }
-  & .glyph-solid {
-    display: inline;
-  }
-}

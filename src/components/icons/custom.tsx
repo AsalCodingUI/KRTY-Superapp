@@ -3,8 +3,7 @@
  * free set doesn't have, drawn the same way (24px, round caps and joins,
  * no fill) so it sits with the rest.
  */
-import { type SVGProps, useId } from "react"
-import { SOLID } from "./solid-map"
+import type { SVGProps } from "react"
 
 /** The icons' stroke on their 24px grid: 1.75 (as heavy, for its size, as the BRDG set's 2 on a full 24 box). It scales with the icon
  *  (through VIEWBOX: ~1.33px at size-4, 2.67 at 32px), so every size is the
@@ -22,83 +21,26 @@ export const VIEWBOX = "1.5 1.5 21 21"
  *  from them (index.tsx): /icon-lab marks those as redrawn. */
 type GlyphProps = SVGProps<SVGSVGElement> & { size?: number; color?: string }
 
-/** The solid twin's parts: what is filled, and the strokes that are cut
- *  out of the fill (and drawn where they leave it). */
-function solidParts(name: string, d: string) {
-  const spec = SOLID[name]
-  if (!spec) return null
-  const subs = d.split(/(?=M)/).filter((part) => part.trim())
-  const fill = [...spec.f.map((i) => subs[i]), spec.x ?? ""].join("")
-  const lines =
-    subs
-      .filter((_, i) => !spec.f.includes(i) && !spec.skip?.includes(i))
-      .join("") + (spec.cut ?? "")
-  return { fill, lines }
-}
-
-/**
- * One line glyph, with its solid twin when SOLID has one. Both are in the
- * SVG; CSS shows the solid where the icon is "on" (an active nav row or
- * tab: globals.css, `[data-solid]`). The solid fills the outline and cuts
- * the inner strokes out of it with a mask, so it works on any background.
- */
 export function glyph(name: string, d: string) {
-  const parts = solidParts(name, d)
   const Glyph = ({
     size = 24,
     color = "currentColor",
     ...props
-  }: GlyphProps) => {
-    const id = useId().replace(/[^\w-]/g, "")
-    return (
-      <svg
-        viewBox={VIEWBOX}
-        width={size}
-        height={size}
-        fill="none"
-        stroke={color}
-        strokeWidth={STROKE}
-        strokeLinecap="round"
-        strokeLinejoin="round"
-        data-solid={parts ? "" : undefined}
-        {...props}
-      >
-        <path d={d} className={parts ? "glyph-line" : undefined} />
-        {parts && (
-          <g className="glyph-solid">
-            <mask
-              id={`${id}f`}
-              maskUnits="userSpaceOnUse"
-              x="0"
-              y="0"
-              width="24"
-              height="24"
-            >
-              <path d={parts.fill} fill="#fff" stroke="#fff" />
-              {parts.lines && <path d={parts.lines} stroke="#000" />}
-            </mask>
-            <path d={parts.fill} fill={color} mask={`url(#${id}f)`} />
-            {parts.lines && (
-              <>
-                <mask
-                  id={`${id}l`}
-                  maskUnits="userSpaceOnUse"
-                  x="0"
-                  y="0"
-                  width="24"
-                  height="24"
-                >
-                  <rect width="24" height="24" fill="#fff" />
-                  <path d={parts.fill} fill="#000" stroke="#000" />
-                </mask>
-                <path d={parts.lines} mask={`url(#${id}l)`} />
-              </>
-            )}
-          </g>
-        )}
-      </svg>
-    )
-  }
+  }: GlyphProps) => (
+    <svg
+      viewBox={VIEWBOX}
+      width={size}
+      height={size}
+      fill="none"
+      stroke={color}
+      strokeWidth={STROKE}
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      {...props}
+    >
+      <path d={d} />
+    </svg>
+  )
   Glyph.displayName = name
   ;(Glyph as { ours?: boolean }).ours = true
   return Glyph

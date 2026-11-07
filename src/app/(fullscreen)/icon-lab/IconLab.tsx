@@ -185,7 +185,6 @@ export function IconLab() {
     {},
   )
   const [onlyPicked, setOnlyPicked] = useState(false)
-  const [solid, setSolid] = useStored<boolean>("icon-lab:solid", false)
   const picked = new Set(pickedList)
   const toggle = (name: string) =>
     setPickedList(
@@ -197,10 +196,7 @@ export function IconLab() {
   const done = FAMILIES.filter(([stem]) => chosen[stem]).length
 
   return (
-    <main
-      data-solid-icons={solid ? "" : undefined}
-      className="bg-background text-foreground min-h-dvh p-4 pb-24 md:p-8 md:pb-24"
-    >
+    <main className="bg-background text-foreground min-h-dvh p-4 pb-24 md:p-8 md:pb-24">
       <div className="mb-4 flex items-center gap-1">
         <Button
           variant={mode === "all" ? "secondary" : "ghost"}
@@ -217,15 +213,6 @@ export function IconLab() {
           onClick={() => setMode("variants")}
         >
           Varian ({FAMILIES.length})
-        </Button>
-        <Button
-          variant={solid ? "secondary" : "ghost"}
-          size="sm"
-          aria-pressed={solid}
-          onClick={() => setSolid(!solid)}
-          className="ml-auto"
-        >
-          Solid
         </Button>
       </div>
 
