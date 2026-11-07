@@ -161,6 +161,7 @@ export const CHOSEN: Record<string, string> = {
   PhoneOutgoing: "PhoneOutgoing01",
   PieChart: "PieChart01",
   PiggyBank: "PiggyBank02",
+  Pilcrow: "Pilcrow01",
   Pin: "Pin02",
   Power: "Power01",
   PresentationChart: "PresentationChart01",
