@@ -77,9 +77,9 @@ props are accepted and ignored. Every icon is listed on /ui → Icons.
   status: `text-success-ink`, `text-warning`, `text-destructive`. Semantic
   tokens only.
 - Grid and stroke: every glyph is drawn on a **24px grid** and rendered
-  with a **1.5 stroke** (`STROKE` in `src/components/icons/custom.tsx`),
-  round caps and joins. The stroke **scales** with the icon: ~1.15px at
-  `size-4`, 1 at `size-3.5`, 2.3 at 32px (through `VIEWBOX`). Every size is the same drawing, only bigger or
+  with a **1.75 stroke** (`STROKE` in `src/components/icons/custom.tsx`),
+  round caps and joins. The stroke **scales** with the icon: ~1.33px at
+  `size-4`, 1.17 at `size-3.5`, 2.67 at 32px (through `VIEWBOX`). Every size is the same drawing, only bigger or
   smaller. `strokeWidth` on a single icon is ignored.
 - Our own set: redrawn from the Untitled UI base on that grid, in
   `custom.tsx`; /icon-lab shows the whole Untitled pack, which ones the
@@ -220,12 +220,12 @@ move the hexes to tokens if a second folder appears.
 Every glyph in `src/components/icons/set/` and `custom.tsx` follows these.
 Check new ones against them and against /icon-lab (hover shows the base).
 
-1. **Grid and stroke.** 24 × 24, stroke 1.5 (`STROKE`; it scales with the icon),
+1. **Grid and stroke.** 24 × 24, stroke 1.75 (`STROKE`; it scales with the icon),
    round caps and joins, outline only. Live area: stroke centres 2.75–21.25
    (the outer edge reaches 2 and 22, a full 20px). Shown through
    `VIEWBOX` (`1.5 1.5 21 21`), so the drawing fills the icon box instead of
    keeping Untitled's 2px of air: at size-4 a glyph is ~15px, the stroke
-   ~1.15px. Nothing may go past stroke centre 2.5 / 21.5 (it would clip). Sizes, measured on
+   ~1.33px. Nothing may go past stroke centre 2.5 / 21.5 (it would clip). Sizes, measured on
    stroke centres: circles 18.5 (r 9.25 at 12,12); squares and square
    frames 16.5 (3.75–20.25), 2 smaller than a circle (the BRDG rule:
    square 16, circle 18) so they read as the same size; files,
@@ -259,7 +259,7 @@ Check new ones against them and against /icon-lab (hover shows the base).
 4. **Cuts.** Where one stroke crosses another and the other is broken (a
    slash through wifi, an eye, a bell), the gap is 1.5 between stroke
    edges on both sides (cut ends, cap included, 3 from the crossing
-   stroke's centre at stroke 1.5), the same everywhere in the set. Cut
+   stroke's centre at stroke 1.5; 3.25 at 1.75), the same everywhere in the set. Cut
    by geometry, not by eye: the base glyph's lines and arcs are trimmed
    exactly where they come within 3 of the slash or the mark (the kit in
    the icon redraw scripts), so Off / Plus / Minus are the base glyph plus

@@ -5,10 +5,10 @@
  */
 import type { SVGProps } from "react"
 
-/** The icons' stroke on their 24px grid: 1.5. It scales with the icon
- *  (through VIEWBOX: ~1.15px at size-4, 2.3 at 32px), so every size is the
+/** The icons' stroke on their 24px grid: 1.75 (as heavy, for its size, as the BRDG set's 2 on a full 24 box). It scales with the icon
+ *  (through VIEWBOX: ~1.33px at size-4, 2.67 at 32px), so every size is the
  *  same drawing, just bigger or smaller (docs/ui/icons.md). */
-export const STROKE = 1.5
+export const STROKE = 1.75
 
 /** The box every glyph is shown in: the 24 grid less 1.5 on each side,
  *  so the drawing (stroke centres 2.5–21.5 at most, the stroke reaching 1.5
