@@ -47,7 +47,7 @@ export const FastForward = glyph(
 )
 export const Feather = glyph(
   "Feather",
-  "M7.375 16.625C7.375 8.82 12.867 2.75 21.25 2.75c0 8.383 -6.07 13.875 -13.875 13.875ZM2.75 21.25l10.984 -10.984M9.977 14.023h5.781",
+  "M7 17A12.452 12.452 0 0 1 20.25 3.75A20.632 20.632 0 0 1 7 17ZM3.75 20.25 14.5 9.5",
 )
 export const Figma = glyph(
   "Figma",
@@ -55,7 +55,7 @@ export const Figma = glyph(
 )
 export const File01 = glyph(
   "File01",
-  "M7.5 2.75h9a3 3 0 0 1 3 3v12.5a3 3 0 0 1-3 3h-9a3 3 0 0 1-3-3V5.75a3 3 0 0 1 3-3Z",
+  "M13.75 2.75H7.5a3 3 0 0 0-3 3v12.5a3 3 0 0 0 3 3h9a3 3 0 0 0 3-3V8.5ZM13.75 2.75V6.5a2 2 0 0 0 2 2h3.75",
 )
 export const FileAttachment01 = glyph(
   "FileAttachment01",
@@ -259,7 +259,7 @@ export const HardDrive = glyph(
 )
 export const Hash02 = glyph(
   "Hash02",
-  "M9.977 2.75 7.086 21.25M16.914 2.75l-2.891 18.5M3.617 7.953h17.344M3.039 16.047h17.344",
+  "M10 4 8 20M16 4l-2 16M5 9h15M4 15h15",
 )
 export const Headphones01 = glyph(
   "Headphones01",

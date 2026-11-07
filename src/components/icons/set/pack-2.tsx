@@ -255,7 +255,7 @@ export const ClockCheck = glyph(
 )
 export const ClockFastForward = glyph(
   "ClockFastForward",
-  "M19.848 12.933A8.25 8.25 0 1 1 19.497 9.451M21.2 6.109L19.497 9.451L16.156 7.748M11.651 9.902L11.651 12L13.33 13.049",
+  "M20.693 14.329A9 9 0 1 1 18.364 5.636M15.114 5.636L18.364 5.636L18.364 2.386M12 7.75V12l3 2",
 )
 export const ClockPlus = glyph(
   "ClockPlus",
@@ -263,7 +263,7 @@ export const ClockPlus = glyph(
 )
 export const ClockRewind = glyph(
   "ClockRewind",
-  "M7.75 4.639A8.5 8.5 0 1 0 16.25 4.639M17.221 8.261L16.25 4.639L19.872 3.668M12 8V12L14.5 13.5",
+  "M3.307 14.329A9 9 0 1 0 5.636 5.636M5.636 2.386L5.636 5.636L8.886 5.636M12 7.75V12l3 2",
 )
 export const ClockSnooze = glyph(
   "ClockSnooze",

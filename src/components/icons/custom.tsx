@@ -106,7 +106,7 @@ export const Folder = glyph(
 )
 export const Search = glyph(
   "Search",
-  "M17.875 10.562a7.312 7.312 0 1 1 -14.625 0 7.312 7.312 0 0 1 14.625 0ZM15.906 15.906l5.344 5.344",
+  "M18 11a7 7 0 1 1-14 0 7 7 0 0 1 14 0ZM15.95 15.95L20 20",
 )
 export const Check = glyph("Check", "M2.903 12.9 8.751 18.748 21.097 5.752")
 export const X = glyph("X", "M6.75 6.75l10.5 10.5M17.25 6.75l-10.5 10.5")

@@ -30,7 +30,7 @@ export const HomeSmile = glyph(
 )
 export const HorizontalBarChart01 = glyph(
   "HorizontalBarChart01",
-  "M2.75 2.75v18.5M2.75 4.11H14.176a1.088 1.088 0 0 1 1.088 1.088v1.632a1.088 1.088 0 0 1 -1.088 1.088H2.75M2.75 10.096H20.162a1.088 1.088 0 0 1 1.088 1.088v1.632a1.088 1.088 0 0 1 -1.088 1.088H2.75M2.75 16.081H10.368a1.088 1.088 0 0 1 1.088 1.088v1.632a1.088 1.088 0 0 1 -1.088 1.088H2.75",
+  "M4 3.75v16.5M8 7.5h7M8 12h12M8 16.5h4",
 )
 export const Hourglass03 = glyph(
   "Hourglass03",
@@ -190,7 +190,7 @@ export const LinkBroken02 = glyph(
 )
 export const LinkExternal02 = glyph(
   "LinkExternal02",
-  "M20.75 12.25L20.75 17.75A3 3 0 0 1 17.75 20.75L6.25 20.75A3 3 0 0 1 3.25 17.75L3.25 6.25A3 3 0 0 1 6.25 3.25L11.75 3.25M12 12L20.75 3.25M15.25 3.25L20.75 3.25L20.75 8.75",
+  "M11 3.75H6.75a3 3 0 0 0-3 3v10.5a3 3 0 0 0 3 3h10.5a3 3 0 0 0 3-3V13M12.5 11.5l7.75-7.75M14.75 3.75h5.5v5.5",
 )
 export const Lock03 = glyph(
   "Lock03",
