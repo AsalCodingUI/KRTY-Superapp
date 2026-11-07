@@ -314,6 +314,7 @@ export const UNTITLED_BASE: Record<
   FilePlus: UFilePlus02,
   FilePlus2: UFilePlus02,
   FileSignature: UFile06,
+  FileChart: UFile03,
   FileText: UFile02,
   Files: UCopy07,
   Filter: UFilterLines,

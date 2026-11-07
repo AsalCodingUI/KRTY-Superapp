@@ -7,7 +7,7 @@ import { GroupedList, ListRow } from "@/components/grouped-list"
 import { PageHeader } from "@/components/page-header"
 import { cn } from "@/lib/utils"
 import { useDateLocale, useT } from "@/shared/i18n/client"
-import { RiFilePaperLine } from "@/shared/ui/lucide-icons"
+import { FileChart } from "@/components/icons"
 import { format, parseISO } from "date-fns"
 import { usePathname, useRouter, useSearchParams } from "next/navigation"
 import { useEffect } from "react"
@@ -56,7 +56,7 @@ export function PortalReports({ reports }: { reports: PortalReport[] }) {
       {reports.length === 0 ? (
         <EmptyState
           title={t("reportsEmpty")}
-          icon={<RiFilePaperLine className="size-5" />}
+          icon={<FileChart className="size-5" />}
           placement="inner"
         />
       ) : (

@@ -10,7 +10,8 @@ import { Button } from "@/components/ui/button"
 import { Spinner } from "@/components/ui/spinner"
 import { cn } from "@/lib/utils"
 import { useDateLocale, useT } from "@/shared/i18n/client"
-import { RiAddLine, RiFilePaperLine } from "@/shared/ui/lucide-icons"
+import { FileChart } from "@/components/icons"
+import { RiAddLine } from "@/shared/ui/lucide-icons"
 import { format, parseISO } from "date-fns"
 import { Link2 } from "@/components/icons"
 import { usePathname, useSearchParams } from "next/navigation"
@@ -106,7 +107,7 @@ export function ProjectReports({ projectId }: { projectId: string }) {
         <EmptyState
           title={t("reportsEmpty")}
           description={t("reportsEmptyHint")}
-          icon={<RiFilePaperLine className="size-5" />}
+          icon={<FileChart className="size-5" />}
           placement="inner"
         />
       ) : (

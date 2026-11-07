@@ -1,7 +1,6 @@
 import {
   RiLayoutGridLine,
   RiFileList3Line,
-  RiFilePaperLine,
   RiFileTextLine,
   RiFolderLine,
   RiMoneyDollarCircleLine,
@@ -9,6 +8,7 @@ import {
   RiStarLine,
   type RemixiconComponentType,
 } from "@/shared/ui/lucide-icons"
+import { FileChart } from "@/components/icons"
 import type { MessageKey } from "@/shared/i18n/messages"
 
 /** Pages inside a project (DesignerHQ-style), in sidebar order. */
@@ -35,7 +35,7 @@ export const PROJECT_SECTIONS: {
     slug: "reports",
     name: "Report",
     labelKey: "sectionReports",
-    icon: RiFilePaperLine,
+    icon: FileChart,
   },
   {
     slug: "invoices",
