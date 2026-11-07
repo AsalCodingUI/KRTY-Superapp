@@ -22,6 +22,12 @@ export const VIEWBOX = "1.5 1.5 21 21"
  *  from them (index.tsx): /icon-lab marks those as redrawn. */
 type GlyphProps = SVGProps<SVGSVGElement> & { size?: number; color?: string }
 
+/** The solid's edge: half the line stroke, so a solid sits as big as its
+ *  outline looks (a full stroke round the fill reads a size heavier). The
+ *  strokes cut out of it keep the full STROKE, and the lines are hidden
+ *  over the outline's whole footprint, so no cut end peeks past the edge. */
+const SOLID_EDGE = STROKE / 2
+
 /** The solid twin's parts: what is filled, and the strokes that are cut
  *  out of the fill (and drawn where they leave it). */
 function solidParts(name: string, d: string) {
@@ -74,10 +80,20 @@ export function glyph(name: string, d: string) {
               width="24"
               height="24"
             >
-              <path d={parts.fill} fill="#fff" stroke="#fff" />
+              <path
+                d={parts.fill}
+                fill="#fff"
+                stroke="#fff"
+                strokeWidth={SOLID_EDGE}
+              />
               {parts.lines && <path d={parts.lines} stroke="#000" />}
             </mask>
-            <path d={parts.fill} fill={color} mask={`url(#${id}f)`} />
+            <path
+              d={parts.fill}
+              fill={color}
+              strokeWidth={SOLID_EDGE}
+              mask={`url(#${id}f)`}
+            />
             {parts.lines && (
               <>
                 <mask
