@@ -139,13 +139,15 @@ function NavSection({
   children: React.ReactNode
 }) {
   return (
-    <div className="flex flex-col">
+    // mt-2: 20px from the list above (the content's 12px gap + 8).
+    <div className="mt-2 flex flex-col">
       <SidebarGroupLabel
         render={<button type="button" />}
         aria-expanded={open}
         onClick={onToggle}
         // The chevron on the icon column, the label where row labels start.
-        className="text-muted-foreground hover:text-foreground mx-3 w-fit cursor-pointer gap-2 pl-3 font-normal transition-colors"
+        // mb-0.5: 2px to the first item, the rows' step.
+        className="text-muted-foreground hover:text-foreground mx-3 mb-0.5 w-fit cursor-pointer gap-2 pl-3 font-normal transition-colors"
       >
         <ChevronDown
           className={cn("size-3! transition-transform", open && "rotate-180")}
@@ -252,8 +254,15 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
       >
         {/* + Baru, the bell (icon only) beside it. Collapsed: stacked. */}
         <NewMenu
-          className="mb-1"
-          aside={<Notifications variant="icon" className="size-8 shrink-0" />}
+          // mb-2: 12px to Cari.
+          className="mb-2"
+          // The bell in an outlined circle, like Obvious's search button.
+          aside={
+            <Notifications
+              variant="icon"
+              className="border-chrome-border size-8 shrink-0 rounded-full border-[0.5px]"
+            />
+          }
         />
         {/* The group's own padding off: the header already sets the edge. */}
         <div className="-mx-3 [&>[data-sidebar=group]]:py-0">
