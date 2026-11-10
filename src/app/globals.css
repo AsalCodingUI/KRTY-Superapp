@@ -502,9 +502,9 @@
   --chrome-gradient: none;
   --grad-l: 0.93;
   --grad-c: 0.05;
-  /* #FAFAFA when neutral; a colored theme reaches the same 0.90 as before. */
+  /* #F6F6F6 when neutral; a colored theme reaches the same 0.90 as before. */
   --chrome: oklch(
-    calc(0.985 - var(--tint-c) * 0.085) calc(var(--tint-c) * 0.085)
+    calc(0.9731 - var(--tint-c) * 0.0731) calc(var(--tint-c) * 0.085)
       var(--tint-h)
   );
   --chrome-hover: oklch(0 0 0 / 5%);
