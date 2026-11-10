@@ -265,10 +265,10 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
           </span>
         </PrefetchLink>
         {/* + Baru, the bell (icon only) beside it. Collapsed: stacked. */}
-        <div className="mb-1 flex items-center gap-2 group-data-[collapsible=icon]:flex-col">
-          <NewMenu className="min-w-0 flex-1 group-data-[collapsible=icon]:flex-none" />
-          <Notifications variant="icon" className="size-8 shrink-0" />
-        </div>
+        <NewMenu
+          className="mb-1"
+          aside={<Notifications variant="icon" className="size-8 shrink-0" />}
+        />
         {/* The group's own padding off: the header already sets the edge. */}
         <div className="-mx-3 [&>[data-sidebar=group]]:py-0">
           <NavMain items={topNav} slots={topSlots} />

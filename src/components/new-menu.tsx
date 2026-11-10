@@ -1,5 +1,6 @@
 "use client"
 
+import * as React from "react"
 import { siteConfig } from "@/app/siteConfig"
 import { Button } from "@/components/ui/button"
 import {
@@ -43,7 +44,15 @@ type NewItem = {
  * what you can start from anywhere. Each item opens its page's own form
  * (?new=1), so there's one form per thing, not a second copy here.
  */
-export function NewMenu({ className }: { className?: string }) {
+export function NewMenu({
+  className,
+  aside,
+}: {
+  className?: string
+  /** Beside the button (the bell); the menu fills the button and it. */
+  aside?: React.ReactNode
+}) {
+  const rowRef = React.useRef<HTMLDivElement>(null)
   const t = useT("nav")
   const router = useRouter()
   const { profile } = useUserProfile()
@@ -87,8 +96,7 @@ export function NewMenu({ className }: { className?: string }) {
       render={
         <Button
           className={cn(
-            "w-full justify-center group-data-[collapsible=icon]:size-8 group-data-[collapsible=icon]:p-0",
-            className,
+            "min-w-0 flex-1 justify-center group-data-[collapsible=icon]:size-8 group-data-[collapsible=icon]:flex-none group-data-[collapsible=icon]:p-0",
           )}
         />
       }
@@ -101,31 +109,42 @@ export function NewMenu({ className }: { className?: string }) {
   )
 
   return (
-    <DropdownMenu>
-      {collapsed ? (
-        <Tooltip>
-          <TooltipTrigger render={trigger} />
-          <TooltipContent side="right">{t("newMenu")}</TooltipContent>
-        </Tooltip>
-      ) : (
-        trigger
+    <div
+      ref={rowRef}
+      className={cn(
+        "flex items-center gap-2 group-data-[collapsible=icon]:flex-col",
+        className,
       )}
-      <DropdownMenuContent
-        align="start"
-        side={collapsed ? "right" : "bottom"}
-        sideOffset={4}
-        className="min-w-(--anchor-width)"
-      >
-        {items.map((item) => (
-          <DropdownMenuItem
-            key={item.label}
-            onClick={() => router.push(item.href)}
-          >
-            <item.icon />
-            {t(item.label)}
-          </DropdownMenuItem>
-        ))}
-      </DropdownMenuContent>
-    </DropdownMenu>
+    >
+      <DropdownMenu>
+        {collapsed ? (
+          <Tooltip>
+            <TooltipTrigger render={trigger} />
+            <TooltipContent side="right">{t("newMenu")}</TooltipContent>
+          </Tooltip>
+        ) : (
+          trigger
+        )}
+        <DropdownMenuContent
+          align="start"
+          side={collapsed ? "right" : "bottom"}
+          sideOffset={4}
+          // Fills the row (the button and the bell), not just the button.
+          anchor={collapsed ? undefined : rowRef}
+          className="w-(--anchor-width) max-w-none"
+        >
+          {items.map((item) => (
+            <DropdownMenuItem
+              key={item.label}
+              onClick={() => router.push(item.href)}
+            >
+              <item.icon />
+              {t(item.label)}
+            </DropdownMenuItem>
+          ))}
+        </DropdownMenuContent>
+      </DropdownMenu>
+      {aside}
+    </div>
   )
 }
