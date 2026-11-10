@@ -502,8 +502,9 @@
   --chrome-gradient: none;
   --grad-l: 0.93;
   --grad-c: 0.05;
+  /* #FAFAFA when neutral; a colored theme reaches the same 0.90 as before. */
   --chrome: oklch(
-    calc(0.961 - var(--tint-c) * 0.061) calc(var(--tint-c) * 0.085)
+    calc(0.985 - var(--tint-c) * 0.085) calc(var(--tint-c) * 0.085)
       var(--tint-h)
   );
   --chrome-hover: oklch(0 0 0 / 5%);
@@ -514,11 +515,12 @@
   --paper: #fff;
   /* The sidebar's selected row (nav item, workspace tab): a darker
      see-through fill, no shadow. The white pill is for the app tabs. */
-  --chrome-selected: oklch(0 0 0 / 6%);
+  --chrome-selected: oklch(0 0 0 / 9%);
   /* Active thumbs (segmented, tabs, toggles): the same see-through white
      as the sidebar's active pill. */
   --thumb: var(--chrome-active);
-  --chrome-field: var(--chrome-selected);
+  /* Fields on the chrome keep the lighter fill (not the selected row's). */
+  --chrome-field: oklch(0 0 0 / 6%);
   /* Outlined controls on the chrome (the sidebar's search). */
   --chrome-border: oklch(0 0 0 / 11%);
   --chrome-muted: oklch(0 0 0 / 55%);
@@ -744,10 +746,10 @@
   --grad-c: 0.05;
   --chrome-hover: oklch(1 0 0 / 6%);
   --chrome-active: oklch(1 0 0 / 14%);
-  --chrome-selected: oklch(1 0 0 / 7%);
+  --chrome-selected: oklch(1 0 0 / 11%);
   /* Re-resolve: :root's --thumb was computed from the light value. */
   --thumb: var(--chrome-active);
-  --chrome-field: var(--chrome-selected);
+  --chrome-field: oklch(1 0 0 / 7%);
   --chrome-border: oklch(1 0 0 / 12%);
   --chrome-muted: oklch(1 0 0 / 50%);
   --chrome-label: oklch(1 0 0 / 68%);
