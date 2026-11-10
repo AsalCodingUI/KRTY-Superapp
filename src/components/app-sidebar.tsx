@@ -247,12 +247,12 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
           (site-header.tsx). Collapsed: icons only, no tabs. */}
       <SidebarHeader
         // px-3: the same 12px edge as the menu rows below.
-        className={cn("gap-5 px-2 pb-5", desktop ? "pt-1" : "pt-3")}
+        className={cn("gap-3 px-2 pb-3", desktop ? "pt-1" : "pt-3")}
       >
         <div
           className={cn(
-            // -mb-2: 12px to the list below; sections sit 20px apart.
-            "-mb-2 flex h-8 items-center justify-between group-data-[collapsible=icon]:h-auto group-data-[collapsible=icon]:justify-center",
+            // Sections sit 12px apart (rows 2px).
+            "flex h-8 items-center justify-between group-data-[collapsible=icon]:h-auto group-data-[collapsible=icon]:justify-center",
           )}
         >
           <PrefetchLink
@@ -312,8 +312,8 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
               {!projectPath &&
                 active?.id === "project" &&
                 projects.length > 0 && (
-                  // mt-3: 20px from the list above, like every section.
-                  <SidebarGroup className="mt-3">
+                  // mt-1: 12px from the list above, like every section.
+                  <SidebarGroup className="mt-1">
                     <SidebarGroupLabel>{t("activeProjects")}</SidebarGroupLabel>
                     <SidebarMenu>
                       {projects.map((project) => (
