@@ -131,7 +131,7 @@ Measured on /ui → Radius (squircle browsers, ×1.715):
 
 | Class             | Base       | Renders              | For                                                                           |
 | ----------------- | ---------- | -------------------- | ----------------------------------------------------------------------------- |
-| `rounded-control` | pill       | pill (not squircled) | buttons, inputs, selects, badges, tabs, toggles, segmented (sidebar rows and the Kantor / Project switch: `rounded-lg`, default pill `SegmentedControl`) |
+| `rounded-control` | pill       | pill (not squircled) | buttons, inputs, selects, badges, tabs, toggles, segmented, sidebar rows and the Kantor / Project switch |
 | `rounded-chip`    | md (8px)   | 13.7px               | ListChip, textarea, tooltip                                                   |
 | `rounded-row`     | lg (10px)  | 17.2px               | row highlight, column / group header pills                                    |
 | `rounded-card`    | xl (14px)  | 24.0px               | cards, panels, HomeCard, embeds                                               |
@@ -208,8 +208,7 @@ Done 2026-11-05 (local): the role tokens above applied in the shared
 components (dialog, sheet, popover, dropdown, select, hover card,
 command, context menu, toast, card surfaces, HomeCard, grouped list,
 sliding highlight, chip, tooltip, textarea, button, input, select,
-badge, tabs, input group, toggle, segmented control; sidebar rows are
-10px `rounded-lg`, like the Settings nav, see navigation.md);
+badge, tabs, input group, toggle, segmented control, sidebar rows);
 bordered `rounded-2xl` cards → `rounded-card`; glass cards and phone
 sheet tops → dialog; date picker and brief menus → popover; mention /
 slash / rich-text / brief menus on the nested standard; `ProjectAvatar`
