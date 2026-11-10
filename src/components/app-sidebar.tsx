@@ -10,6 +10,7 @@ import { GlobalSearch } from "@/widgets/global-search/ui/GlobalSearch"
 import { Notifications } from "@/widgets/notifications/ui/Notifications"
 
 import { NavMain } from "@/components/nav-main"
+import { NewMenu } from "@/components/new-menu"
 import { useProjectTree } from "@/components/nav-project"
 import { PrefetchLink } from "@/components/prefetch-link"
 import { SidebarNotices } from "@/components/sidebar-notices"
@@ -228,11 +229,8 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
     [active, toNav],
   )
   const topNav = React.useMemo(() => topItems.map(toNav), [topItems, toNav])
-  // Notifikasi after Beranda.
-  const topSlots = React.useMemo(
-    () => ({ 1: <Notifications variant="row" /> }),
-    [],
-  )
+  // Cari first.
+  const topSlots = React.useMemo(() => ({ 0: <GlobalSearch /> }), [])
 
   return (
     <Sidebar
@@ -266,7 +264,11 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
             {siteConfig.name}
           </span>
         </PrefetchLink>
-        <GlobalSearch className="mb-1" />
+        {/* + Baru, the bell (icon only) beside it. Collapsed: stacked. */}
+        <div className="mb-1 flex items-center gap-2 group-data-[collapsible=icon]:flex-col">
+          <NewMenu className="min-w-0 flex-1 group-data-[collapsible=icon]:flex-none" />
+          <Notifications variant="icon" className="size-8 shrink-0" />
+        </div>
         {/* The group's own padding off: the header already sets the edge. */}
         <div className="-mx-3 [&>[data-sidebar=group]]:py-0">
           <NavMain items={topNav} slots={topSlots} />

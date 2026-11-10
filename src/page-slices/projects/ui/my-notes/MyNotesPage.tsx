@@ -1,5 +1,6 @@
 "use client"
 
+import { useNewParam } from "@/shared/hooks/useNewParam"
 import { MyWorkScopes } from "@/components/route-scopes"
 import { ConfirmDialog } from "@/components/confirm-dialog"
 import { EmptyValue } from "@/components/empty-value"
@@ -129,6 +130,9 @@ export function MyNotesPage() {
       },
     })
   }
+
+  // The sidebar's + menu: Catatan baru.
+  useNewParam(createNote, !readOnly)
 
   /** A copy of the note (title, text, to-dos), opened. */
   const duplicateNote = (note: Note) => {

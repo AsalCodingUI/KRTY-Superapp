@@ -1,5 +1,6 @@
 "use client"
 
+import { useNewParam } from "@/shared/hooks/useNewParam"
 import { useRealtimeRefresh } from "@/shared/hooks/useRealtimeRefresh"
 import { BRIEFS_KEY } from "@/page-slices/briefs/model/data"
 import { projectHref } from "@/shared/lib/url-params"
@@ -232,6 +233,11 @@ export function ProjectsListPage() {
 
   // Moving, editing and deleting: PMs (their list is only projects they're
   // on) and stakeholders.
+  // The sidebar's + menu: Project baru.
+  useNewParam(() => {
+    setEditingId(null)
+    setFormOpen(true)
+  }, canRun)
   const onMove = canRun ? changeStatus : undefined
   const actions: Omit<ProjectActions, "onMove"> | undefined = canRun
     ? {

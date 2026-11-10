@@ -1,5 +1,6 @@
 "use client"
 
+import { useNewParam } from "@/shared/hooks/useNewParam"
 import { useKeyboardShortcuts } from "@/shared/hooks/useKeyboardShortcuts"
 import { useT } from "@/shared/i18n/client"
 import { useTabRoute } from "@/shared/hooks/useTabRoute"
@@ -185,6 +186,9 @@ function CalendarContent({
     onNext: goToNext,
     onViewChange: handleViewChange,
   })
+
+  // The sidebar's + menu: Event baru.
+  useNewParam(() => setDialogOpen(true), canAdd)
 
   const waiting =
     viewMode !== "timeline" &&

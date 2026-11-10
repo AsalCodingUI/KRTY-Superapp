@@ -1,5 +1,6 @@
 "use client"
 
+import { useNewParam } from "@/shared/hooks/useNewParam"
 import { RollingValue } from "@/components/rolling-value"
 import { AttendanceHistoryList } from "@/app/(main)/attendance/components/AttendanceHistoryList"
 import { AttendanceSettings } from "@/page-slices/settings/ui"
@@ -184,6 +185,8 @@ export function EmployeeLeavePage({
     setEditingItem(item)
     setIsModalOpen(true)
   }, [])
+  // The sidebar's + menu: Ajukan cuti.
+  useNewParam(() => openRequest(null))
 
   const confirmDeleteRequest = async () => {
     if (!deleteLogId) return

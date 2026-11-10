@@ -1,5 +1,6 @@
 "use client"
 
+import { useNewParam } from "@/shared/hooks/useNewParam"
 import { RiAddLine } from "@/shared/ui/lucide-icons"
 import { cn } from "@/lib/utils"
 import { TAB_ENTER, useTabSwitched } from "@/shared/hooks/useTabSwitched"
@@ -501,6 +502,9 @@ export function StakeholderLeavePage({
     })
     setManualModalOpen(true)
   }
+
+  // The sidebar's + menu: record a leave (once the people have loaded).
+  useNewParam(openManualModal, profiles.length > 0)
 
   const handleManualSubmit = async () => {
     if (!manualForm.user_id) {

@@ -35,9 +35,12 @@ examples: **/ui** → Navigasi.
 
 The shell has no top bar from `md` up. The sidebar (Obvious-style, 288px
 / 18rem): the brand (20px app tile, the studio's name 15px semibold, a
-40px row level with the tab row); search (⌘K) as an outlined pill; the
-pages that are always there (`globalItems`: Beranda, Notifikasi — a row
-that opens the drawer, with the unread count —, Kalender, Tugas saya);
+40px row level with the tab row); "+ Baru" (`NewMenu`: the primary
+button, full width, label centred; a dropdown of what you can start —
+cuti, event, catatan, project for PMs up — each opening its page's own
+form via `?new=1` / `useNewParam`) with the bell (icon only) beside it;
+then Cari (⌘K) as a plain row and the pages that are always there
+(`globalItems`: Beranda, Kalender, Tugas saya);
 then Kantor | Project as a full-width segmented pill (`WorkspaceTabs`,
 12px above the list). Rows are pills (`rounded-full`), 30px tall, 2px
 apart, 12px from the sidebar's edge; icons start 22px from the edge,
