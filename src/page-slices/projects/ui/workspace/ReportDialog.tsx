@@ -401,7 +401,9 @@ export function ReportDialog({
         )}
         {open && ready && (
           <MarkdownDocEditor
-            key={report?.id ?? "new"}
+            // The editor reads `readOnly` once: remount when the right to edit
+            // arrives late (a PM's, known once the project team loads).
+            key={`${report?.id ?? "new"}:${canEdit}`}
             value={initialBody}
             ariaLabel={t("reportBody")}
             mentionProjectId={projectId}
