@@ -3,7 +3,7 @@
 import { useBreadcrumbTrail, type Crumb } from "@/components/page-breadcrumbs"
 import { matchProjectPath } from "@/shared/config/project-sections"
 import { useProjectSummary } from "@/shared/hooks/useProjectSummary"
-import { workspaces } from "@/shared/config/workspaces"
+import { globalItems, scopePages, workspaces } from "@/shared/config/workspaces"
 import { PROJECT_SECTION_KEYS } from "@/components/nav-project"
 import { useT } from "@/shared/i18n/client"
 import { usePathname } from "next/navigation"
@@ -20,10 +20,14 @@ import type { TabIcon } from "@/widgets/app-tabs/model/tabs-store"
 // Every nav item any role can see (static config, built once).
 let navItems: ReturnType<(typeof workspaces)[number]["items"]> | undefined
 const allNavItems = () =>
-  (navItems ??= workspaces.flatMap((ws) => [
-    ...ws.items({ role: "stakeholder", is_super_admin: true }),
-    ...ws.items({ role: "employee" }),
-  ]))
+  (navItems ??= [
+    ...globalItems(),
+    ...scopePages(),
+    ...workspaces.flatMap((ws) => [
+      ...ws.items({ role: "stakeholder", is_super_admin: true }),
+      ...ws.items({ role: "employee" }),
+    ]),
+  ])
 
 /** Current section, taken from the navigation config (fallback: path). */
 function useSection(): Crumb {

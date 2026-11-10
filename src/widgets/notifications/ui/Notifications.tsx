@@ -8,11 +8,14 @@ import { useT } from "@/shared/i18n/client"
 import { cx, focusRing } from "@/shared/lib/utils"
 import { RiNotification3Line } from "@/shared/ui/lucide-icons"
 import { Sheet } from "@/components/ui/sheet"
+import { NavBadge } from "@/components/nav-main"
+import { SidebarMenuButton, SidebarMenuItem } from "@/components/ui/sidebar"
 import dynamic from "next/dynamic"
 import { useCallback, useState } from "react"
 
 interface NotificationsProps {
-  variant?: "default" | "icon"
+  /** "row": a sidebar menu row (icon, label, unread count). */
+  variant?: "default" | "icon" | "row"
   className?: string
 }
 
@@ -53,21 +56,67 @@ export function Notifications({
   useNotificationsRealtime()
   const [isOpen, setIsOpen] = useState(false)
   const t = useT("shell")
+  const tNav = useT("nav")
   // The drawer loads on first open, then stays mounted for its exit animation.
   const [hasOpened, setHasOpened] = useState(false)
   const close = useCallback(() => setIsOpen(false), [])
 
+  const toggle = () => {
+    const nextOpen = !isOpen
+    setIsOpen(nextOpen)
+    if (nextOpen) {
+      setHasOpened(true)
+      requestDesktopPermission()
+    }
+  }
+
+  const panel = (
+    <Sheet open={isOpen} onOpenChange={setIsOpen}>
+      {hasOpened && (
+        <NotificationsPanel
+          onClose={close}
+          notifications={notifications}
+          unreadCount={unreadCount}
+          loading={loading}
+          isError={isError}
+          markAsRead={markAsRead}
+          markAsUnread={markAsUnread}
+          markAllAsRead={markAllAsRead}
+          deleteNotification={deleteNotification}
+        />
+      )}
+    </Sheet>
+  )
+
+  if (variant === "row")
+    return (
+      <SidebarMenuItem>
+        <SidebarMenuButton
+          tooltip={tNav("notifications")}
+          onClick={toggle}
+          onPointerEnter={preloadPanel}
+          onFocus={preloadPanel}
+          className={cx("not-data-active:blend-ink", className)}
+        >
+          <RiNotification3Line />
+          <span className="truncate">{tNav("notifications")}</span>
+          <NavBadge count={unreadCount} />
+          {unreadCount > 0 && (
+            // Collapsed to icons: the count hides, a dot stays.
+            <span
+              aria-hidden
+              className="bg-primary absolute top-1 right-1 hidden size-1.5 rounded-full group-data-[collapsible=icon]:block"
+            />
+          )}
+        </SidebarMenuButton>
+        {panel}
+      </SidebarMenuItem>
+    )
+
   return (
     <>
       <button
-        onClick={() => {
-          const nextOpen = !isOpen
-          setIsOpen(nextOpen)
-          if (nextOpen) {
-            setHasOpened(true)
-            requestDesktopPermission()
-          }
-        }}
+        onClick={toggle}
         onPointerEnter={preloadPanel}
         onFocus={preloadPanel}
         className={cx(
@@ -116,21 +165,7 @@ export function Notifications({
         )}
       </button>
 
-      <Sheet open={isOpen} onOpenChange={setIsOpen}>
-        {hasOpened && (
-          <NotificationsPanel
-            onClose={close}
-            notifications={notifications}
-            unreadCount={unreadCount}
-            loading={loading}
-            isError={isError}
-            markAsRead={markAsRead}
-            markAsUnread={markAsUnread}
-            markAllAsRead={markAllAsRead}
-            deleteNotification={deleteNotification}
-          />
-        )}
-      </Sheet>
+      {panel}
     </>
   )
 }

@@ -14,7 +14,6 @@ import {
   installUpdate,
   type AppPlatform,
 } from "@/shared/lib/desktop-app"
-import { useWhatsNewNotice } from "@/page-slices/whats-new/ui/whats-new-notice"
 import { Download, RotateCw, X } from "@/components/icons"
 import { Fragment, useEffect, useState, type ReactNode } from "react"
 
@@ -31,7 +30,6 @@ import { Fragment, useEffect, useState, type ReactNode } from "react"
 
 export const NOTICE_PRIORITY = {
   update: 0,
-  whatsNew: 1,
   downloadMac: 2,
 } as const
 
@@ -222,8 +220,6 @@ function useDownloadMacNotice(): SidebarNotice | null {
 function useNotices(): (SidebarNotice | null)[] {
   return [
     useUpdateNotice(),
-    // Yang baru: unseen entries (page-slices/whats-new).
-    useWhatsNewNotice(NOTICE_PRIORITY.whatsNew),
     useDownloadMacNotice(),
   ]
 }

@@ -71,11 +71,6 @@ const id = {
   copyTitle: "Salin judul",
   copied: "Disalin",
 
-  noticeTitle: "Ada yang baru",
-  noticeWeek: "{n} update minggu ini · lihat panduannya",
-  noticeMore: "{n} update baru · lihat panduannya",
-  noticeAreas: "Update di {n} bagian · lihat panduan",
-  noticeAction: "Buka Yang baru",
 
   // Writing (stakeholders)
   write: "Tulis update",
@@ -200,11 +195,6 @@ const en: Record<keyof typeof id, string> = {
   copyTitle: "Copy title",
   copied: "Copied",
 
-  noticeTitle: "Something new",
-  noticeWeek: "{n} updates this week · see the guides",
-  noticeMore: "{n} new updates · see the guides",
-  noticeAreas: "Updates in {n} areas · see guides",
-  noticeAction: "Open What's new",
 
   write: "Write an update",
   edit: "Edit",

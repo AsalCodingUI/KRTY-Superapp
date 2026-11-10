@@ -53,6 +53,8 @@ export type CalendarShellProps = {
   /** Views in the switch; the first is the default. */
   views: ViewMode[]
   basePath: string
+  /** Above the toolbar, where a page title would be (the scope switch). */
+  header?: ReactNode
   /** Merge in the user's Google Calendar (personal calendar only). */
   withGoogle: boolean
   blockedGoogleEventIds?: string[]
@@ -74,6 +76,7 @@ function CalendarContent({
   categories,
   views,
   basePath,
+  header,
   withGoogle,
   blockedGoogleEventIds,
   onEventOpen,
@@ -197,6 +200,7 @@ function CalendarContent({
           "flex min-h-[520px] flex-col gap-4 pt-6",
         )}
       >
+        {header}
         <CalendarToolbar
           onAddEvent={() => setDialogOpen(true)}
           showAddEvent={canAdd}

@@ -17,6 +17,7 @@ import {
 import { Kbd, KbdGroup } from "@/components/ui/kbd"
 import { Spinner } from "@/components/ui/spinner"
 import { useWorkspaceNav } from "@/components/workspace-nav"
+import { globalItems, scopePages } from "@/shared/config/workspaces"
 import { cn } from "@/lib/utils"
 import { useUserProfile } from "@/shared/hooks/useUserProfile"
 import { useT } from "@/shared/i18n/client"
@@ -164,6 +165,10 @@ function SearchPanel({
       icons.set(hit.href, icon)
       out.push({ ...hit, id: `page:${hit.href}`, kind: "pages" })
     }
+    // The top block and the scope pages (Sharing Santuy, Catatan) first;
+    // every calendar and those pages are open to everyone.
+    for (const item of [...globalItems(), ...scopePages()])
+      add({ title: tNav(item.name), href: item.href }, item.icon)
     for (const ws of visible) {
       for (const item of ws.items) {
         add(

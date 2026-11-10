@@ -34,12 +34,14 @@ examples: **/ui** → Navigasi.
 ## App tabs
 
 The shell has no top bar from `md` up. The sidebar's top: the brand;
-the workspaces as icon + label tabs (`WorkspaceTabs`, not a segmented
-control; same 16px icon and 14px text as the nav rows, optical padding 10 / 12px, gap 8; the sidebar is 15.5rem by default and never narrower, so both tabs and the bell fit)
-with the bell (icon only) at that row's end; search (⌘K, an outlined
-pill). Its bottom: notices, What's new, Settings, the account row (same
-list, same icon column), then theme and chrome color; language lives in
-Settings only. Sidebar icons centre on one column (30px from the edge),
+search (⌘K, an outlined pill); the pages that are always there, whatever
+the workspace (`globalItems`: Beranda, Notifikasi, Kalender, Tugas saya;
+Notifikasi is a row that opens the drawer, with the unread count); then
+the workspaces as icon + label tabs (`WorkspaceTabs`, Kantor | Project,
+not a segmented control; same 16px icon and 14px text as the nav rows,
+optical padding 10 / 12px, gap 8). Its bottom: notices, What's new,
+Settings, the account row (same list, same icon column), then theme and
+chrome color; language lives in Settings only. Sidebar icons centre on one column (30px from the edge),
 labels start at 48px, rows sit 4px apart. Above the page sheet, on the
 chrome: the sidebar toggle, ‹ › (the active tab's history), then the
 tabs, level with the brand row. The Mac app keeps its toggle by the
@@ -148,11 +150,19 @@ tabular-nums`, hidden at 0; badge.md).
 
 **Sidebar**
 
-- Pages come from `shared/config/workspaces.ts`; the active page is the
-  longest matching href. One sliding active fill (`bg-sidebar-active`
+- Pages come from `shared/config/workspaces.ts`: `globalItems` (the top
+  block), each workspace's `items`, and `scopePages` (pages with no row of
+  their own, named for tab titles and search). The active page is the
+  longest matching href (or `match` prefix) across the top block and the
+  open workspace. One sliding active fill (`bg-sidebar-active`
   = `--chrome-selected`: a darker see-through fill, flat, no shadow)
-  across rows; the Personal | Project tabs use the same fill. The white
+  across rows; the Kantor | Project tabs use the same fill. The white
   raised pill is only for the app tabs.
+- Switching workspace only swaps the list; the page stays. Opening a
+  workspace's page (by link) selects its tab; a global page keeps it.
+- Sibling pages behind one row switch with `RouteScopes` as the page
+  title: Kalender (Saya / Project / Sharing Santuy), Tugas saya (Tugas /
+  Catatan).
 - Row extras: count `badge` (`NavBadge`, 99+), `dot` for "new" without a
   count (`NavDot`), sub-tabs listed under the open page.
 - Inside a project the sidebar swaps to `NavProject` (← Semua project,

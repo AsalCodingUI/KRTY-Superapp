@@ -1,5 +1,6 @@
 "use client"
 
+import { MyWorkScopes } from "@/components/route-scopes"
 import { useIsMobile } from "@/hooks/use-mobile"
 import { linkKey, projectHref } from "@/shared/lib/url-params"
 import { ConfirmDialog } from "@/components/confirm-dialog"
@@ -294,7 +295,7 @@ export function MyTasksPage() {
   return (
     <div className="flex flex-col">
       <PageHeader
-        title={t("myTasksTitle")}
+        title={<MyWorkScopes />}
         actions={
           !empty && (
             <>

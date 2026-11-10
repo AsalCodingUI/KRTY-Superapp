@@ -49,10 +49,14 @@ import {
 import { createClient } from "@/shared/api/supabase/client"
 import { matchProjectPath } from "@/shared/config/project-sections"
 import {
+  globalItems,
+  itemMatch,
   matchesRoute,
   resolveActiveChild,
+  type WorkspaceItem,
   type WorkspaceProfile,
 } from "@/shared/config/workspaces"
+import { accessLevel, canOpenPage } from "@/shared/config/access"
 import { useUserProfile } from "@/shared/hooks/useUserProfile"
 import { useTabSwitched } from "@/shared/hooks/useTabSwitched"
 import { useT } from "@/shared/i18n/client"
@@ -153,7 +157,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   const { profile } = useUserProfile()
   const { loading, active, badges } = useWorkspaceNav()
   // A project's own menu only while the Project workspace is shown (right
-  // after switching to Pribadi it gives way before the route changes).
+  // after switching to Kantor it gives way before the route changes).
   const projectPath =
     active?.id === "project" ? matchProjectPath(pathname) : null
   const { state: sidebarState } = useSidebar()
@@ -175,40 +179,59 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
     active?.id === "project",
   )
 
-  // Longest matching href is the active page (so /calendar/personal does
-  // not also light up /calendar).
-  const activeHref = React.useMemo(
-    () =>
-      active?.items
-        .filter((item) => matchesRoute(pathname, item.href))
-        .sort((a, b) => b.href.length - a.href.length)[0]?.href,
-    [active, pathname],
-  )
+  // The top block, for whoever can open each page.
+  const topItems = React.useMemo(() => {
+    if (!profile) return []
+    const level = accessLevel(profile as WorkspaceProfile)
+    return globalItems().filter((item) => canOpenPage(item.href, level))
+  }, [profile])
 
+  // The best-matching row across the top block and the workspace's list is
+  // the active page (so /calendar/santuy lights Kalender, /leave Cuti).
+  const activeHref = React.useMemo(() => {
+    let best: { href: string; length: number } | null = null
+    for (const item of [...topItems, ...(active?.items ?? [])]) {
+      const length = itemMatch(pathname, item)
+      if (length && (!best || length > best.length))
+        best = { href: item.href, length }
+    }
+    return best?.href
+  }, [active, topItems, pathname])
+
+  const toNav = React.useCallback(
+    (item: WorkspaceItem) => {
+      const children = (item.children ?? []).filter(
+        (c) => !c.can || c.can(profile as WorkspaceProfile),
+      )
+      const activeChild =
+        item.href === activeHref
+          ? resolveActiveChild(pathname, children)
+          : undefined
+      return {
+        title: t(item.name),
+        url: item.href,
+        icon: <item.icon />,
+        isActive: item.href === activeHref,
+        badge: badges[item.href],
+        items: children.map((c) => ({
+          title: t(c.name),
+          url: c.href,
+          isActive: c.href === activeChild,
+          badge: badges[c.href],
+        })),
+      }
+    },
+    [activeHref, badges, pathname, profile, t],
+  )
   const navItems = React.useMemo(
-    () =>
-      active?.items.map((item) => {
-        const children = (item.children ?? []).filter(
-          (c) => !c.can || c.can(profile as WorkspaceProfile),
-        )
-        const activeChild =
-          item.href === activeHref
-            ? resolveActiveChild(pathname, children)
-            : undefined
-        return {
-          title: t(item.name),
-          url: item.href,
-          icon: <item.icon />,
-          isActive: item.href === activeHref,
-          items: children.map((c) => ({
-            title: t(c.name),
-            url: c.href,
-            isActive: c.href === activeChild,
-            badge: badges[c.href],
-          })),
-        }
-      }),
-    [active, activeHref, badges, pathname, profile, t],
+    () => active?.items.map(toNav),
+    [active, toNav],
+  )
+  const topNav = React.useMemo(() => topItems.map(toNav), [topItems, toNav])
+  // Notifikasi after Beranda.
+  const topSlots = React.useMemo(
+    () => ({ 1: <Notifications variant="row" /> }),
+    [],
   )
 
   return (
@@ -221,10 +244,10 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
       {...props}
     >
       <SidebarRail />
-      {/* What the top bar used to hold: the brand, the workspaces as tabs
-          with the bell at their end, then search (⌘K). The sidebar toggle
-          and ‹ › lead the tab row above the page (site-header.tsx).
-          Collapsed: the mark, the bell and search, icons only. */}
+      {/* The brand, search (⌘K), the pages that are always there (Beranda,
+          Notifikasi, Kalender, Tugas saya), then the workspaces as tabs. The
+          sidebar toggle and ‹ › lead the tab row above the page
+          (site-header.tsx). Collapsed: icons only, no tabs. */}
       <SidebarHeader
         // px-3: the same 12px edge as the menu rows below.
         className={cn("gap-3 px-3 pb-3", desktop ? "pt-1" : "pt-3")}
@@ -247,15 +270,12 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
             </span>
           </PrefetchLink>
         </div>
-        {/* Workspaces as tabs, the bell at the row's end. */}
-        <div className="flex items-center justify-between gap-1 group-data-[collapsible=icon]:justify-center">
-          <WorkspaceTabs className="group-data-[collapsible=icon]:hidden" />
-          <Notifications
-            variant="icon"
-            className="size-7 group-data-[collapsible=icon]:size-8"
-          />
-        </div>
         <GlobalSearch />
+        {/* The group's own padding off: the header already sets the edge. */}
+        <div className="-mx-3 [&>[data-sidebar=group]]:py-0">
+          <NavMain items={topNav} slots={topSlots} />
+        </div>
+        <WorkspaceTabs className="group-data-[collapsible=icon]:hidden" />
       </SidebarHeader>
       {/* First row starts level with the top of the page sheet. */}
       <SidebarContent>

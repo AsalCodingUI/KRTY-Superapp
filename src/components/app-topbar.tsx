@@ -123,7 +123,7 @@ export function AppTopbar() {
 }
 
 /**
- * Pribadi / Project as tabs at the sidebar's top: icon + label, the active
+ * Kantor / Project as tabs at the sidebar's top: icon + label, the active
  * one on the sidebar's active fill, a dot on the other when it has
  * something new. Not a segmented control.
  */

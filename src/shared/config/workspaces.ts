@@ -19,7 +19,7 @@ import {
   RiFolderLine,
   RiGroupLine,
   RiHome2Line,
-  RiUserLine,
+  RiUserSmileLine,
   RiWalletLine,
 } from "@/shared/ui/lucide-icons"
 
@@ -56,6 +56,8 @@ export interface WorkspaceItem {
   can?: (profile: WorkspaceProfile) => boolean
   /** The page's tabs, shown nested under it while it is open. */
   children?: WorkspaceSubItem[]
+  /** More paths that light this row up (pages reached from inside it). */
+  match?: string[]
 }
 
 export interface Workspace {
@@ -72,26 +74,51 @@ const isAdmin = (p: WorkspaceProfile) => isAdminRole(p.role)
 const isPmUp = (p: WorkspaceProfile) => accessLevel(p) !== "employee"
 const links = siteConfig.baseLinks
 
+/**
+ * Always at the top of the sidebar, whichever workspace is open: the pages
+ * you reach for every day. Notifications sit among them (app-sidebar.tsx).
+ */
+export const globalItems = (): WorkspaceItem[] => [
+  { name: "home", href: links.dashboard, icon: RiHome2Line },
+  // One calendar: yours first; the project calendar and Sharing Santuy
+  // are its scopes (CalendarScopes).
+  {
+    name: "calendar",
+    href: `${links.calendar}/personal`,
+    icon: RiCalendarLine,
+    match: [links.calendar],
+  },
+  // Your tasks across projects, with your notes as the page's other scope.
+  {
+    name: "myTasks",
+    href: `${links.projects}/my-tasks`,
+    icon: RiCheckboxCircleLine,
+    match: [`${links.projects}/my-notes`],
+  },
+]
+
+/**
+ * Pages with no row of their own (a scope of another page): named here so
+ * tab titles and search still find them.
+ */
+export const scopePages = (): WorkspaceItem[] => [
+  { name: "sharingSantuy", href: `${links.calendar}/santuy`, icon: RiCupLine },
+  { name: "calendarProject", href: links.calendar, icon: RiCalendarLine },
+  {
+    name: "myNotes",
+    href: `${links.projects}/my-notes`,
+    icon: RiStickyNoteLine,
+  },
+]
+
 export const workspaces: Workspace[] = [
   {
+    // Running the office: what's yours for members, everyone's for
+    // stakeholders (each page decides by role).
     id: "personal",
     name: "workspacePersonal",
-    icon: RiUserLine,
+    icon: RiBuildingLine,
     items: (p) => [
-      { name: "home", href: links.dashboard, icon: RiHome2Line },
-      // Your own agenda: events, 1:1s, leave, task deadlines, Sharing Santuy.
-      {
-        name: "calendar",
-        href: `${links.calendar}/personal`,
-        icon: RiCalendarLine,
-      },
-      // Who presents at the weekly sharing; everyone reads, PMs and
-      // stakeholders edit the queue.
-      {
-        name: "sharingSantuy",
-        href: `${links.calendar}/santuy`,
-        icon: RiCupLine,
-      },
       // Stakeholders also manage the team from here.
       ...(isAdmin(p)
         ? ([
@@ -171,30 +198,16 @@ export const workspaces: Workspace[] = [
     name: "workspaceProject",
     icon: RiBriefcaseLine,
     items: () => [
-      // First item = where switching to this workspace lands.
       {
         name: "projects",
         href: links.projects,
         icon: RiFolderLine,
       },
-      // The viewer's tasks across all their projects.
-      {
-        name: "myTasks",
-        href: `${links.projects}/my-tasks`,
-        icon: RiCheckboxCircleLine,
-      },
-      // The viewer's private notes and to-do lists.
-      {
-        name: "myNotes",
-        href: `${links.projects}/my-notes`,
-        icon: RiStickyNoteLine,
-      },
-      { name: "calendar", href: links.calendar, icon: RiCalendarLine },
       // Who we work for; PMs and stakeholders.
       {
         name: "clients",
         href: links.clients,
-        icon: RiBuildingLine,
+        icon: RiUserSmileLine,
         can: isPmUp,
       },
       // Project templates (phases → steps → tasks); PMs and stakeholders.
@@ -220,26 +233,38 @@ export function matchesRoute(pathname: string, href: string) {
   return pathname === href || pathname.startsWith(`${href}/`)
 }
 
+/** How well an item matches the path: its longest matching prefix, or 0. */
+export function itemMatch(pathname: string, item: WorkspaceItem) {
+  return Math.max(
+    0,
+    ...[item.href, ...(item.match ?? [])]
+      .filter((href) => matchesRoute(pathname, href))
+      .map((href) => href.length),
+  )
+}
+
 /**
  * The workspace whose page best matches the path (longest href wins), so
- * /projects/<id> lands in Project and /calendar/personal in Personal.
+ * /projects/<id> lands in Project and /leave in Kantor. Null on a global
+ * page (Beranda, Kalender, Tugas saya): the sidebar keeps its workspace.
  */
 export function resolveWorkspace(
   pathname: string,
   visible: { id: WorkspaceId; items: WorkspaceItem[] }[],
-): WorkspaceId {
+): WorkspaceId | null {
+  const global = Math.max(
+    0,
+    ...globalItems().map((item) => itemMatch(pathname, item)),
+  )
   let best: { id: WorkspaceId; length: number } | null = null
   for (const ws of visible) {
     for (const item of ws.items) {
-      if (
-        matchesRoute(pathname, item.href) &&
-        (!best || item.href.length > best.length)
-      ) {
-        best = { id: ws.id, length: item.href.length }
-      }
+      const length = itemMatch(pathname, item)
+      if (length > global && (!best || length > best.length))
+        best = { id: ws.id, length }
     }
   }
-  return best?.id ?? "personal"
+  return best?.id ?? null
 }
 
 /**

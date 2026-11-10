@@ -19,13 +19,13 @@ import { PrefetchLink } from "@/components/prefetch-link"
 import { useT } from "@/shared/i18n/client"
 import { ContextTarget } from "@/shared/context-menu"
 import { usePathname } from "next/navigation"
-import { memo, useEffect, useRef, useState } from "react"
+import { Fragment, memo, useEffect, useRef, useState } from "react"
 
 /**
  * Count of things waiting on this page; hidden when zero. It pops when the
  * count goes up while you're here (not on first load), so new work is seen.
  */
-function NavBadge({ count }: { count?: number }) {
+export function NavBadge({ count }: { count?: number }) {
   const previous = useRef(count)
   const [pops, setPops] = useState(0)
   useEffect(() => {
@@ -65,8 +65,11 @@ function NavDot() {
 export const NavMain = memo(function NavMain({
   label,
   items,
+  slots,
 }: {
   label?: string
+  /** Rows that aren't links (e.g. Notifikasi), placed before item [index]. */
+  slots?: Record<number, React.ReactNode>
   items: {
     title: string
     url: string
@@ -101,7 +104,7 @@ export const NavMain = memo(function NavMain({
           activeSelector="[data-active]"
           className="bg-sidebar-active rounded-full"
         />
-        {items.map((item) => {
+        {items.map((item, index) => {
           const nested = (item.items?.length ?? 0) > 1
           const childActive = item.items?.some((sub) => sub.isActive) ?? false
           const here = Boolean(item.isActive) || childActive
@@ -109,95 +112,105 @@ export const NavMain = memo(function NavMain({
             nested &&
             (here ? !collapsed.includes(item.url) : expanded.includes(item.url))
           return (
-            <SidebarMenuItem key={item.title}>
-              {/* Right-click: Buka / Buka di tab baru / Salin link. */}
-              <ContextTarget type="nav" label={item.title} href={item.url}>
-                <SidebarMenuButton
-                  tooltip={item.title}
-                  // With the tabs listed, the active tab is highlighted instead.
-                  isActive={item.isActive && !(open && childActive)}
-                  className={cn(
-                    "not-data-active:blend-ink data-active:bg-transparent",
-                    nested && "pr-8",
-                  )}
-                  render={<PrefetchLink href={item.url} />}
-                >
-                  {item.icon}
-                  <span className="truncate">{item.title}</span>
-                  {item.dot && !item.badge && <NavDot />}
-                  {/* The tabs show their own counts while listed. */}
-                  {!open && (
-                    <NavBadge
-                      count={
-                        item.badge ??
-                        item.items?.reduce((n, sub) => n + (sub.badge ?? 0), 0)
-                      }
+            <Fragment key={item.title}>
+              {slots?.[index]}
+              <SidebarMenuItem>
+                {/* Right-click: Buka / Buka di tab baru / Salin link. */}
+                <ContextTarget type="nav" label={item.title} href={item.url}>
+                  <SidebarMenuButton
+                    tooltip={item.title}
+                    // With the tabs listed, the active tab is highlighted instead.
+                    isActive={item.isActive && !(open && childActive)}
+                    className={cn(
+                      "not-data-active:blend-ink data-active:bg-transparent",
+                      nested && "pr-8",
+                    )}
+                    render={<PrefetchLink href={item.url} />}
+                  >
+                    {item.icon}
+                    <span className="truncate">{item.title}</span>
+                    {item.dot && !item.badge && <NavDot />}
+                    {/* The tabs show their own counts while listed. */}
+                    {!open && (
+                      <NavBadge
+                        count={
+                          item.badge ??
+                          item.items?.reduce(
+                            (n, sub) => n + (sub.badge ?? 0),
+                            0,
+                          )
+                        }
+                      />
+                    )}
+                  </SidebarMenuButton>
+                </ContextTarget>
+                {nested && (
+                  <SidebarMenuAction
+                    aria-label={
+                      open
+                        ? t("navCollapse", { name: item.title })
+                        : t("navExpand", { name: item.title })
+                    }
+                    aria-expanded={open}
+                    className="text-muted-foreground top-1.5! right-1.5"
+                    onClick={() => {
+                      // The current group remembers being closed; others
+                      // just toggle for this visit.
+                      if (here)
+                        setCollapsed(
+                          open
+                            ? [...collapsed, item.url]
+                            : collapsed.filter((url) => url !== item.url),
+                        )
+                      else
+                        setExpanded(
+                          open
+                            ? expanded.filter((url) => url !== item.url)
+                            : [...expanded, item.url],
+                        )
+                    }}
+                  >
+                    <ChevronRight
+                      className={cn(
+                        "transition-transform",
+                        open && "rotate-90",
+                      )}
                     />
-                  )}
-                </SidebarMenuButton>
-              </ContextTarget>
-              {nested && (
-                <SidebarMenuAction
-                  aria-label={
-                    open
-                      ? t("navCollapse", { name: item.title })
-                      : t("navExpand", { name: item.title })
-                  }
-                  aria-expanded={open}
-                  className="text-muted-foreground top-1.5! right-1.5"
-                  onClick={() => {
-                    // The current group remembers being closed; others
-                    // just toggle for this visit.
-                    if (here)
-                      setCollapsed(
-                        open
-                          ? [...collapsed, item.url]
-                          : collapsed.filter((url) => url !== item.url),
-                      )
-                    else
-                      setExpanded(
-                        open
-                          ? expanded.filter((url) => url !== item.url)
-                          : [...expanded, item.url],
-                      )
-                  }}
-                >
-                  <ChevronRight
-                    className={cn("transition-transform", open && "rotate-90")}
-                  />
-                </SidebarMenuAction>
-              )}
-              {nested && (
-                <Collapse open={open}>
-                  <SidebarMenuSub>
-                    {item.items!.map((subItem) => (
-                      <SidebarMenuSubItem key={subItem.url}>
-                        <ContextTarget
-                          type="nav"
-                          label={subItem.title}
-                          href={subItem.url}
-                        >
-                          <SidebarMenuSubButton
-                            isActive={subItem.isActive}
-                            // Line the badge up with the parent row's chevron.
-                            className={cn(
-                              "not-data-active:blend-ink data-active:bg-transparent",
-                              subItem.badge && "pr-1.5",
-                            )}
-                            render={<PrefetchLink href={subItem.url} />}
+                  </SidebarMenuAction>
+                )}
+                {nested && (
+                  <Collapse open={open}>
+                    <SidebarMenuSub>
+                      {item.items!.map((subItem) => (
+                        <SidebarMenuSubItem key={subItem.url}>
+                          <ContextTarget
+                            type="nav"
+                            label={subItem.title}
+                            href={subItem.url}
                           >
-                            <span className="truncate">{subItem.title}</span>
-                            <NavBadge count={subItem.badge} />
-                          </SidebarMenuSubButton>
-                        </ContextTarget>
-                      </SidebarMenuSubItem>
-                    ))}
-                  </SidebarMenuSub>
-                </Collapse>
-              )}
-            </SidebarMenuItem>
+                            <SidebarMenuSubButton
+                              isActive={subItem.isActive}
+                              // Line the badge up with the parent row's chevron.
+                              className={cn(
+                                "not-data-active:blend-ink data-active:bg-transparent",
+                                subItem.badge && "pr-1.5",
+                              )}
+                              render={<PrefetchLink href={subItem.url} />}
+                            >
+                              <span className="truncate">{subItem.title}</span>
+                              <NavBadge count={subItem.badge} />
+                            </SidebarMenuSubButton>
+                          </ContextTarget>
+                        </SidebarMenuSubItem>
+                      ))}
+                    </SidebarMenuSub>
+                  </Collapse>
+                )}
+              </SidebarMenuItem>
+            </Fragment>
           )
         })}
+        {slots?.[items.length]}
       </SidebarMenu>
     </SidebarGroup>
   )

@@ -4,11 +4,13 @@
  * every key.
  */
 const id = {
-  workspacePersonal: "Pribadi",
+  workspacePersonal: "Kantor",
   workspaceProject: "Project",
 
   home: "Beranda",
   calendar: "Kalender",
+  calendarProject: "Kalender project",
+  calendarMine: "Saya",
   sharingSantuy: "Sharing Santuy",
   mobileTasks: "Tugas",
   mobileLeave: "Cuti",
@@ -31,6 +33,8 @@ const id = {
   projects: "Project",
   myTasks: "Tugas saya",
   myNotes: "Catatan saya",
+  myNotesShort: "Catatan",
+  myTasksShort: "Tugas",
   clients: "Klien",
   processes: "Proses",
   paymentMethods: "Pembayaran",
@@ -52,11 +56,13 @@ const id = {
 }
 
 const en: Record<keyof typeof id, string> = {
-  workspacePersonal: "Personal",
+  workspacePersonal: "Office",
   workspaceProject: "Project",
 
   home: "Home",
   calendar: "Calendar",
+  calendarProject: "Project calendar",
+  calendarMine: "Mine",
   sharingSantuy: "Sharing Santuy",
   mobileTasks: "Tasks",
   mobileLeave: "Leave",
@@ -79,6 +85,8 @@ const en: Record<keyof typeof id, string> = {
   projects: "Projects",
   myTasks: "My tasks",
   myNotes: "My notes",
+  myNotesShort: "Notes",
+  myTasksShort: "Tasks",
   clients: "Clients",
   processes: "Processes",
   paymentMethods: "Payments",

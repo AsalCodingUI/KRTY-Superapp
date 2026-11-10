@@ -13,7 +13,7 @@ import {
 } from "@/shared/config/workspaces"
 import { accessLevel, canOpenPage } from "@/shared/config/access"
 import { useUserProfile } from "@/shared/hooks/useUserProfile"
-import { usePathname, useRouter } from "next/navigation"
+import { usePathname } from "next/navigation"
 
 type VisibleWorkspace = Omit<Workspace, "items"> & { items: WorkspaceItem[] }
 
@@ -23,9 +23,7 @@ type WorkspaceNav = {
   active: VisibleWorkspace | undefined
   /** The workspace the current route belongs to (lags `active` on switch). */
   routeId: WorkspaceId
-  /** Switched, and the new workspace's page is still loading. */
-  pending: boolean
-  /** Switch workspace: opens its first page (e.g. Project → /projects). */
+  /** Switch workspace: swaps the sidebar's list; the page stays. */
   select: (id: WorkspaceId) => void
   badges: Record<string, number>
   hasBadge: (ws: VisibleWorkspace) => boolean
@@ -63,34 +61,32 @@ export function WorkspaceNavProvider({
       .filter((ws) => ws.items.length > 0)
   }, [profile])
 
-  const routeWorkspace = resolveWorkspace(pathname, visible)
+  // A global page (Beranda, Kalender, Tugas saya) belongs to no workspace:
+  // the sidebar keeps the one it showed.
+  const routeMatch = resolveWorkspace(pathname, visible)
+  const [lastRoute, setLastRoute] = React.useState<WorkspaceId>(
+    routeMatch ?? "personal",
+  )
+  if (routeMatch && routeMatch !== lastRoute) setLastRoute(routeMatch)
+  const routeWorkspace = routeMatch ?? lastRoute
+  // A tab picked by hand holds until the route moves to another workspace.
   const [selected, setSelected] = React.useState<WorkspaceId | null>(null)
-  React.useEffect(() => setSelected(null), [routeWorkspace])
+  const [selectedAt, setSelectedAt] = React.useState(routeWorkspace)
+  if (selectedAt !== routeWorkspace) {
+    setSelectedAt(routeWorkspace)
+    setSelected(null)
+  }
   const activeId = selected ?? routeWorkspace
   const active = visible.find((ws) => ws.id === activeId) ?? visible[0]
 
-  // Switching lands on the workspace's first page, wherever you were (a
-  // project's tab, a personal page…), so the page never stays behind. The
-  // sidebar switches right away; the route follows.
-  const router = useRouter()
+  // Switching only swaps the list, like Fibery's Workspace | Personal: the
+  // page stays (Beranda and the rest of the top block are always there).
   const select = React.useCallback(
     (id: WorkspaceId) => {
-      if (id === active?.id) return
-      setSelected(id)
-      const first = visible.find((ws) => ws.id === id)?.items[0]?.href
-      if (first) router.push(first)
+      if (id !== active?.id) setSelected(id)
     },
-    [active?.id, visible, router],
+    [active?.id],
   )
-  // Warm each workspace's landing page so a switch doesn't wait on it.
-  React.useEffect(() => {
-    for (const ws of visible) {
-      const first = ws.items[0]?.href
-      if (first) router.prefetch(first)
-    }
-  }, [visible, router])
-  const pending = selected !== null && selected !== routeWorkspace
-
   const badges = useNavBadges(
     profile ? { id: profile.id, role: profile.role } : null,
   )
@@ -110,21 +106,11 @@ export function WorkspaceNavProvider({
       visible,
       active,
       routeId: routeWorkspace,
-      pending,
       select,
       badges,
       hasBadge,
     }),
-    [
-      profileLoading,
-      visible,
-      active,
-      routeWorkspace,
-      pending,
-      select,
-      badges,
-      hasBadge,
-    ],
+    [profileLoading, visible, active, routeWorkspace, select, badges, hasBadge],
   )
 
   return (

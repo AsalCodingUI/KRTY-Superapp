@@ -1,5 +1,6 @@
 "use client"
 
+import { MyWorkScopes } from "@/components/route-scopes"
 import { ConfirmDialog } from "@/components/confirm-dialog"
 import { EmptyValue } from "@/components/empty-value"
 import { RichTextField } from "@/components/rich-text-field"
@@ -227,7 +228,7 @@ export function MyNotesPage() {
     // right, leaving the same gap before it as the page gutter on the left.
     <div className="flex flex-col lg:pr-[27.75rem]">
       <PageHeader
-        title={t("myNotesTitle")}
+        title={<MyWorkScopes />}
         actions={
           readOnly ? (
             <Badge variant="secondary">

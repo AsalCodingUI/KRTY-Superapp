@@ -1,5 +1,6 @@
 "use client"
 
+import { CalendarScopes } from "@/components/route-scopes"
 import { useRealtimeRefresh } from "@/shared/hooks/useRealtimeRefresh"
 import { useIsMobile } from "@/hooks/use-mobile"
 import {
@@ -880,6 +881,7 @@ function CalendarDataLayer({ scope, level, userId }: CalendarClientProps) {
         categories={categories}
         views={views}
         basePath={config.basePath}
+        header={<CalendarScopes />}
         withGoogle={personal}
         blockedGoogleEventIds={blockedGoogleEventIds}
         onEventOpen={handleEventOpen}
