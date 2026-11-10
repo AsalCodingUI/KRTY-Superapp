@@ -3,7 +3,6 @@
 import * as React from "react"
 import { cn } from "@/lib/utils"
 import { siteConfig } from "@/app/siteConfig"
-import { AppIcon } from "@/components/app-icon"
 import { useMacChrome } from "@/components/desktop-shell"
 import { AccountMenu, WorkspaceTabs } from "@/components/app-topbar"
 import { GlobalSearch } from "@/widgets/global-search/ui/GlobalSearch"
@@ -242,28 +241,15 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
       {...props}
     >
       <SidebarRail />
-      {/* The brand, search (⌘K), the pages that are always there (Beranda,
-          Notifikasi, Kalender, Tugas saya), then the workspaces as tabs. The
+      {/* + Baru with the bell, Cari (⌘K), the pages that are always there
+          (Beranda, Kalender, Tugas saya), then the workspaces as tabs. The
           sidebar toggle and ‹ › lead the tab row above the page
           (site-header.tsx). Collapsed: icons only, no tabs. */}
       <SidebarHeader
         // px-3: the same 12px edge as the menu rows below.
-        // pt-2: the 40px brand row level with the tab row beside it.
-        className={cn("gap-1 px-3 pb-3", desktop ? "pt-0" : "pt-2")}
+        // No brand row: + Baru (32px) is level with the tab row beside it.
+        className={cn("gap-1 px-3 pb-3", desktop ? "pt-1" : "pt-3")}
       >
-        {/* The brand, Mixpanel-style: a 24px mark and the studio's name. */}
-        <PrefetchLink
-          href={siteConfig.baseLinks.dashboard}
-          // mb-1: 8px to Cari; sections sit 4px apart (rows 2px). The mark
-          // centres on the icon column below (24px from the edge).
-          className="flex h-10 min-w-0 items-center gap-2.5 pl-1 group-data-[collapsible=icon]:justify-center group-data-[collapsible=icon]:pl-0"
-          aria-label={siteConfig.name}
-        >
-          <AppIcon size={96} className="size-5 shrink-0 rounded-[5px]" />
-          <span className="text-foreground truncate text-[15px] font-semibold group-data-[collapsible=icon]:hidden">
-            {siteConfig.name}
-          </span>
-        </PrefetchLink>
         {/* + Baru, the bell (icon only) beside it. Collapsed: stacked. */}
         <NewMenu
           className="mb-1"

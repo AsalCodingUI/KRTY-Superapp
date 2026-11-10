@@ -17,7 +17,7 @@ examples: **/ui** → Navigasi.
 | Paging a DataTable                          | built in (`DataTablePagination`)                                              | `src/components/data-table/`                              |
 | Name the page's tab (and the portal crumbs) | `useBreadcrumbs([{ label, href? }])`: the last step is the tab title          | `src/components/page-breadcrumbs.ts`                      |
 | The tab row (app)                           | `SiteHeader` → `TabStrip`, `useAppTabsSync`                                   | `src/components/site-header.tsx`, `src/widgets/app-tabs/` |
-| Back / forward in a tab                     | `TabHistoryButtons` (sidebar brand row; tab row when collapsed)               | `src/widgets/app-tabs/ui/AppTabs.tsx`                     |
+| Back / forward in a tab                     | `TabHistoryButtons` (tab row)                                                    | `src/widgets/app-tabs/ui/AppTabs.tsx`                     |
 | Open a link as a tab from code              | `window.dispatchEvent(new CustomEvent("krty:open-tab", { detail: { url } }))` | same                                                      |
 | Breadcrumb row (portal only)                | `PortalShell`                                                                 | `src/page-slices/projects/ui/portal/PortalShell.tsx`      |
 | Back ← before a page title                  | `PageHeader back={{ href, label }}`                                           | `src/components/page-header.tsx`                          |
@@ -34,8 +34,8 @@ examples: **/ui** → Navigasi.
 ## App tabs
 
 The shell has no top bar from `md` up. The sidebar (Obvious-style, 288px
-/ 18rem): the brand (20px app tile, the studio's name 15px semibold, a
-40px row level with the tab row); "+ Baru" (`NewMenu`: the primary
+/ 18rem), no brand row: first "+ Baru" (level with the tab row;
+`NewMenu`: the primary
 button, full width, label centred; a dropdown of what you can start —
 cuti, event, catatan, project for PMs up — each opening its page's own
 form via `?new=1` / `useNewParam`) with the bell (icon only) beside it;
@@ -51,7 +51,7 @@ when unseen) and Settings as 30px icons with tooltips (stacked when
 collapsed). Theme and chrome color are in Settings → Tampilan, like the
 language. Above the page sheet, on the
 chrome: the sidebar toggle, ‹ › (the active tab's history), then the
-tabs, level with the brand row. The Mac app keeps its toggle by the
+tabs, level with + Baru. The Mac app keeps its toggle by the
 traffic lights.
 
 - **Main** is the first tab and can't be closed. The sidebar and every
