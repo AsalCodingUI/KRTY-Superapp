@@ -247,11 +247,11 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
           (site-header.tsx). Collapsed: icons only, no tabs. */}
       <SidebarHeader
         // px-3: the same 12px edge as the menu rows below.
-        className={cn("gap-3 px-2 pb-3", desktop ? "pt-1" : "pt-3")}
+        className={cn("gap-2 px-2 pb-2", desktop ? "pt-1" : "pt-3")}
       >
         <div
           className={cn(
-            // Sections sit 12px apart (rows 2px).
+            // Sections sit 8px apart (rows 2px).
             "flex h-8 items-center justify-between group-data-[collapsible=icon]:h-auto group-data-[collapsible=icon]:justify-center",
           )}
         >
@@ -312,8 +312,9 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
               {!projectPath &&
                 active?.id === "project" &&
                 projects.length > 0 && (
-                  // mt-1: 12px from the list above, like every section.
-                  <SidebarGroup className="mt-1">
+                  // 8px from the list above (the groups' own padding),
+                  // like every section.
+                  <SidebarGroup>
                     <SidebarGroupLabel>{t("activeProjects")}</SidebarGroupLabel>
                     <SidebarMenu>
                       {projects.map((project) => (
