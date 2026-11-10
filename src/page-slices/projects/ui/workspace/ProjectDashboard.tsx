@@ -600,7 +600,8 @@ export function ProjectDashboard({ projectId }: { projectId: string }) {
 
       <DashboardReportDialog
         projectId={projectId}
-        viewer={viewer}
+        // PMs on the project edit, share and delete anyone's report.
+        viewer={{ ...viewer, isAdmin: viewer.isAdmin || canManage }}
         open={reportOpen}
         onClose={() => setReportOpen(null)}
       />

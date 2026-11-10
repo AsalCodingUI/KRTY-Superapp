@@ -19,7 +19,7 @@ import {
   Trash2,
 } from "@/components/icons"
 import { toast } from "sonner"
-import { useViewer, useWorkspace } from "./data"
+import { useCanManageProject, useViewer, useWorkspace } from "./data"
 import { useReportViews } from "./report-views-data"
 import {
   createReport,
@@ -56,13 +56,14 @@ export function useReportMenu(projectId: string) {
   const tm = useT("ctxmenu")
   const dateLocale = useDateLocale()
   const viewer = useViewer()
+  const canManage = useCanManageProject(projectId)
   const projectName = useWorkspace(projectId).data?.project?.name
   const reportsHref = useProjectHref(projectId, "reports")
   const { data: views } = useReportViews(projectId)
   const invalidate = useInvalidateReports(projectId)
 
   const canEdit = (r: ReportSummary) =>
-    viewer.isAdmin || r.author_id === viewer.id
+    canManage || r.author_id === viewer.id
   const teamLink = (r: ReportSummary) =>
     new URL(
       `${reportsHref}?report=${linkKey(r.title, r.id)}`,

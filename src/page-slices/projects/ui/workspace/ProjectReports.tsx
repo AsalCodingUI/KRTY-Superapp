@@ -18,7 +18,7 @@ import { usePathname, useSearchParams } from "next/navigation"
 import { useEffect, useState } from "react"
 import { findByLinkKey, replaceUrl } from "@/shared/lib/url-params"
 import { toast } from "sonner"
-import { useViewer, useWorkspace } from "./data"
+import { useCanManageProject, useViewer, useWorkspace } from "./data"
 import { RowMenu } from "./row-menu"
 import { ReportDialog, reportShareUrl } from "./ReportDialog"
 import { ReportViewCount } from "./ReportViews"
@@ -45,6 +45,8 @@ export function ProjectReports({ projectId }: { projectId: string }) {
   const tc = useT("common")
   const dateLocale = useDateLocale()
   const viewer = useViewer()
+  // PMs on the project manage the team's reports too (is_project_pm).
+  const canManage = useCanManageProject(projectId)
   const projectName = useWorkspace(projectId).data?.project?.name
   const { data: reports = [], isLoading } = useReports(projectId)
   const invalidate = useInvalidateReports(projectId)
@@ -86,7 +88,7 @@ export function ProjectReports({ projectId }: { projectId: string }) {
   })
 
   const canEdit = (r: ReportSummary | null) =>
-    !r || viewer.isAdmin || r.author_id === viewer.id
+    !r || canManage || r.author_id === viewer.id
 
   return (
     <div className="flex flex-col">
