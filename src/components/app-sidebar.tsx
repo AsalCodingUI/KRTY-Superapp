@@ -295,8 +295,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         // pt-2: the 40px brand row level with the tab row beside it.
         className={cn("gap-1 px-2 pb-1", desktop ? "pt-0" : "pt-2")}
       >
-        {/* The brand, Mixpanel-style: a 24px mark, the studio's name and,
-            under it, what you are here (your job title). */}
+        {/* The brand, Mixpanel-style: a 24px mark and the studio's name. */}
         <PrefetchLink
           href={siteConfig.baseLinks.dashboard}
           // mb-1: 8px to Cari; sections sit 4px apart (rows 2px). The mark
@@ -305,15 +304,8 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
           aria-label={siteConfig.name}
         >
           <AppIcon size={96} variant="mark" className="size-6 shrink-0" />
-          <span className="grid min-w-0 leading-tight group-data-[collapsible=icon]:hidden">
-            <span className="text-foreground truncate text-sm font-semibold">
-              {siteConfig.name}
-            </span>
-            {profile?.job_title && (
-              <span className="text-muted-foreground truncate text-xs">
-                {profile.job_title}
-              </span>
-            )}
+          <span className="text-foreground truncate text-sm font-semibold group-data-[collapsible=icon]:hidden">
+            {siteConfig.name}
           </span>
         </PrefetchLink>
         {/* The group's own padding off: the header already sets the edge. */}

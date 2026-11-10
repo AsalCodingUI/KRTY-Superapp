@@ -34,8 +34,8 @@ examples: **/ui** → Navigasi.
 ## App tabs
 
 The shell has no top bar from `md` up. The sidebar's top: the brand
-(Mixpanel-style: 24px mark, the studio's name semibold and the viewer's
-job title under it, 40px row level with the tab row);
+(Mixpanel-style: 24px mark and the studio's name semibold, 40px row
+level with the tab row);
 the pages that are always there, whatever the workspace (Cari with its
 ⌘K hint as a plain row, then `globalItems`: Beranda, Notifikasi, Kalender, Tugas saya;
 Notifikasi is a row that opens the drawer, with the unread count); then
