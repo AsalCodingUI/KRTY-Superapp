@@ -45,7 +45,7 @@ the list, not as one more row). Its bottom: notices, then one row: the account, 
 What's new (dot when unseen) and Settings as 30px icons with tooltips
 (stacked when collapsed). Theme and chrome color are
 in Settings → Tampilan, like the language. Sidebar rows (after v0): 30px tall, 2px apart (32px pitch), 8px from the
-sidebar's edge, corners 8px (`rounded-md`, not a pill); icons centre on
+sidebar's edge, corners 10px (`rounded-lg`, like the Settings nav; not a pill); icons centre on
 one column 24px from the edge, labels start at 40px. Sections (brand,
 top block, switch, list, notices, bottom) sit 4px apart (rows 2px); the
 brand 8px above the top block. Collapsed: icons on the 30px column. Above the page sheet, on the

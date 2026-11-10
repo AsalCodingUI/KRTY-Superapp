@@ -102,7 +102,7 @@ export const NavMain = memo(function NavMain({
         {/* The active page's fill slides between rows (parents and tabs). */}
         <SlidingIndicator
           activeSelector="[data-active]"
-          className="bg-sidebar-active rounded-md"
+          className="bg-sidebar-active rounded-lg"
         />
         {items.map((item, index) => {
           const nested = (item.items?.length ?? 0) > 1

@@ -26,7 +26,7 @@ export interface SegmentedControlProps<T extends string> {
   /** Replaces the sliding thumb's shadow (e.g. the chrome's active shadow). */
   indicatorClassName?: string
   fitContent?: boolean
-  /** "row": square-ish corners (8px tray, 6px thumb) to match the sidebar's
+  /** "row": square-ish corners (10px tray, 8px thumb) to match the sidebar's
       rows; default is the pill every control uses. */
   shape?: "pill" | "row"
 }
@@ -41,9 +41,9 @@ export function SegmentedControl<T extends string>({
   fitContent = false,
   shape = "pill",
 }: SegmentedControlProps<T>) {
-  const outer = shape === "row" ? "rounded-md" : "rounded-control"
+  const outer = shape === "row" ? "rounded-lg" : "rounded-control"
   // Inner corner = outer − the tray's 2px padding (concentric).
-  const inner = shape === "row" ? "rounded-[6px]" : "rounded-control"
+  const inner = shape === "row" ? "rounded-[8px]" : "rounded-control"
   return (
     <ToggleGroup
       spacing={0}
@@ -87,7 +87,7 @@ export function SegmentedControl<T extends string>({
               "relative h-full min-w-0 gap-1.5 border border-transparent text-sm font-medium whitespace-nowrap shadow-none",
               "group-data-[spacing=0]/toggle-group:rounded-[inherit] group-data-horizontal/toggle-group:data-[spacing=0]:first:rounded-[inherit] group-data-horizontal/toggle-group:data-[spacing=0]:last:rounded-[inherit]",
               shape === "row"
-                ? "rounded-[6px]! px-2! py-0.5"
+                ? "rounded-[8px]! px-2! py-0.5"
                 : "rounded-control! px-2! py-0.5",
               fitContent ? "flex-none" : "flex-1",
               "text-muted-foreground hover:text-foreground hover:bg-transparent",
