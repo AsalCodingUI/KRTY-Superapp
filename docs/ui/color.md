@@ -52,7 +52,7 @@ project colors. Live swatches: **/ui** → Color.
 | `card`                 | Cards (same as page in light, lifted in dark)                                                   |
 | `popover`              | Menus, popovers, dialogs (pure white in light)                                                  |
 | `surface`              | Dark only: the main page pane and sticky cells on it (`dark:bg-surface`); = background in light |
-| `chrome`               | Sidebar + top bar (#F6F6F6 neutral, tinted); `chrome-hover`, `chrome-active` (white 90%), `chrome-field` (black 6%), `chrome-selected` = the active row (black 9%, white 11% dark) |
+| `chrome`               | Sidebar + top bar (#F6F6F6 neutral, tinted); `chrome-hover`, `chrome-active` (white 90%), `chrome-field` (black 6%), `chrome-selected` = the active row (black 7.5%, white 9% dark) |
 | `muted`                | Quiet fill (see-through 3.5% ink): pills, column labels, chips                                  |
 | `muted-solid`          | Opaque `muted`, for sticky cells over scrolling content                                         |
 | `secondary`, `accent`  | Secondary button fill; hover/active of menu items and ghost buttons                             |
