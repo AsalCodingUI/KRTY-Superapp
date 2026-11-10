@@ -33,14 +33,18 @@ examples: **/ui** → Navigasi.
 
 ## App tabs
 
-The shell has no top bar from `md` up. The sidebar's top: the brand;
+The shell has no top bar from `md` up. The sidebar's top: the brand
+(Mixpanel-style: 24px mark, the studio's name semibold and the viewer's
+job title under it, 40px row level with the tab row);
 the pages that are always there, whatever the workspace (Cari with its
 ⌘K hint as a plain row, then `globalItems`: Beranda, Notifikasi, Kalender, Tugas saya;
 Notifikasi is a row that opens the drawer, with the unread count); then
 the workspace switch (`WorkspaceTabs`, Kantor | Project: a full-width
 `SegmentedControl` on the chrome's field fill, so it reads as a switch of
-the list, not as one more row). Its bottom: notices, What's new, Settings,
-the account row (same list, same icon column). Theme and chrome color are
+the list, not as one more row). A hairline (`SidebarSeparator`, `bg-chrome-border`) sits
+above the switch. Its bottom: notices, then one row: the account, then
+What's new (dot when unseen) and Settings as 30px icons with tooltips
+(stacked when collapsed). Theme and chrome color are
 in Settings → Tampilan, like the language. Sidebar rows (after v0): 30px tall, 2px apart (32px pitch), 8px from the
 sidebar's edge, corners 8px (`rounded-md`, not a pill); icons centre on
 one column 24px from the edge, labels start at 40px. Sections (brand,

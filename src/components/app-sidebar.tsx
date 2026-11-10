@@ -42,6 +42,7 @@ import {
   SidebarRail,
   useSidebar,
   SidebarHeader,
+  SidebarSeparator,
 } from "@/components/ui/sidebar"
 import { createClient } from "@/shared/api/supabase/client"
 import { matchProjectPath } from "@/shared/config/project-sections"
@@ -137,6 +138,51 @@ function SidebarStage({ stage }: { stage: ProjectStage }) {
         <ProjectStageIcon stage={stage} className="size-3.5!" />
       </TooltipTrigger>
       <TooltipContent side="right">{t(STAGE_LABEL_KEYS[stage])}</TooltipContent>
+    </Tooltip>
+  )
+}
+
+/** A 30px icon button in the sidebar's bottom row, named on hover. */
+function BottomIcon({
+  label,
+  active,
+  dot,
+  render,
+  onClick,
+  children,
+}: {
+  label: string
+  active?: boolean
+  dot?: boolean
+  render?: React.ReactElement
+  onClick?: () => void
+  children: React.ReactNode
+}) {
+  // Its own tooltip: the menu button's shows only when collapsed, and
+  // these are icons only either way.
+  return (
+    <Tooltip>
+      <TooltipTrigger
+        render={
+          <SidebarMenuButton
+            aria-label={label}
+            isActive={active}
+            render={render}
+            onClick={onClick}
+            // Square, the icon centred.
+            className="not-data-active:blend-ink relative size-[30px]! shrink-0 justify-center p-0!"
+          />
+        }
+      >
+        {children}
+        {dot && (
+          <span
+            aria-hidden
+            className="bg-primary absolute top-1 right-1 size-1.5 rounded-full"
+          />
+        )}
+      </TooltipTrigger>
+      <TooltipContent side="top">{label}</TooltipContent>
     </Tooltip>
   )
 }
@@ -247,31 +293,36 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
           (site-header.tsx). Collapsed: icons only, no tabs. */}
       <SidebarHeader
         // px-3: the same 12px edge as the menu rows below.
-        className={cn("gap-1 px-2 pb-1", desktop ? "pt-1" : "pt-3")}
+        // pt-2: the 40px brand row level with the tab row beside it.
+        className={cn("gap-1 px-2 pb-1", desktop ? "pt-0" : "pt-2")}
       >
-        <div
-          className={cn(
-            // Sections sit 4px apart (rows 2px); the brand 8px.
-            "mb-1 flex h-8 items-center justify-between group-data-[collapsible=icon]:h-auto group-data-[collapsible=icon]:justify-center",
-          )}
+        {/* The brand, Mixpanel-style: a 24px mark, the studio's name and,
+            under it, what you are here (your job title). */}
+        <PrefetchLink
+          href={siteConfig.baseLinks.dashboard}
+          // mb-1: 8px to Cari; sections sit 4px apart (rows 2px). The mark
+          // centres on the icon column below (24px from the edge).
+          className="mb-1 flex h-10 min-w-0 items-center gap-2.5 pl-1 group-data-[collapsible=icon]:justify-center group-data-[collapsible=icon]:pl-0"
+          aria-label={siteConfig.name}
         >
-          <PrefetchLink
-            href={siteConfig.baseLinks.dashboard}
-            // The mark in line with the menu's icons below (same size, same
-            // left edge).
-            className="flex min-w-0 items-center gap-2 pl-2 group-data-[collapsible=icon]:pl-0"
-            aria-label={siteConfig.name}
-          >
-            <AppIcon size={96} variant="mark" className="size-4 shrink-0" />
-            <span className="truncate text-sm font-medium group-data-[collapsible=icon]:hidden">
+          <AppIcon size={96} variant="mark" className="size-6 shrink-0" />
+          <span className="grid min-w-0 leading-tight group-data-[collapsible=icon]:hidden">
+            <span className="text-foreground truncate text-sm font-semibold">
               {siteConfig.name}
             </span>
-          </PrefetchLink>
-        </div>
+            {profile?.job_title && (
+              <span className="text-muted-foreground truncate text-xs">
+                {profile.job_title}
+              </span>
+            )}
+          </span>
+        </PrefetchLink>
         {/* The group's own padding off: the header already sets the edge. */}
         <div className="-mx-2 [&>[data-sidebar=group]]:py-0">
           <NavMain items={topNav} slots={topSlots} />
         </div>
+        {/* A hairline between what's always there and the workspace. */}
+        <SidebarSeparator className="bg-chrome-border mx-0 my-1 group-data-[collapsible=icon]:hidden" />
         <WorkspaceTabs className="group-data-[collapsible=icon]:hidden" />
       </SidebarHeader>
       {/* First row starts level with the top of the page sheet. */}
@@ -343,48 +394,36 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
       </SidebarContent>
       {/* Cards above the footer: app update, what's new, the Mac app. */}
       <SidebarNotices />
-      {/* Always at the bottom, above the theme switch: what's new (a dot
-          while there's something unseen) and, in the Mac app, its settings. */}
+      {/* The bottom, one row (Mixpanel-style): the account, then Yang baru
+          (a dot while there's something unseen) and Settings as icons.
+          Collapsed: stacked on the icon column. */}
       <SidebarGroup className="pt-0 pb-2">
-        <SidebarMenu>
-          <SidebarMenuItem>
-            <SidebarMenuButton
-              isActive={matchesRoute(pathname, siteConfig.baseLinks.whatsNew)}
-              tooltip={t("whatsNew")}
-              render={<PrefetchLink href={siteConfig.baseLinks.whatsNew} />}
-            >
-              <Sparkles />
-              <span className="truncate">{t("whatsNew")}</span>
-              {whatsNewUnseen > 0 && (
-                <span
-                  aria-hidden
-                  className="bg-primary ml-auto size-1.5 shrink-0 rounded-full group-data-[collapsible=icon]:absolute group-data-[collapsible=icon]:top-1 group-data-[collapsible=icon]:right-1"
-                />
-              )}
-            </SidebarMenuButton>
-          </SidebarMenuItem>
-          <SidebarMenuItem>
-            <SidebarMenuButton
-              tooltip={tPrefs("title")}
-              onClick={() => {
-                // Settings opens over the current page (?settings=…).
-                const url = new URL(window.location.href)
-                url.searchParams.set("settings", "general")
-                replaceUrl(`${url.pathname}${url.search}`)
-              }}
-            >
-              <Settings />
-              <span className="truncate">{tPrefs("title")}</span>
-            </SidebarMenuButton>
-          </SidebarMenuItem>
-        </SidebarMenu>
-        {/* The account: one more row of the same list (2px apart, icon
-            column, muted label). */}
-        <div className="mt-0.5">
-          <AccountMenu
-            row
-            side={sidebarState === "collapsed" ? "right" : "top"}
-          />
+        <div className="flex items-center gap-0.5 group-data-[collapsible=icon]:flex-col">
+          <div className="min-w-0 flex-1 group-data-[collapsible=icon]:flex-none">
+            <AccountMenu
+              row
+              side={sidebarState === "collapsed" ? "right" : "top"}
+            />
+          </div>
+          <BottomIcon
+            label={t("whatsNew")}
+            active={matchesRoute(pathname, siteConfig.baseLinks.whatsNew)}
+            dot={whatsNewUnseen > 0}
+            render={<PrefetchLink href={siteConfig.baseLinks.whatsNew} />}
+          >
+            <Sparkles />
+          </BottomIcon>
+          <BottomIcon
+            label={tPrefs("title")}
+            onClick={() => {
+              // Settings opens over the current page (?settings=…).
+              const url = new URL(window.location.href)
+              url.searchParams.set("settings", "general")
+              replaceUrl(`${url.pathname}${url.search}`)
+            }}
+          >
+            <Settings />
+          </BottomIcon>
         </div>
       </SidebarGroup>
     </Sidebar>
