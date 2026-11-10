@@ -103,7 +103,7 @@ parallel. The container sets it once; children follow.
 | Dialog, alert dialog, drawer                                    | `rounded-3xl`                                                             |
 | Dialog as a phone sheet                                         | `max-sm:rounded-t-[28px] rounded-b-none` (`dialogSheetOnMobileClassName`) |
 | Right sheet / side panel                                        | `rounded-nested` in the page sheet (14px; Mac 4px)                        |
-| Page sheet (web, md+)                                           | `md:rounded-3xl`                                                          |
+| Page sheet (web, md+)                                           | `md:rounded-md` (small, Fibery-like)                                      |
 | Page sheet (phone)                                              | `max-md:rounded-t-3xl`                                                    |
 | Page sheet (Mac app, md+)                                       | `md:rounded-[10px]`                                                       |
 | Minimal-screen glass card                                       | `rounded-[24px]` (`MinimalCard`)                                          |
@@ -114,7 +114,7 @@ parallel. The container sets it once; children follow.
 `src/app/(main)/layout.tsx` adds `DESKTOP_CSS` when the desktop-shell
 cookie says `mac` (Windows keeps the web's):
 
-- The page sheet sits 6px in from the window (`md:pr-1.5 md:pb-1.5`)
+- The page sheet sits 6px in from the window on web and Mac (`md:pr-1.5 md:pb-1.5`)
   with `md:rounded-[10px]`: the macOS window corner is 16pt, 16 − 6 = 10,
   the nested rule applied to the window itself.
 - Right sheets (from md) and `[data-slot="side-panel"]` (from lg) sit

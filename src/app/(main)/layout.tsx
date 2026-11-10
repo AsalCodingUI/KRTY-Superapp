@@ -101,9 +101,9 @@ export default async function Layout({
             <div
               className={cn(
                 "flex min-h-0 w-full flex-1",
-                // In the Mac app the sheet hugs the window's rounded corner
-                // (16pt): 6px in, so a 10px radius runs parallel to it.
-                desktop ? "md:pr-1.5 md:pb-1.5" : "md:pr-2 md:pb-2",
+                // 6px from the window's edge (Fibery-close); in the Mac app
+                // a 10px radius runs parallel to the 16pt window corner.
+                "md:pr-1.5 md:pb-1.5",
               )}
             >
               <AppSidebar />

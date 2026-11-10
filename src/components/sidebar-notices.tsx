@@ -238,7 +238,7 @@ export function SidebarNotices() {
         <div
           data-slot="sidebar-notices"
           // pb-1: 4px to What's new, the step between sidebar sections.
-          className="flex flex-col gap-2 px-2 pb-1 group-data-[collapsible=icon]:hidden"
+          className="flex flex-col gap-2 px-3 pb-1 group-data-[collapsible=icon]:hidden"
         >
           {visible.map(({ id, priority: _p, element: _e, ...card }) => (
             <SidebarNoticeCard key={id} {...card} />

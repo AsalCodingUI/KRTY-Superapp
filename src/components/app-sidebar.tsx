@@ -78,7 +78,7 @@ function BottomIcon({
             render={render}
             onClick={onClick}
             // Square, the icon centred.
-            className="not-data-active:blend-ink relative size-[30px]! shrink-0 justify-center p-0!"
+            className="not-data-active:blend-ink relative size-[25px]! shrink-0 justify-center p-0!"
           />
         }
       >
@@ -146,7 +146,7 @@ function NavSection({
         onClick={onToggle}
         // Level with the rows' icons (8px edge + 8px); 4px above the
         // first row like every section step.
-        className="text-muted-foreground hover:text-foreground mx-2 w-fit cursor-pointer gap-1 transition-colors"
+        className="text-muted-foreground hover:text-foreground mx-3 w-fit cursor-pointer gap-1 transition-colors"
       >
         {label}
         <ChevronDown
@@ -264,23 +264,23 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
       <SidebarHeader
         // px-3: the same 12px edge as the menu rows below.
         // pt-2: the 40px brand row level with the tab row beside it.
-        className={cn("gap-1 px-2 pb-1", desktop ? "pt-0" : "pt-2")}
+        className={cn("gap-1 px-3 pb-1", desktop ? "pt-0" : "pt-2")}
       >
         {/* The brand, Mixpanel-style: a 24px mark and the studio's name. */}
         <PrefetchLink
           href={siteConfig.baseLinks.dashboard}
           // mb-1: 8px to Cari; sections sit 4px apart (rows 2px). The mark
           // centres on the icon column below (24px from the edge).
-          className="mb-1 flex h-10 min-w-0 items-center gap-2.5 pl-1 group-data-[collapsible=icon]:justify-center group-data-[collapsible=icon]:pl-0"
+          className="mb-1 flex h-10 min-w-0 items-center gap-2 pl-1.5 group-data-[collapsible=icon]:justify-center group-data-[collapsible=icon]:pl-0"
           aria-label={siteConfig.name}
         >
-          <AppIcon size={96} variant="mark" className="size-6 shrink-0" />
-          <span className="text-foreground truncate text-sm font-semibold group-data-[collapsible=icon]:hidden">
+          <AppIcon size={96} variant="mark" className="size-4 shrink-0" />
+          <span className="text-foreground truncate text-[15px] font-semibold group-data-[collapsible=icon]:hidden">
             {siteConfig.name}
           </span>
         </PrefetchLink>
         {/* The group's own padding off: the header already sets the edge. */}
-        <div className="-mx-2 [&>[data-sidebar=group]]:py-0">
+        <div className="-mx-3 [&>[data-sidebar=group]]:py-0">
           <NavMain items={topNav} slots={topSlots} />
         </div>
       </SidebarHeader>

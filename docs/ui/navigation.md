@@ -44,9 +44,10 @@ is the toggle; folded ones remembered per device, all open when collapsed
 to icons). Its bottom: notices, then one row: the account, then
 What's new (dot when unseen) and Settings as 30px icons with tooltips
 (stacked when collapsed). Theme and chrome color are
-in Settings → Tampilan, like the language. Sidebar rows (after v0): 30px tall, 2px apart (32px pitch), 8px from the
-sidebar's edge, corners 10px (`rounded-lg`, like the Settings nav; not a pill); icons centre on
-one column 24px from the edge, labels start at 40px. Sections (brand,
+in Settings → Tampilan, like the language. Sidebar (1:1 with Fibery): 272px wide (17rem); rows 25px tall, 2px
+apart (27px pitch), 12px from the sidebar's edge, corners `rounded-sm`
+(not a pill); icons start 20px from the edge, labels at 42px; brand a
+16px mark and the name at 15px semibold. Sections (brand,
 top block, switch, list, notices, bottom) sit 4px apart (rows 2px); the
 brand 8px above the top block. Collapsed: icons on the 30px column. Above the page sheet, on the
 chrome: the sidebar toggle, ‹ › (the active tab's history), then the

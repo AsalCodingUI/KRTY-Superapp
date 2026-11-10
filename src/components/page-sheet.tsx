@@ -3,7 +3,8 @@ import { cn } from "@/lib/utils"
 import type * as React from "react"
 
 /** The sheet's corner on the web. */
-const SHEET_RADIUS = "md:rounded-dialog"
+// Small, like Fibery's (8px squircled reads ~6px).
+const SHEET_RADIUS = "md:rounded-md"
 
 /** The page sheet's corner in the Mac app: the window's 16pt corner less
  *  the 6px inset (a native size, so not a radius role). */
@@ -16,7 +17,7 @@ const MAC_SHEET_RADIUS = "md:rounded-[10px]"
  * (--sbw). Phones: the page is a sheet on the chrome, top corners rounded.
  */
 export const pageSheetClassName =
-  "dark:bg-surface scroll-pane overscroll-contain max-md:rounded-t-dialog [--bleed:0.75rem] [--list-overhang:0px] [--page-gutter:max(var(--bleed),calc(1.25rem-var(--sbw,0px)))] md:z-20 md:[--page-gutter:calc(2.5rem-var(--sbw,0px))] xl:[--page-gutter:calc(4rem-var(--sbw,0px))]"
+  "dark:bg-surface scroll-pane overscroll-contain max-md:rounded-t-dialog [--bleed:0.75rem] [--list-overhang:0px] [--page-gutter:max(var(--bleed),calc(1.25rem-var(--sbw,0px)))] md:z-20 md:[--page-gutter:calc(2rem-var(--sbw,0px))] xl:[--page-gutter:calc(3rem-var(--sbw,0px))]"
 
 /** The wrapper around the page inside the sheet (each shell adds its own
  *  bottom room for its tab bar). */

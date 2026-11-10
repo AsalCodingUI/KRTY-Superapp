@@ -48,8 +48,8 @@ Set once on the page sheet (`SidebarInset` in `src/app/(main)/layout.tsx`):
 | Width     | `--page-gutter`                            | Rendered (styled scrollbar, `--sbw` 12px) |
 | --------- | ------------------------------------------ | ----------------------------------------- |
 | phone     | `max(var(--bleed), calc(1.25rem - --sbw))` | 20px (no scrollbar room on phones)        |
-| md (768)  | `calc(2.5rem - --sbw)`                     | 40px from the sheet edge                  |
-| xl (1280) | `calc(4rem - --sbw)`                       | 64px                                      |
+| md (768)  | `calc(2rem - --sbw)`                       | 32px from the sheet edge                  |
+| xl (1280) | `calc(3rem - --sbw)`                       | 48px                                      |
 
 `--bleed: 0.75rem` (12px). The scrollbar room (`--sbw`) is subtracted
 because the sheet is a `scroll-pane` that keeps that room on both sides.
