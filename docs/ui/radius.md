@@ -131,7 +131,7 @@ Measured on /ui → Radius (squircle browsers, ×1.715):
 
 | Class             | Base       | Renders              | For                                                                           |
 | ----------------- | ---------- | -------------------- | ----------------------------------------------------------------------------- |
-| `rounded-control` | pill       | pill (not squircled) | buttons, inputs, selects, badges, tabs, toggles, segmented (sidebar rows and the Kantor / Project switch: `rounded-lg`, `SegmentedControl shape="row"`) |
+| `rounded-control` | pill       | pill (not squircled) | buttons, inputs, selects, badges, tabs, toggles, segmented (sidebar rows and the Kantor / Project switch: `rounded-lg`, default pill `SegmentedControl`) |
 | `rounded-chip`    | md (8px)   | 13.7px               | ListChip, textarea, tooltip                                                   |
 | `rounded-row`     | lg (10px)  | 17.2px               | row highlight, column / group header pills                                    |
 | `rounded-card`    | xl (14px)  | 24.0px               | cards, panels, HomeCard, embeds                                               |

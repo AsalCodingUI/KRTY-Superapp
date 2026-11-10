@@ -5,7 +5,7 @@ import { cn } from "@/lib/utils"
 import { siteConfig } from "@/app/siteConfig"
 import { AppIcon } from "@/components/app-icon"
 import { useMacChrome } from "@/components/desktop-shell"
-import { AccountMenu } from "@/components/app-topbar"
+import { AccountMenu, WorkspaceTabs } from "@/components/app-topbar"
 import { GlobalSearch } from "@/widgets/global-search/ui/GlobalSearch"
 import { Notifications } from "@/widgets/notifications/ui/Notifications"
 
@@ -39,7 +39,6 @@ import {
   itemMatch,
   matchesRoute,
   resolveActiveChild,
-  type WorkspaceId,
   type WorkspaceItem,
   type WorkspaceProfile,
 } from "@/shared/config/workspaces"
@@ -78,7 +77,7 @@ function BottomIcon({
             render={render}
             onClick={onClick}
             // Square, the icon centred.
-            className="not-data-active:blend-ink relative size-[25px]! shrink-0 justify-center p-0!"
+            className="not-data-active:blend-ink relative size-[30px]! shrink-0 justify-center p-0!"
           />
         }
       >
@@ -97,7 +96,7 @@ function BottomIcon({
 
 const CLOSED_KEY = "sidebar_closed_sections"
 
-/** Which sections (Kantor, Project) are folded; remembered per device. */
+/** Which lists (Project aktif) are folded; remembered per device. */
 function useClosedSections() {
   const [closed, setState] = React.useState<string[]>([])
   React.useEffect(() => {
@@ -124,8 +123,9 @@ function useClosedSections() {
 }
 
 /**
- * A titled part of the sidebar that folds (Linear-style "Workspace ▾"):
- * the label is the toggle. Always open while collapsed to icons.
+ * A titled list that folds, Obvious-style ("⌃ Recent"): a muted label with
+ * the chevron before it; the label is the toggle. Always open while the
+ * sidebar is collapsed to icons.
  */
 function NavSection({
   label,
@@ -144,14 +144,13 @@ function NavSection({
         render={<button type="button" />}
         aria-expanded={open}
         onClick={onToggle}
-        // Level with the rows' icons (8px edge + 8px); 4px above the
-        // first row like every section step.
-        className="text-muted-foreground hover:text-foreground mx-3 w-fit cursor-pointer gap-1 transition-colors"
+        // The chevron on the icon column, the label where row labels start.
+        className="text-muted-foreground hover:text-foreground mx-3 w-fit cursor-pointer gap-2 pl-3 font-normal transition-colors"
       >
-        {label}
         <ChevronDown
-          className={cn("size-3! transition-transform", !open && "-rotate-90")}
+          className={cn("size-3! transition-transform", open && "rotate-180")}
         />
+        {label}
       </SidebarGroupLabel>
       <Collapse open={open}>{children}</Collapse>
     </div>
@@ -162,7 +161,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   const desktop = useMacChrome()
   const pathname = usePathname()
   const { profile } = useUserProfile()
-  const { loading, visible, badges } = useWorkspaceNav()
+  const { loading, active, badges } = useWorkspaceNav()
   const { state: sidebarState } = useSidebar()
   const [closed, toggleSection] = useClosedSections()
   const t = useT("nav")
@@ -184,7 +183,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   // the active page (so /calendar/santuy lights Kalender, /leave Cuti).
   const activeHref = React.useMemo(() => {
     let best: { href: string; length: number } | null = null
-    for (const item of [...topItems, ...visible.flatMap((ws) => ws.items)]) {
+    for (const item of [...topItems, ...(active?.items ?? [])]) {
       const length = itemMatch(pathname, item)
       if (length && (!best || length > best.length))
         best = { href: item.href, length }
@@ -197,7 +196,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
       )
         best = { href: project.url, length: project.url.length }
     return best?.href
-  }, [visible, topItems, projectTree, pathname])
+  }, [active, topItems, projectTree, pathname])
 
   const toNav = React.useCallback(
     (item: WorkspaceItem) => {
@@ -224,26 +223,14 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
     },
     [activeHref, badges, pathname, profile, t],
   )
-  // Each workspace's rows; Project ends with the project tree.
-  const sections = React.useMemo(
-    () =>
-      visible.map((ws) => ({
-        id: ws.id as WorkspaceId,
-        label: t(ws.name),
-        items: [
-          ...ws.items.map(toNav),
-          ...(ws.id === "project" ? projectTree : []),
-        ],
-      })),
-    [visible, toNav, projectTree, t],
+  const navItems = React.useMemo(
+    () => active?.items.map(toNav) ?? [],
+    [active, toNav],
   )
   const topNav = React.useMemo(() => topItems.map(toNav), [topItems, toNav])
-  // Cari first, Notifikasi after Beranda.
+  // Notifikasi after Beranda.
   const topSlots = React.useMemo(
-    () => ({
-      0: <GlobalSearch />,
-      1: <Notifications variant="row" />,
-    }),
+    () => ({ 1: <Notifications variant="row" /> }),
     [],
   )
 
@@ -264,29 +251,31 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
       <SidebarHeader
         // px-3: the same 12px edge as the menu rows below.
         // pt-2: the 40px brand row level with the tab row beside it.
-        className={cn("gap-1 px-3 pb-1", desktop ? "pt-0" : "pt-2")}
+        className={cn("gap-1 px-3 pb-3", desktop ? "pt-0" : "pt-2")}
       >
         {/* The brand, Mixpanel-style: a 24px mark and the studio's name. */}
         <PrefetchLink
           href={siteConfig.baseLinks.dashboard}
           // mb-1: 8px to Cari; sections sit 4px apart (rows 2px). The mark
           // centres on the icon column below (24px from the edge).
-          className="mb-1 flex h-10 min-w-0 items-center gap-2 pl-1.5 group-data-[collapsible=icon]:justify-center group-data-[collapsible=icon]:pl-0"
+          className="flex h-10 min-w-0 items-center gap-2.5 pl-1 group-data-[collapsible=icon]:justify-center group-data-[collapsible=icon]:pl-0"
           aria-label={siteConfig.name}
         >
-          <AppIcon size={96} variant="mark" className="size-4 shrink-0" />
+          <AppIcon size={96} className="size-5 shrink-0 rounded-[5px]" />
           <span className="text-foreground truncate text-[15px] font-semibold group-data-[collapsible=icon]:hidden">
             {siteConfig.name}
           </span>
         </PrefetchLink>
+        <GlobalSearch className="mb-1" />
         {/* The group's own padding off: the header already sets the edge. */}
         <div className="-mx-3 [&>[data-sidebar=group]]:py-0">
           <NavMain items={topNav} slots={topSlots} />
         </div>
+        <WorkspaceTabs className="mt-2 group-data-[collapsible=icon]:hidden" />
       </SidebarHeader>
-      {/* Kantor and Project as folding sections, both always there; a
-          project opens in place to its pages (no separate project menu). */}
-      <SidebarContent className="gap-1">
+      {/* The open workspace's pages; in Project, then the active projects,
+          each opening in place to its pages (no separate project menu). */}
+      <SidebarContent className="gap-3">
         {loading ? (
           <SidebarGroup className="pt-0">
             <SidebarMenu>
@@ -298,20 +287,24 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
             </SidebarMenu>
           </SidebarGroup>
         ) : (
-          sections.map((section) => (
-            <NavSection
-              key={section.id}
-              label={section.label}
-              open={
-                sidebarState === "collapsed" || !closed.includes(section.id)
-              }
-              onToggle={() => toggleSection(section.id)}
-            >
-              <div className="[&>[data-sidebar=group]]:py-0">
-                <NavMain items={section.items} />
-              </div>
-            </NavSection>
-          ))
+          <>
+            <div className="[&>[data-sidebar=group]]:py-0">
+              <NavMain items={navItems} />
+            </div>
+            {active?.id === "project" && projectTree.length > 0 && (
+              <NavSection
+                label={t("activeProjects")}
+                open={
+                  sidebarState === "collapsed" || !closed.includes("projects")
+                }
+                onToggle={() => toggleSection("projects")}
+              >
+                <div className="[&>[data-sidebar=group]]:py-0">
+                  <NavMain items={projectTree} />
+                </div>
+              </NavSection>
+            )}
+          </>
         )}
       </SidebarContent>
       {/* Cards above the footer: app update, what's new, the Mac app. */}

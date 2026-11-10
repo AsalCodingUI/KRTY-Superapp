@@ -33,23 +33,20 @@ examples: **/ui** → Navigasi.
 
 ## App tabs
 
-The shell has no top bar from `md` up. The sidebar's top: the brand
-(Mixpanel-style: 24px mark and the studio's name semibold, 40px row
-level with the tab row);
-the pages that are always there, whatever the workspace (Cari with its
-⌘K hint as a plain row, then `globalItems`: Beranda, Notifikasi, Kalender, Tugas saya;
-Notifikasi is a row that opens the drawer, with the unread count); then
-Kantor ▾ and Project ▾ as folding sections (Linear-style: the small label
-is the toggle; folded ones remembered per device, all open when collapsed
-to icons). Its bottom: notices, then one row: the account, then
-What's new (dot when unseen) and Settings as 30px icons with tooltips
-(stacked when collapsed). Theme and chrome color are
-in Settings → Tampilan, like the language. Sidebar (1:1 with Fibery): 272px wide (17rem); rows 25px tall, 2px
-apart (27px pitch), 12px from the sidebar's edge, corners `rounded-sm`
-(not a pill); icons start 20px from the edge, labels at 42px; brand a
-16px mark and the name at 15px semibold. Sections (brand,
-top block, switch, list, notices, bottom) sit 4px apart (rows 2px); the
-brand 8px above the top block. Collapsed: icons on the 30px column. Above the page sheet, on the
+The shell has no top bar from `md` up. The sidebar (Obvious-style, 288px
+/ 18rem): the brand (20px app tile, the studio's name 15px semibold, a
+40px row level with the tab row); search (⌘K) as an outlined pill; the
+pages that are always there (`globalItems`: Beranda, Notifikasi — a row
+that opens the drawer, with the unread count —, Kalender, Tugas saya);
+then Kantor | Project as a full-width segmented pill (`WorkspaceTabs`,
+12px above the list). Rows are pills (`rounded-full`), 30px tall, 2px
+apart, 12px from the sidebar's edge; icons start 22px from the edge,
+labels at 46px. In Project, "⌃ Project aktif" (a muted label with the
+chevron before it, folding, remembered per device) lists the projects.
+Its bottom: notices, then one row: the account, then What's new (dot
+when unseen) and Settings as 30px icons with tooltips (stacked when
+collapsed). Theme and chrome color are in Settings → Tampilan, like the
+language. Above the page sheet, on the
 chrome: the sidebar toggle, ‹ › (the active tab's history), then the
 tabs, level with the brand row. The Mac app keeps its toggle by the
 traffic lights.
@@ -160,8 +157,9 @@ tabular-nums`, hidden at 0; badge.md).
 - Pages come from `shared/config/workspaces.ts`: `globalItems` (the top
   block), each workspace's `items`, and `scopePages` (pages with no row of
   their own, named for tab titles and search). The active page is the
-  longest matching href (or `match` prefix) across the top block, every
-  section and the project rows. One sliding active fill (`bg-sidebar-active`
+  longest matching href (or `match` prefix) across the top block, the
+  open workspace and the project rows. Switching workspace only swaps the
+  list; the page stays; opening a workspace's page selects its tab. One sliding active fill (`bg-sidebar-active`
   = `--chrome-selected`: a darker see-through fill, flat, no shadow)
   across rows. The white
   raised pill is only for the app tabs.
@@ -170,8 +168,8 @@ tabular-nums`, hidden at 0; badge.md).
   Catatan).
 - Row extras: count `badge` (`NavBadge`, 99+), `dot` for "new" without a
   count (`NavDot`), sub-tabs listed under the open page.
-- Projects (`useProjectTree`, active ones, plus the open project) end the
-  Project section; each opens in place to its pages (Dashboard, Tugas,
+- Projects (`useProjectTree`, active ones, plus the open project) under
+  "Project aktif" in the Project tab; each opens in place to its pages (Dashboard, Tugas,
   Report …) on the tree line. The one you're in opens by itself, the
   others on their chevron. No separate project menu.
 - Notices (update ready, download the Mac app): `SidebarNoticeCard`, at

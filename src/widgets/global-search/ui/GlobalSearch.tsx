@@ -2,7 +2,6 @@
 
 import { Kbd, KbdGroup } from "@/components/ui/kbd"
 import { cn } from "@/lib/utils"
-import { SidebarMenuButton, SidebarMenuItem } from "@/components/ui/sidebar"
 import { useT } from "@/shared/i18n/client"
 import { RiSearchLine } from "@/shared/ui/lucide-icons"
 import {
@@ -18,7 +17,7 @@ const GlobalSearchDialog = dynamic(loadDialog, { ssr: false })
 const preloadDialog = () => void loadDialog()
 
 /** Opens with ⌘K / Ctrl+K from anywhere, or from the top bar field. */
-/** A sidebar row like Beranda (icon, label, ⌘K hint). */
+/** The sidebar's search pill (⌘K / Ctrl+K from anywhere). */
 export function GlobalSearch({ className }: { className?: string }) {
   const [open, setOpen] = useState(false)
   // Text to start with (the right-click menu's "Cari di app").
@@ -62,26 +61,35 @@ export function GlobalSearch({ className }: { className?: string }) {
     />
   )
 
+  // An outlined pill on the chrome (Obvious-style), above the nav.
   return (
-    <SidebarMenuItem>
-      <SidebarMenuButton
-        tooltip={tc("search")}
+    <>
+      <button
+        type="button"
         onClick={openSearch}
         onMouseEnter={preloadDialog}
         onFocus={preloadDialog}
         aria-keyshortcuts={isMac ? "Meta+K" : "Control+K"}
-        className={cn("not-data-active:blend-ink", className)}
+        className={cn(
+          "text-muted-foreground hover:text-foreground border-chrome-border hover:bg-chrome-hover rounded-control flex h-8 w-full items-center gap-2 border-[0.5px] pr-1.5 pl-2.5 text-sm transition-colors",
+          // In the collapsed sidebar: the icon alone.
+          "group-data-[collapsible=icon]:size-8 group-data-[collapsible=icon]:justify-center group-data-[collapsible=icon]:p-0",
+          className,
+        )}
       >
-        <RiSearchLine />
-        <span className="truncate">{tc("search")}</span>
+        <RiSearchLine className="size-4" />
+        <span className="group-data-[collapsible=icon]:sr-only">
+          {tc("search")}
+        </span>
         <KbdGroup className="ml-auto group-data-[collapsible=icon]:hidden">
           <Kbd className="bg-chrome-field rounded-full">
             {isMac ? "⌘" : "Ctrl"}
           </Kbd>
           <Kbd className="bg-chrome-field rounded-full">K</Kbd>
         </KbdGroup>
-      </SidebarMenuButton>
+      </button>
+      {/* Mounted on first open, then kept so the close animation plays. */}
       {dialog}
-    </SidebarMenuItem>
+    </>
   )
 }
