@@ -41,8 +41,7 @@ the pages that are always there, whatever the workspace (Cari with its
 Notifikasi is a row that opens the drawer, with the unread count); then
 the workspace switch (`WorkspaceTabs`, Kantor | Project: a full-width
 `SegmentedControl` on the chrome's field fill, so it reads as a switch of
-the list, not as one more row). A hairline (`SidebarSeparator`, `bg-chrome-border`) sits
-above the switch. Its bottom: notices, then one row: the account, then
+the list, not as one more row). Its bottom: notices, then one row: the account, then
 What's new (dot when unseen) and Settings as 30px icons with tooltips
 (stacked when collapsed). Theme and chrome color are
 in Settings → Tampilan, like the language. Sidebar rows (after v0): 30px tall, 2px apart (32px pitch), 8px from the

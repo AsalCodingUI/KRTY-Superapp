@@ -42,7 +42,6 @@ import {
   SidebarRail,
   useSidebar,
   SidebarHeader,
-  SidebarSeparator,
 } from "@/components/ui/sidebar"
 import { createClient } from "@/shared/api/supabase/client"
 import { matchProjectPath } from "@/shared/config/project-sections"
@@ -321,8 +320,6 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         <div className="-mx-2 [&>[data-sidebar=group]]:py-0">
           <NavMain items={topNav} slots={topSlots} />
         </div>
-        {/* A hairline between what's always there and the workspace. */}
-        <SidebarSeparator className="bg-chrome-border mx-0 my-1 group-data-[collapsible=icon]:hidden" />
         <WorkspaceTabs className="group-data-[collapsible=icon]:hidden" />
       </SidebarHeader>
       {/* First row starts level with the top of the page sheet. */}
