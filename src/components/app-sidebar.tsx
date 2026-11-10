@@ -1,35 +1,26 @@
 "use client"
 
-import { projectHref } from "@/shared/lib/url-params"
-import { AnimatePresence, m, type Variants } from "motion/react"
-import { TRANSITION } from "@/shared/lib/motion"
 import * as React from "react"
 import { cn } from "@/lib/utils"
 import { siteConfig } from "@/app/siteConfig"
 import { AppIcon } from "@/components/app-icon"
 import { useMacChrome } from "@/components/desktop-shell"
-import { AccountMenu, WorkspaceTabs } from "@/components/app-topbar"
+import { AccountMenu } from "@/components/app-topbar"
 import { GlobalSearch } from "@/widgets/global-search/ui/GlobalSearch"
 import { Notifications } from "@/widgets/notifications/ui/Notifications"
 
 import { NavMain } from "@/components/nav-main"
-import { NavProject } from "@/components/nav-project"
+import { useProjectTree } from "@/components/nav-project"
 import { PrefetchLink } from "@/components/prefetch-link"
-import { ProjectAvatar } from "@/components/project-avatar"
 import { SidebarNotices } from "@/components/sidebar-notices"
 import { useWorkspaceNav } from "@/components/workspace-nav"
 import { useWhatsNewUnseen } from "@/page-slices/whats-new/model/unseen"
-import {
-  asStage,
-  STAGE_LABEL_KEYS,
-  type ProjectStage,
-} from "@/page-slices/projects/lib/status"
-import { ProjectStageIcon } from "@/page-slices/projects/ui/ProjectStageIcon"
 import {
   Tooltip,
   TooltipContent,
   TooltipTrigger,
 } from "@/components/ui/tooltip"
+import { Collapse } from "@/components/ui/collapse"
 import {
   Sidebar,
   SidebarContent,
@@ -43,103 +34,21 @@ import {
   useSidebar,
   SidebarHeader,
 } from "@/components/ui/sidebar"
-import { createClient } from "@/shared/api/supabase/client"
-import { matchProjectPath } from "@/shared/config/project-sections"
 import {
   globalItems,
   itemMatch,
   matchesRoute,
   resolveActiveChild,
+  type WorkspaceId,
   type WorkspaceItem,
   type WorkspaceProfile,
 } from "@/shared/config/workspaces"
 import { accessLevel, canOpenPage } from "@/shared/config/access"
 import { useUserProfile } from "@/shared/hooks/useUserProfile"
 import { useT } from "@/shared/i18n/client"
-import { isAdminRole } from "@/shared/lib/roles"
-import { useQuery } from "@tanstack/react-query"
-import { Settings, Sparkles } from "@/components/icons"
+import { ChevronDown, Settings, Sparkles } from "@/components/icons"
 import { usePathname } from "next/navigation"
 import { replaceUrl } from "@/shared/lib/url-params"
-
-type SidebarProject = {
-  id: string
-  name: string
-  href: string
-  stage: ProjectStage | null
-}
-
-/**
- * Active projects for the Project workspace: every active project for
- * stakeholders, the user's own assignments for everyone else.
- */
-/** Projects under way: not-started ones wait on the Projects page. */
-const SIDEBAR_STATUSES = ["Active", "Review"]
-
-function useSidebarProjects(
-  profile: { id: string; role: string } | null,
-  enabled: boolean,
-) {
-  return useQuery<SidebarProject[]>({
-    queryKey: ["sidebar-projects", profile?.id, profile?.role],
-    enabled: enabled && Boolean(profile),
-    staleTime: 5 * 60_000,
-    queryFn: async () => {
-      if (!profile) return []
-      const supabase = createClient()
-      if (isAdminRole(profile.role)) {
-        const { data } = await supabase
-          .from("projects")
-          .select("id, name, stage")
-          .in("status", SIDEBAR_STATUSES)
-          .order("name")
-        return (
-          (data ?? []) as { id: string; name: string; stage: string | null }[]
-        ).map((p) => ({
-          ...p,
-          stage: asStage(p.stage),
-          href: projectHref(p),
-        }))
-      }
-      const { data } = await supabase
-        .from("project_assignments")
-        .select("projects!inner(id, name, status, stage)")
-        .eq("user_id", profile.id)
-        .in("projects.status", SIDEBAR_STATUSES)
-      type Row = {
-        projects: { id: string; name: string; stage: string | null }
-      }
-      return ((data ?? []) as unknown as Row[])
-        .map((row) => row.projects)
-        .sort((a, b) => a.name.localeCompare(b.name))
-        .map((p) => ({
-          id: p.id,
-          name: p.name,
-          stage: asStage(p.stage),
-          // Members open their projects like stakeholders do (membership
-          // decides access).
-          href: projectHref(p),
-        }))
-    },
-  })
-}
-
-/** A project's stage at the row's end: the glyph, its name on hover. */
-function SidebarStage({ stage }: { stage: ProjectStage }) {
-  const t = useT("projects")
-  return (
-    <Tooltip>
-      <TooltipTrigger
-        render={<span />}
-        className="ml-auto flex shrink-0 items-center group-data-[collapsible=icon]:hidden"
-      >
-        {/* The menu button sizes every icon (the tint is important). */}
-        <ProjectStageIcon stage={stage} className="size-3.5!" />
-      </TooltipTrigger>
-      <TooltipContent side="right">{t(STAGE_LABEL_KEYS[stage])}</TooltipContent>
-    </Tooltip>
-  )
-}
 
 /** A 30px icon button in the sidebar's bottom row, named on hover. */
 function BottomIcon({
@@ -186,37 +95,83 @@ function BottomIcon({
   )
 }
 
-const NAV_SLIDE: Variants = {
-  enter: (dir: number) => ({ x: 16 * dir, opacity: 0 }),
-  center: { x: 0, opacity: 1 },
-  exit: (dir: number) => ({ x: -16 * dir, opacity: 0 }),
+const CLOSED_KEY = "sidebar_closed_sections"
+
+/** Which sections (Kantor, Project) are folded; remembered per device. */
+function useClosedSections() {
+  const [closed, setState] = React.useState<string[]>([])
+  React.useEffect(() => {
+    try {
+      const saved = JSON.parse(window.localStorage.getItem(CLOSED_KEY) ?? "[]")
+      if (Array.isArray(saved)) setState(saved)
+    } catch {
+      // Storage blocked or a bad value: everything stays open.
+    }
+  }, [])
+  const toggle = (id: string) =>
+    setState((prev) => {
+      const next = prev.includes(id)
+        ? prev.filter((x) => x !== id)
+        : [...prev, id]
+      try {
+        window.localStorage.setItem(CLOSED_KEY, JSON.stringify(next))
+      } catch {
+        // Storage blocked: the choice lasts for this visit only.
+      }
+      return next
+    })
+  return [closed, toggle] as const
+}
+
+/**
+ * A titled part of the sidebar that folds (Linear-style "Workspace ▾"):
+ * the label is the toggle. Always open while collapsed to icons.
+ */
+function NavSection({
+  label,
+  open,
+  onToggle,
+  children,
+}: {
+  label: string
+  open: boolean
+  onToggle: () => void
+  children: React.ReactNode
+}) {
+  return (
+    <div className="flex flex-col">
+      <SidebarGroupLabel
+        render={<button type="button" />}
+        aria-expanded={open}
+        onClick={onToggle}
+        // Level with the rows' icons (8px edge + 8px); 4px above the
+        // first row like every section step.
+        className="text-muted-foreground hover:text-foreground mx-2 w-fit cursor-pointer gap-1 transition-colors"
+      >
+        {label}
+        <ChevronDown
+          className={cn("size-3! transition-transform", !open && "-rotate-90")}
+        />
+      </SidebarGroupLabel>
+      <Collapse open={open}>{children}</Collapse>
+    </div>
+  )
 }
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   const desktop = useMacChrome()
   const pathname = usePathname()
   const { profile } = useUserProfile()
-  const { loading, active, badges } = useWorkspaceNav()
-  // A project's own menu only while the Project workspace is shown (right
-  // after switching to Kantor it gives way before the route changes).
-  const projectPath =
-    active?.id === "project" ? matchProjectPath(pathname) : null
+  const { loading, visible, badges } = useWorkspaceNav()
   const { state: sidebarState } = useSidebar()
-  // Which menu the sidebar shows; changing it slides the menus.
-  const navKey = projectPath
-    ? `project:${projectPath.ref}`
-    : `ws:${active?.id ?? ""}`
-  const navDirection = projectPath ? 1 : -1
+  const [closed, toggleSection] = useClosedSections()
   const t = useT("nav")
   const tPrefs = useT("prefs")
   // A dot on Yang baru while there's something the viewer hasn't seen.
   const { count: whatsNewUnseen } = useWhatsNewUnseen()
 
-  // Only the Project workspace lists them: don't fetch them elsewhere.
-  const { data: projects = [] } = useSidebarProjects(
-    profile ? { id: profile.id, role: profile.role } : null,
-    active?.id === "project",
-  )
+  // Active projects, each opening in place to its pages.
+  const projectTree = useProjectTree()
 
   // The top block, for whoever can open each page.
   const topItems = React.useMemo(() => {
@@ -229,13 +184,20 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   // the active page (so /calendar/santuy lights Kalender, /leave Cuti).
   const activeHref = React.useMemo(() => {
     let best: { href: string; length: number } | null = null
-    for (const item of [...topItems, ...(active?.items ?? [])]) {
+    for (const item of [...topItems, ...visible.flatMap((ws) => ws.items)]) {
       const length = itemMatch(pathname, item)
       if (length && (!best || length > best.length))
         best = { href: item.href, length }
     }
+    // Inside a project its row wins (not Semua project's /projects).
+    for (const project of projectTree)
+      if (
+        matchesRoute(pathname, project.url) &&
+        (!best || project.url.length > best.length)
+      )
+        best = { href: project.url, length: project.url.length }
     return best?.href
-  }, [active, topItems, pathname])
+  }, [visible, topItems, projectTree, pathname])
 
   const toNav = React.useCallback(
     (item: WorkspaceItem) => {
@@ -262,9 +224,18 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
     },
     [activeHref, badges, pathname, profile, t],
   )
-  const navItems = React.useMemo(
-    () => active?.items.map(toNav),
-    [active, toNav],
+  // Each workspace's rows; Project ends with the project tree.
+  const sections = React.useMemo(
+    () =>
+      visible.map((ws) => ({
+        id: ws.id as WorkspaceId,
+        label: t(ws.name),
+        items: [
+          ...ws.items.map(toNav),
+          ...(ws.id === "project" ? projectTree : []),
+        ],
+      })),
+    [visible, toNav, projectTree, t],
   )
   const topNav = React.useMemo(() => topItems.map(toNav), [topItems, toNav])
   // Cari first, Notifikasi after Beranda.
@@ -312,12 +283,12 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         <div className="-mx-2 [&>[data-sidebar=group]]:py-0">
           <NavMain items={topNav} slots={topSlots} />
         </div>
-        <WorkspaceTabs className="group-data-[collapsible=icon]:hidden" />
       </SidebarHeader>
-      {/* First row starts level with the top of the page sheet. */}
-      <SidebarContent>
+      {/* Kantor and Project as folding sections, both always there; a
+          project opens in place to its pages (no separate project menu). */}
+      <SidebarContent className="gap-1">
         {loading ? (
-          <div className="[&>[data-sidebar=group]:first-child]:pt-0">
+          <SidebarGroup className="pt-0">
             <SidebarMenu>
               {Array.from({ length: 5 }).map((_, i) => (
                 <SidebarMenuItem key={i}>
@@ -325,60 +296,22 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                 </SidebarMenuItem>
               ))}
             </SidebarMenu>
-          </div>
+          </SidebarGroup>
         ) : (
-          // Entering a project slides its menu in from the right (and the
-          // workspace menu out to the left); going back reverses it.
-          <AnimatePresence
-            initial={false}
-            mode="popLayout"
-            custom={navDirection}
-          >
-            <m.div
-              key={navKey}
-              custom={navDirection}
-              variants={NAV_SLIDE}
-              initial="enter"
-              animate="center"
-              exit="exit"
-              transition={TRANSITION}
-              className="flex min-w-0 flex-col [&>[data-sidebar=group]:first-child]:pt-0"
+          sections.map((section) => (
+            <NavSection
+              key={section.id}
+              label={section.label}
+              open={
+                sidebarState === "collapsed" || !closed.includes(section.id)
+              }
+              onToggle={() => toggleSection(section.id)}
             >
-              {projectPath ? (
-                <NavProject />
-              ) : active ? (
-                <NavMain items={navItems ?? []} />
-              ) : null}
-              {!projectPath &&
-                active?.id === "project" &&
-                projects.length > 0 && (
-                  // pt-0: 4px from the list above, like every section.
-                  <SidebarGroup className="pt-0">
-                    <SidebarGroupLabel>{t("activeProjects")}</SidebarGroupLabel>
-                    <SidebarMenu>
-                      {projects.map((project) => (
-                        <SidebarMenuItem key={project.id}>
-                          <SidebarMenuButton
-                            isActive={matchesRoute(pathname, project.href)}
-                            render={<PrefetchLink href={project.href} />}
-                          >
-                            <ProjectAvatar
-                              id={project.id}
-                              name={project.name}
-                              className="size-4"
-                            />
-                            <span className="truncate">{project.name}</span>
-                            {project.stage && (
-                              <SidebarStage stage={project.stage} />
-                            )}
-                          </SidebarMenuButton>
-                        </SidebarMenuItem>
-                      ))}
-                    </SidebarMenu>
-                  </SidebarGroup>
-                )}
-            </m.div>
-          </AnimatePresence>
+              <div className="[&>[data-sidebar=group]]:py-0">
+                <NavMain items={section.items} />
+              </div>
+            </NavSection>
+          ))
         )}
       </SidebarContent>
       {/* Cards above the footer: app update, what's new, the Mac app. */}

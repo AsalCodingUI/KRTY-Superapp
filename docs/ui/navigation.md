@@ -21,7 +21,7 @@ examples: **/ui** → Navigasi.
 | Open a link as a tab from code              | `window.dispatchEvent(new CustomEvent("krty:open-tab", { detail: { url } }))` | same                                                      |
 | Breadcrumb row (portal only)                | `PortalShell`                                                                 | `src/page-slices/projects/ui/portal/PortalShell.tsx`      |
 | Back ← before a page title                  | `PageHeader back={{ href, label }}`                                           | `src/components/page-header.tsx`                          |
-| Sidebar                                     | `AppSidebar` → `NavMain`, `NavProject`, `SidebarNotices`, `NavUser`           | `src/components/app-sidebar.tsx`                          |
+| Sidebar                                     | `AppSidebar` → `NavMain`, `useProjectTree`, `SidebarNotices`, `NavUser`       | `src/components/app-sidebar.tsx`                          |
 | Sidebar pages (per workspace)               | config, not JSX                                                               | `src/shared/config/workspaces.ts`                         |
 | A notice card at the sidebar's bottom       | a hook returning `SidebarNotice` in `useNotices`                              | `src/components/sidebar-notices.tsx`                      |
 | Phone top bar / Mac traffic-light strip     | `AppTopbar` (account: `AccountMenu`)                                          | `src/components/app-topbar.tsx`                           |
@@ -39,9 +39,9 @@ level with the tab row);
 the pages that are always there, whatever the workspace (Cari with its
 ⌘K hint as a plain row, then `globalItems`: Beranda, Notifikasi, Kalender, Tugas saya;
 Notifikasi is a row that opens the drawer, with the unread count); then
-the workspace switch (`WorkspaceTabs`, Kantor | Project: a full-width
-`SegmentedControl` on the chrome's field fill, so it reads as a switch of
-the list, not as one more row). Its bottom: notices, then one row: the account, then
+Kantor ▾ and Project ▾ as folding sections (Linear-style: the small label
+is the toggle; folded ones remembered per device, all open when collapsed
+to icons). Its bottom: notices, then one row: the account, then
 What's new (dot when unseen) and Settings as 30px icons with tooltips
 (stacked when collapsed). Theme and chrome color are
 in Settings → Tampilan, like the language. Sidebar rows (after v0): 30px tall, 2px apart (32px pitch), 8px from the
@@ -159,20 +159,20 @@ tabular-nums`, hidden at 0; badge.md).
 - Pages come from `shared/config/workspaces.ts`: `globalItems` (the top
   block), each workspace's `items`, and `scopePages` (pages with no row of
   their own, named for tab titles and search). The active page is the
-  longest matching href (or `match` prefix) across the top block and the
-  open workspace. One sliding active fill (`bg-sidebar-active`
+  longest matching href (or `match` prefix) across the top block, every
+  section and the project rows. One sliding active fill (`bg-sidebar-active`
   = `--chrome-selected`: a darker see-through fill, flat, no shadow)
-  across rows; the Kantor | Project switch is a segmented control (white thumb). The white
+  across rows. The white
   raised pill is only for the app tabs.
-- Switching workspace only swaps the list; the page stays. Opening a
-  workspace's page (by link) selects its tab; a global page keeps it.
 - Sibling pages behind one row switch with `RouteScopes` as the page
   title: Kalender (Saya / Project / Sharing Santuy), Tugas saya (Tugas /
   Catatan).
 - Row extras: count `badge` (`NavBadge`, 99+), `dot` for "new" without a
   count (`NavDot`), sub-tabs listed under the open page.
-- Inside a project the sidebar swaps to `NavProject` (← Semua project,
-  the project's sections).
+- Projects (`useProjectTree`, active ones, plus the open project) end the
+  Project section; each opens in place to its pages (Dashboard, Tugas,
+  Report …) on the tree line. The one you're in opens by itself, the
+  others on their chevron. No separate project menu.
 - Notices (update ready, download the Mac app): `SidebarNoticeCard`, at
   most two, by `NOTICE_PRIORITY`; hidden when collapsed to icons.
 

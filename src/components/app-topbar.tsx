@@ -3,9 +3,6 @@
 import { siteConfig } from "@/app/siteConfig"
 import { AppIcon } from "@/components/app-icon"
 import { NavUser } from "@/components/nav-user"
-import { useWorkspaceNav } from "@/components/workspace-nav"
-import { SegmentedControl } from "@/components/segmented-control"
-import type { WorkspaceId } from "@/shared/config/workspaces"
 import { useMacChrome } from "@/components/desktop-shell"
 import { SidebarTrigger, useSidebar } from "@/components/ui/sidebar"
 import { cn } from "@/lib/utils"
@@ -121,43 +118,5 @@ export function AppTopbar() {
 
       {account}
     </header>
-  )
-}
-
-/**
- * Kantor | Project at the sidebar's top: a segmented control over the full
- * width (tray + white thumb), so it reads as a switch of the list below and
- * not as one more nav row. A dot on the other workspace when it has
- * something new.
- */
-export function WorkspaceTabs({ className }: { className?: string }) {
-  const { loading, visible, active, select, hasBadge } = useWorkspaceNav()
-  const t = useT("nav")
-  if (loading)
-    return <div className={cn("bg-chrome-field h-8 rounded-lg", className)} />
-  if (visible.length < 2 || !active) return null
-  return (
-    <SegmentedControl<WorkspaceId>
-      shape="row"
-      // The tray on the chrome: its field fill, light and dark.
-      className={cn("bg-chrome-field dark:bg-chrome-field", className)}
-      value={active.id}
-      onChange={select}
-      items={visible.map((ws) => ({
-        value: ws.id,
-        icon: ws.icon,
-        label: (
-          <span className="relative">
-            {t(ws.name)}
-            {ws.id !== active.id && hasBadge(ws) && (
-              <span
-                aria-hidden
-                className="bg-primary absolute -top-0.5 -right-2 size-1.5 rounded-full"
-              />
-            )}
-          </span>
-        ),
-      }))}
-    />
   )
 }

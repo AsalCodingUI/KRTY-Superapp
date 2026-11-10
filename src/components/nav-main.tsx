@@ -61,6 +61,23 @@ function NavDot() {
   )
 }
 
+export type NavMainItem = {
+  title: string
+  url: string
+  icon: React.ReactNode
+  isActive?: boolean
+  badge?: number
+  /** Something new here, without a count (e.g. Yang baru). */
+  dot?: boolean
+  /** Page tabs (or a project's pages); listed under it while it's open. */
+  items?: {
+    title: string
+    url: string
+    isActive?: boolean
+    badge?: number
+  }[]
+}
+
 /** Memoized: the sidebar passes a memoized `items` array. */
 export const NavMain = memo(function NavMain({
   label,
@@ -70,22 +87,7 @@ export const NavMain = memo(function NavMain({
   label?: string
   /** Rows that aren't links (e.g. Notifikasi), placed before item [index]. */
   slots?: Record<number, React.ReactNode>
-  items: {
-    title: string
-    url: string
-    icon: React.ReactNode
-    isActive?: boolean
-    badge?: number
-    /** Something new here, without a count (e.g. Yang baru). */
-    dot?: boolean
-    /** Page tabs; listed under the page while it is open. */
-    items?: {
-      title: string
-      url: string
-      isActive?: boolean
-      badge?: number
-    }[]
-  }[]
+  items: NavMainItem[]
 }) {
   const [collapsed, setCollapsed] = useCollapsedNav()
   const t = useT("shell")
@@ -112,7 +114,7 @@ export const NavMain = memo(function NavMain({
             nested &&
             (here ? !collapsed.includes(item.url) : expanded.includes(item.url))
           return (
-            <Fragment key={item.title}>
+            <Fragment key={item.url}>
               {slots?.[index]}
               <SidebarMenuItem>
                 {/* Right-click: Buka / Buka di tab baru / Salin link. */}

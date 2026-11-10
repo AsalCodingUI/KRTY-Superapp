@@ -199,7 +199,8 @@ export const workspaces: Workspace[] = [
     icon: RiBriefcaseLine,
     items: () => [
       {
-        name: "projects",
+        // "Semua project": the section itself is called Project.
+        name: "allProjects",
         href: links.projects,
         icon: RiFolderLine,
       },

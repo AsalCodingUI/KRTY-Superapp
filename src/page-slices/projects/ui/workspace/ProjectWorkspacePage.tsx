@@ -56,7 +56,7 @@ export type ProjectSection = keyof typeof PAGES
 
 export const PROJECT_SECTION_SLUGS = Object.keys(PAGES) as ProjectSection[]
 
-/** One project page; the sidebar (NavProject) switches between them. */
+/** One project page; the sidebar's project tree switches between them. */
 export function ProjectWorkspacePage({
   projectId,
   section,
