@@ -37,11 +37,11 @@ The shell has no top bar from `md` up. The sidebar's top: the brand;
 search (⌘K, an outlined pill); the pages that are always there, whatever
 the workspace (`globalItems`: Beranda, Notifikasi, Kalender, Tugas saya;
 Notifikasi is a row that opens the drawer, with the unread count); then
-the workspaces as icon + label tabs (`WorkspaceTabs`, Kantor | Project,
-not a segmented control; same 16px icon and 14px text as the nav rows,
-optical padding 10 / 12px, gap 8). Its bottom: notices, What's new,
-Settings, the account row (same list, same icon column), then theme and
-chrome color; language lives in Settings only. Sidebar icons centre on one column (30px from the edge),
+the workspace switch (`WorkspaceTabs`, Kantor | Project: a full-width
+`SegmentedControl` on the chrome's field fill, so it reads as a switch of
+the list, not as one more row). Its bottom: notices, What's new, Settings,
+the account row (same list, same icon column). Theme and chrome color are
+in Settings → Tampilan, like language; language lives in Settings only. Sidebar icons centre on one column (30px from the edge),
 labels start at 48px, rows sit 4px apart. Above the page sheet, on the
 chrome: the sidebar toggle, ‹ › (the active tab's history), then the
 tabs, level with the brand row. The Mac app keeps its toggle by the
@@ -156,7 +156,7 @@ tabular-nums`, hidden at 0; badge.md).
   longest matching href (or `match` prefix) across the top block and the
   open workspace. One sliding active fill (`bg-sidebar-active`
   = `--chrome-selected`: a darker see-through fill, flat, no shadow)
-  across rows; the Kantor | Project tabs use the same fill. The white
+  across rows; the Kantor | Project switch is a segmented control (white thumb). The white
   raised pill is only for the app tabs.
 - Switching workspace only swaps the list; the page stays. Opening a
   workspace's page (by link) selects its tab; a global page keeps it.

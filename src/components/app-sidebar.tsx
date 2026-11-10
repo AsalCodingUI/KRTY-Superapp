@@ -1,8 +1,6 @@
 "use client"
 
 import { projectHref } from "@/shared/lib/url-params"
-import { AppearancePopover } from "@/components/appearance-popover"
-import { ThemeSwitcher } from "@/components/theme-switcher"
 import { AnimatePresence, m, type Variants } from "motion/react"
 import { TRANSITION } from "@/shared/lib/motion"
 import * as React from "react"
@@ -35,7 +33,6 @@ import {
 import {
   Sidebar,
   SidebarContent,
-  SidebarFooter,
   SidebarGroup,
   SidebarGroupLabel,
   SidebarMenu,
@@ -58,7 +55,6 @@ import {
 } from "@/shared/config/workspaces"
 import { accessLevel, canOpenPage } from "@/shared/config/access"
 import { useUserProfile } from "@/shared/hooks/useUserProfile"
-import { useTabSwitched } from "@/shared/hooks/useTabSwitched"
 import { useT } from "@/shared/i18n/client"
 import { isAdminRole } from "@/shared/lib/roles"
 import { useQuery } from "@tanstack/react-query"
@@ -161,8 +157,6 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   const projectPath =
     active?.id === "project" ? matchProjectPath(pathname) : null
   const { state: sidebarState } = useSidebar()
-  // Only after the first collapse / expand, not on page load.
-  const sidebarToggled = useTabSwitched(sidebarState)
   // Which menu the sidebar shows; changing it slides the menus.
   const navKey = projectPath
     ? `project:${projectPath.ref}`
@@ -348,7 +342,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
       <SidebarNotices />
       {/* Always at the bottom, above the theme switch: what's new (a dot
           while there's something unseen) and, in the Mac app, its settings. */}
-      <SidebarGroup className="py-0">
+      <SidebarGroup className="pt-0 pb-3">
         <SidebarMenu>
           <SidebarMenuItem>
             <SidebarMenuButton
@@ -390,22 +384,6 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
           />
         </div>
       </SidebarGroup>
-      {/* Theme and chrome color (language is in Settings). */}
-      <SidebarFooter>
-        {/* Stacks vertically when the sidebar is collapsed to icons. Re-keyed
-            on the sidebar state so the new arrangement fades and settles in
-            alongside the width animation instead of snapping. */}
-        <div
-          key={sidebarState}
-          className={cn(
-            "flex origin-bottom-left flex-nowrap items-center gap-2 group-data-[collapsible=icon]:flex-col",
-            sidebarToggled && "animate-footer-in motion-reduce:animate-none",
-          )}
-        >
-          <ThemeSwitcher className="group-data-[collapsible=icon]:flex-col group-data-[collapsible=icon]:self-center" />
-          <AppearancePopover className="group-data-[collapsible=icon]:self-center" />
-        </div>
-      </SidebarFooter>
     </Sidebar>
   )
 }

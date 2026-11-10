@@ -4,6 +4,8 @@ import { siteConfig } from "@/app/siteConfig"
 import { AppIcon } from "@/components/app-icon"
 import { NavUser } from "@/components/nav-user"
 import { useWorkspaceNav } from "@/components/workspace-nav"
+import { SegmentedControl } from "@/components/segmented-control"
+import type { WorkspaceId } from "@/shared/config/workspaces"
 import { useMacChrome } from "@/components/desktop-shell"
 import { SidebarTrigger, useSidebar } from "@/components/ui/sidebar"
 import { cn } from "@/lib/utils"
@@ -123,57 +125,40 @@ export function AppTopbar() {
 }
 
 /**
- * Kantor / Project as tabs at the sidebar's top: icon + label, the active
- * one on the sidebar's active fill, a dot on the other when it has
- * something new. Not a segmented control.
+ * Kantor | Project at the sidebar's top: a segmented control over the full
+ * width (tray + white thumb), so it reads as a switch of the list below and
+ * not as one more nav row. A dot on the other workspace when it has
+ * something new.
  */
 export function WorkspaceTabs({ className }: { className?: string }) {
   const { loading, visible, active, select, hasBadge } = useWorkspaceNav()
   const t = useT("nav")
-  if (loading) return <div className="bg-chrome-field h-8 w-40 rounded-full" />
+  if (loading)
+    return (
+      <div className={cn("bg-chrome-field rounded-control h-8", className)} />
+    )
   if (visible.length < 2 || !active) return null
   return (
-    <div
-      role="tablist"
-      className={cn("flex min-w-0 items-center gap-0.5", className)}
-    >
-      {visible.map((ws) => {
-        const on = ws.id === active.id
-        const Icon = ws.icon
-        return (
-          <button
-            key={ws.id}
-            type="button"
-            role="tab"
-            aria-selected={on}
-            onClick={() => select(ws.id)}
-            className={cn(
-              // Same icon and text as the nav rows below (16px icon, 14px
-              // text). Optical (docs/ui/optical.md): the icon side 2px
-              // tighter than the text side (10 / 12px, so the icon centres on
-              // the sidebar's icon column). gap-2, not the rows' 2.5, so both
-              // tabs and the bell fit 15.5rem in English ("Personal").
-              "rounded-control flex h-8 min-w-0 shrink-0 items-center gap-2 pr-3 pl-2.5 text-sm font-medium transition-colors",
-              on
-                ? "bg-sidebar-active text-foreground"
-                : "text-chrome-label hover:text-foreground hover:bg-chrome-hover",
-            )}
-          >
-            <span className="relative flex shrink-0">
-              <Icon
-                className={cn("size-4", !on && "text-muted-foreground")}
+    <SegmentedControl<WorkspaceId>
+      // The tray on the chrome: its field fill, light and dark.
+      className={cn("bg-chrome-field dark:bg-chrome-field", className)}
+      value={active.id}
+      onChange={select}
+      items={visible.map((ws) => ({
+        value: ws.id,
+        icon: ws.icon,
+        label: (
+          <span className="relative">
+            {t(ws.name)}
+            {ws.id !== active.id && hasBadge(ws) && (
+              <span
+                aria-hidden
+                className="bg-primary absolute -top-0.5 -right-2 size-1.5 rounded-full"
               />
-              {!on && hasBadge(ws) && (
-                <span
-                  aria-hidden
-                  className="bg-primary ring-chrome absolute -top-0.5 -right-0.5 size-2 rounded-full ring-2"
-                />
-              )}
-            </span>
-            <span className="truncate">{t(ws.name)}</span>
-          </button>
-        )
-      })}
-    </div>
+            )}
+          </span>
+        ),
+      }))}
+    />
   )
 }
