@@ -41,7 +41,7 @@ the workspace switch (`WorkspaceTabs`, Kantor | Project: a full-width
 `SegmentedControl` on the chrome's field fill, so it reads as a switch of
 the list, not as one more row). Its bottom: notices, What's new, Settings,
 the account row (same list, same icon column). Theme and chrome color are
-in Settings → Tampilan, like language; language lives in Settings only. Sidebar icons centre on one column (30px from the edge),
+in Settings → Tampilan, like the language. Sidebar icons centre on one column (30px from the edge),
 labels start at 48px, rows sit 4px apart. Above the page sheet, on the
 chrome: the sidebar toggle, ‹ › (the active tab's history), then the
 tabs, level with the brand row. The Mac app keeps its toggle by the
