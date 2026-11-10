@@ -44,7 +44,8 @@ the account row (same list, same icon column). Theme and chrome color are
 in Settings → Tampilan, like the language. Sidebar rows (after v0): 30px tall, 2px apart (32px pitch), 8px from the
 sidebar's edge, corners 8px (`rounded-md`, not a pill); icons centre on
 one column 24px from the edge, labels start at 40px. Sections (brand,
-top block, switch, list, notices, bottom) sit 8px apart. Collapsed: icons on the 30px column. Above the page sheet, on the
+top block, switch, list, notices, bottom) sit 4px apart (rows 2px); the
+brand 8px above the top block. Collapsed: icons on the 30px column. Above the page sheet, on the
 chrome: the sidebar toggle, ‹ › (the active tab's history), then the
 tabs, level with the brand row. The Mac app keeps its toggle by the
 traffic lights.
