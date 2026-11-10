@@ -218,10 +218,7 @@ function useDownloadMacNotice(): SidebarNotice | null {
 
 /** Every notice source, in any order (sorted by priority). */
 function useNotices(): (SidebarNotice | null)[] {
-  return [
-    useUpdateNotice(),
-    useDownloadMacNotice(),
-  ]
+  return [useUpdateNotice(), useDownloadMacNotice()]
 }
 
 const MAX_VISIBLE = 2
@@ -240,7 +237,8 @@ export function SidebarNotices() {
       {visible.length > 0 && (
         <div
           data-slot="sidebar-notices"
-          className="flex flex-col gap-2 px-3 pb-1 group-data-[collapsible=icon]:hidden"
+          // pb-3: 12px to What's new, the step between every sidebar section.
+          className="flex flex-col gap-2 px-3 pb-3 group-data-[collapsible=icon]:hidden"
         >
           {visible.map(({ id, priority: _p, element: _e, ...card }) => (
             <SidebarNoticeCard key={id} {...card} />

@@ -315,7 +315,8 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
               {!projectPath &&
                 active?.id === "project" &&
                 projects.length > 0 && (
-                  <SidebarGroup>
+                  // mt-1: 12px from the list above, like every section.
+                  <SidebarGroup className="mt-1">
                     <SidebarGroupLabel>{t("activeProjects")}</SidebarGroupLabel>
                     <SidebarMenu>
                       {projects.map((project) => (
