@@ -138,7 +138,7 @@ export function NavUser({
                     row
                       ? // Avatar centred on the icon column (20px on a
                         // 16px icon's centre), label where the others start.
-                        "aria-expanded:bg-sidebar-accent gap-2 pl-2 group-data-[collapsible=icon]:p-1.5!"
+                        "aria-expanded:bg-sidebar-accent gap-1.5 pl-1.5 group-data-[collapsible=icon]:p-1.5!"
                       : showName
                         ? "text-foreground h-8 w-auto gap-2 pr-3 pl-1 hover:bg-transparent active:bg-transparent aria-expanded:bg-transparent"
                         : "aria-expanded:bg-sidebar-accent blend-ink size-8! justify-center p-0!"

@@ -102,7 +102,7 @@ export const NavMain = memo(function NavMain({
         {/* The active page's fill slides between rows (parents and tabs). */}
         <SlidingIndicator
           activeSelector="[data-active]"
-          className="bg-sidebar-active rounded-full"
+          className="bg-sidebar-active rounded-md"
         />
         {items.map((item, index) => {
           const nested = (item.items?.length ?? 0) > 1
@@ -152,7 +152,7 @@ export const NavMain = memo(function NavMain({
                         : t("navExpand", { name: item.title })
                     }
                     aria-expanded={open}
-                    className="text-muted-foreground top-1.5! right-1.5"
+                    className="text-muted-foreground top-[5px]! right-1.5"
                     onClick={() => {
                       // The current group remembers being closed; others
                       // just toggle for this visit.

@@ -222,9 +222,12 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
     [active, toNav],
   )
   const topNav = React.useMemo(() => topItems.map(toNav), [topItems, toNav])
-  // Notifikasi after Beranda.
+  // Cari first, Notifikasi after Beranda.
   const topSlots = React.useMemo(
-    () => ({ 1: <Notifications variant="row" /> }),
+    () => ({
+      0: <GlobalSearch />,
+      1: <Notifications variant="row" />,
+    }),
     [],
   )
 
@@ -244,18 +247,19 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
           (site-header.tsx). Collapsed: icons only, no tabs. */}
       <SidebarHeader
         // px-3: the same 12px edge as the menu rows below.
-        className={cn("gap-3 px-3 pb-3", desktop ? "pt-1" : "pt-3")}
+        className={cn("gap-5 px-2 pb-5", desktop ? "pt-1" : "pt-3")}
       >
         <div
           className={cn(
-            "flex h-8 items-center justify-between group-data-[collapsible=icon]:h-auto group-data-[collapsible=icon]:justify-center",
+            // -mb-2: 12px to the list below; sections sit 20px apart.
+            "-mb-2 flex h-8 items-center justify-between group-data-[collapsible=icon]:h-auto group-data-[collapsible=icon]:justify-center",
           )}
         >
           <PrefetchLink
             href={siteConfig.baseLinks.dashboard}
             // The mark in line with the menu's icons below (same size, same
             // left edge).
-            className="flex min-w-0 items-center gap-2 pl-2.5 group-data-[collapsible=icon]:pl-0"
+            className="flex min-w-0 items-center gap-2 pl-2 group-data-[collapsible=icon]:pl-0"
             aria-label={siteConfig.name}
           >
             <AppIcon size={96} variant="mark" className="size-4 shrink-0" />
@@ -264,9 +268,8 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
             </span>
           </PrefetchLink>
         </div>
-        <GlobalSearch />
         {/* The group's own padding off: the header already sets the edge. */}
-        <div className="-mx-3 [&>[data-sidebar=group]]:py-0">
+        <div className="-mx-2 [&>[data-sidebar=group]]:py-0">
           <NavMain items={topNav} slots={topSlots} />
         </div>
         <WorkspaceTabs className="group-data-[collapsible=icon]:hidden" />
@@ -309,8 +312,8 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
               {!projectPath &&
                 active?.id === "project" &&
                 projects.length > 0 && (
-                  // mt-1: 12px from the list above, like every section.
-                  <SidebarGroup className="mt-1">
+                  // mt-3: 20px from the list above, like every section.
+                  <SidebarGroup className="mt-3">
                     <SidebarGroupLabel>{t("activeProjects")}</SidebarGroupLabel>
                     <SidebarMenu>
                       {projects.map((project) => (
@@ -342,7 +345,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
       <SidebarNotices />
       {/* Always at the bottom, above the theme switch: what's new (a dot
           while there's something unseen) and, in the Mac app, its settings. */}
-      <SidebarGroup className="pt-0 pb-3">
+      <SidebarGroup className="pt-0 pb-2">
         <SidebarMenu>
           <SidebarMenuItem>
             <SidebarMenuButton
@@ -375,9 +378,9 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
             </SidebarMenuButton>
           </SidebarMenuItem>
         </SidebarMenu>
-        {/* The account: one more row of the same list (4px apart, icon
+        {/* The account: one more row of the same list (2px apart, icon
             column, muted label). */}
-        <div className="mt-1">
+        <div className="mt-0.5">
           <AccountMenu
             row
             side={sidebarState === "collapsed" ? "right" : "top"}

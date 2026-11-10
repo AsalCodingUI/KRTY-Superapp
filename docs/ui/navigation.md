@@ -34,15 +34,18 @@ examples: **/ui** → Navigasi.
 ## App tabs
 
 The shell has no top bar from `md` up. The sidebar's top: the brand;
-search (⌘K, an outlined pill); the pages that are always there, whatever
-the workspace (`globalItems`: Beranda, Notifikasi, Kalender, Tugas saya;
+the pages that are always there, whatever the workspace (Cari with its
+⌘K hint as a plain row, then `globalItems`: Beranda, Notifikasi, Kalender, Tugas saya;
 Notifikasi is a row that opens the drawer, with the unread count); then
 the workspace switch (`WorkspaceTabs`, Kantor | Project: a full-width
 `SegmentedControl` on the chrome's field fill, so it reads as a switch of
 the list, not as one more row). Its bottom: notices, What's new, Settings,
 the account row (same list, same icon column). Theme and chrome color are
-in Settings → Tampilan, like the language. Sidebar icons centre on one column (30px from the edge),
-labels start at 48px, rows sit 4px apart. Above the page sheet, on the
+in Settings → Tampilan, like the language. Sidebar rows (after v0): 30px tall, 2px apart (32px pitch), 8px from the
+sidebar's edge, corners 8px (`rounded-md`, not a pill); icons centre on
+one column 24px from the edge, labels start at 40px. Sections (brand,
+top block, switch, list, notices, bottom) sit 20px apart; the brand is
+12px above the top block. Collapsed: icons on the 30px column. Above the page sheet, on the
 chrome: the sidebar toggle, ‹ › (the active tab's history), then the
 tabs, level with the brand row. The Mac app keeps its toggle by the
 traffic lights.

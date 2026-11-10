@@ -92,7 +92,7 @@ parallel. The container sets it once; children follow.
 | Checkbox                                                        | `rounded-[5px]` (component constant)                                      |
 | Avatar, avatar group, Switch, Slider, Progress                  | `rounded-full`                                                            |
 | ProjectAvatar (color square)                                    | `rounded-[5px]` (component)                                               |
-| Tabs list + thumb, SegmentedControl, sidebar item + active pill | `rounded-full`                                                            |
+| Tabs list + thumb, SegmentedControl                             | `rounded-full`                                                            |
 | Row hover / selected highlight                                  | `rounded-lg`                                                              |
 | List header / group header pill                                 | `rounded-lg`                                                              |
 | Menu / select / command item                                    | `rounded-nested` (10px / 6px)                                             |
@@ -131,7 +131,7 @@ Measured on /ui → Radius (squircle browsers, ×1.715):
 
 | Class             | Base       | Renders              | For                                                                           |
 | ----------------- | ---------- | -------------------- | ----------------------------------------------------------------------------- |
-| `rounded-control` | pill       | pill (not squircled) | buttons, inputs, selects, badges, tabs, toggles, segmented, sidebar items     |
+| `rounded-control` | pill       | pill (not squircled) | buttons, inputs, selects, badges, tabs, toggles, segmented (sidebar rows and the Kantor / Project switch: `rounded-md`, `SegmentedControl shape="row"`) |
 | `rounded-chip`    | md (8px)   | 13.7px               | ListChip, textarea, tooltip                                                   |
 | `rounded-row`     | lg (10px)  | 17.2px               | row highlight, column / group header pills                                    |
 | `rounded-card`    | xl (14px)  | 24.0px               | cards, panels, HomeCard, embeds                                               |
@@ -208,7 +208,8 @@ Done 2026-11-05 (local): the role tokens above applied in the shared
 components (dialog, sheet, popover, dropdown, select, hover card,
 command, context menu, toast, card surfaces, HomeCard, grouped list,
 sliding highlight, chip, tooltip, textarea, button, input, select,
-badge, tabs, input group, toggle, segmented control, sidebar items);
+badge, tabs, input group, toggle, segmented control; sidebar rows are
+8px `rounded-md`, see navigation.md);
 bordered `rounded-2xl` cards → `rounded-card`; glass cards and phone
 sheet tops → dialog; date picker and brief menus → popover; mention /
 slash / rich-text / brief menus on the nested standard; `ProjectAvatar`

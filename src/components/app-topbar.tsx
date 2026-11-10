@@ -134,12 +134,11 @@ export function WorkspaceTabs({ className }: { className?: string }) {
   const { loading, visible, active, select, hasBadge } = useWorkspaceNav()
   const t = useT("nav")
   if (loading)
-    return (
-      <div className={cn("bg-chrome-field rounded-control h-8", className)} />
-    )
+    return <div className={cn("bg-chrome-field h-8 rounded-md", className)} />
   if (visible.length < 2 || !active) return null
   return (
     <SegmentedControl<WorkspaceId>
+      shape="row"
       // The tray on the chrome: its field fill, light and dark.
       className={cn("bg-chrome-field dark:bg-chrome-field", className)}
       value={active.id}
