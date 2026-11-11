@@ -252,9 +252,9 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
           as tabs. Collapsed: icons only, no tabs. */}
       <SidebarHeader
         // px-3: the same 12px edge as the menu rows below.
-        // pt-2.5: the workspace row (32px) centres on the tab row beside it
-        // (52px, 10px above and below its 32px tabs).
-        className={cn("gap-1 px-3 pb-4", desktop ? "pt-1" : "pt-2.5")}
+        // pt-1.5: the workspace row (32px) centres on the tab row beside it
+        // (44px, 6px above and below its 32px tabs).
+        className={cn("gap-1 px-3 pb-4", desktop ? "pt-1" : "pt-1.5")}
       >
         {/* Obvious-style: a 20px avatar and the name (14px medium, starting
             at 46px like the labels below), the toggle at the

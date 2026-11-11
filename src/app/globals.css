@@ -1147,13 +1147,13 @@
 
 /* From md up the web has no top bar: brand, search, notifications and the
    account are in the sidebar (app-sidebar.tsx), the tabs on the chrome
-   above the page (site-header.tsx: pt-3 + h-8 + pb-2, its tabs level
-   with the sidebar's brand row). The Mac app keeps its 52pt strip
+   above the page (site-header.tsx: py-1.5 + h-8 = 44px, its tabs level
+   with the sidebar's workspace row). The Mac app keeps its 52pt strip
    for the traffic lights, with the tabs in it ((main)/layout.tsx,
    :root:root wins). */
 @media (min-width: 768px) {
   :root {
     --app-topbar-height: 0px;
-    --app-tabs-height: 3.25rem;
+    --app-tabs-height: 2.75rem;
   }
 }

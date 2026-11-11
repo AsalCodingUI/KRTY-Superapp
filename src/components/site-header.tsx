@@ -117,7 +117,7 @@ export function SiteHeader() {
     <header
       data-slot="app-tabs"
       data-chrome-dark=""
-      className="on-chrome text-foreground flex min-w-0 shrink-0 items-center gap-1 py-2.5 max-md:hidden"
+      className="on-chrome text-foreground flex min-w-0 shrink-0 items-center gap-1 py-1.5 max-md:hidden"
     >
       {/* ‹ › lead the tabs (the sidebar toggle is in the sidebar's
           workspace row; the Mac app's by its traffic lights). */}
