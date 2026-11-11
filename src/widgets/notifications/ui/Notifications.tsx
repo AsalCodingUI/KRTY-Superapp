@@ -113,13 +113,21 @@ export function Notifications({
       >
         <div className="relative flex items-center justify-center">
           <RiNotification3Line
-            className={variant === "default" ? "size-4 shrink-0" : "size-4"}
+            className={cx(
+              variant === "default" ? "size-4 shrink-0" : "size-4",
+              // The dot cuts its own gap out of the bell (a mask, not a
+              // ring), so nothing light shows around it on any background:
+              // a 6px hole (the 4px dot + 2px) at the dot's centre.
+              unreadCount > 0 &&
+                variant === "icon" &&
+                "[mask-image:radial-gradient(circle_at_14px_2px,transparent_6px,#000_6.5px)]",
+            )}
           />
           {unreadCount > 0 && variant === "icon" && (
             // Unread: a still primary dot (feedback.md), no ping, no red.
             <span
               aria-hidden
-              className="bg-primary ring-chrome absolute top-0 right-0 -mt-0.5 -mr-0.5 size-2 rounded-full ring-2"
+              className="bg-primary absolute top-0 right-0 -mt-0.5 -mr-0.5 size-2 rounded-full"
             />
           )}
         </div>
