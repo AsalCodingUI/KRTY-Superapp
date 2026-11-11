@@ -137,7 +137,7 @@ function NavSection({
         // The chevron on the icon column, the label where row labels start.
         // mb-0.5: 2px to the first item, the rows' step. Full width, so
         // the whole row folds it, not just the words.
-        className="text-muted-foreground hover:text-foreground mx-3 mb-0.5 cursor-pointer justify-start gap-2 pl-3 text-left font-normal transition-colors"
+        className="blend-ink text-muted-foreground hover:text-foreground mx-3 mb-0.5 cursor-pointer justify-start gap-2 pl-3 text-left font-normal transition-colors"
       >
         <ChevronDown
           className={cn("size-3! transition-transform", open && "rotate-180")}
@@ -271,10 +271,11 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
           // mb-2: 12px to Cari.
           className="mb-2"
           // The bell in an outlined circle, like Obvious's search button.
+          // Collapsed, no line: plain icons like the rows under them.
           aside={
             <Notifications
               variant="icon"
-              className="border-chrome-border size-8 shrink-0 rounded-full border-[0.5px]"
+              className="border-chrome-border size-8 shrink-0 rounded-full border-[0.5px] group-data-[collapsible=icon]:border-transparent"
             />
           }
         />

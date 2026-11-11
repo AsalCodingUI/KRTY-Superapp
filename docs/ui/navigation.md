@@ -171,7 +171,9 @@ tabular-nums`, hidden at 0; badge.md).
   raised pill is only for the app tabs.
 - Sibling pages behind one row switch with `RouteScopes` as the page
   title: Kalender (Saya / Project / Sharing Santuy), Tugas saya (Tugas /
-  Catatan).
+  Catatan). They are pages, so `TabNavigation plain` (links), never a
+  SegmentedControl: the pill is kept for the view switch under them
+  (Minggu / Bulan), so the two levels never look alike.
 - Row extras: count `badge` (`NavBadge`, 99+), `dot` for "new" without a
   count (`NavDot`), sub-tabs listed under the open page.
 - Projects (`useProjectTree`, active ones, plus the open project) under
