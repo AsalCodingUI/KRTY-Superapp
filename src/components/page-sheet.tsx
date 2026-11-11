@@ -3,8 +3,8 @@ import { cn } from "@/lib/utils"
 import type * as React from "react"
 
 /** The sheet's corner on the web. */
-// Small, like Fibery's (8px squircled reads ~6px).
-const SHEET_RADIUS = "md:rounded-md"
+// 10px squircled (reads ~8px), every corner alike.
+const SHEET_RADIUS = "md:rounded-lg"
 
 /** The page sheet's corner in the Mac app: the window's 16pt corner less
  *  the 6px inset (a native size, so not a radius role). */

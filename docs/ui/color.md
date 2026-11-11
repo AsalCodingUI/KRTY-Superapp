@@ -34,8 +34,10 @@ project colors. Live swatches: **/ui** → Color.
   so tints sit right on any dark surface.
 - **Tint**: the viewer's theme color (Settings → Tampilan) sets
   `--tint-h` (hue) and `--tint-c` (0–1) on `<html>` (`ChromeTint`,
-  `src/shared/lib/chrome-tint.ts`). Ink, page, chrome, primary, borders
-  and shadows lean toward it. Never read the tint yourself: use the tokens.
+  `src/shared/lib/chrome-tint.ts`). Ink, chrome, primary and shadows
+  lean toward it. **Fills never do**: the page, cards, popovers,
+  buttons, hovers and other fills are plain white / neutral gray (graphite
+  in dark) in every theme. Never read the tint yourself: use the tokens.
 - **Light / dark**: `next-themes` toggles `.dark` on `<html>`. **Dark
   chrome** (dark sidebar in light mode): `<html data-dark-chrome>` +
   `data-chrome-dark` on the sidebar and top bar; the `dark:` variant and
@@ -48,7 +50,7 @@ project colors. Live swatches: **/ui** → Color.
 
 | Token                  | For                                                                                             |
 | ---------------------- | ----------------------------------------------------------------------------------------------- |
-| `background`           | The page (white leaning to the tint; graphite in dark)                                          |
+| `background`           | The page (plain white; neutral graphite in dark), whatever the tint                            |
 | `card`                 | Cards (same as page in light, lifted in dark)                                                   |
 | `popover`              | Menus, popovers, dialogs (pure white in light)                                                  |
 | `surface`              | Dark only: the main page pane and sticky cells on it (`dark:bg-surface`); = background in light |

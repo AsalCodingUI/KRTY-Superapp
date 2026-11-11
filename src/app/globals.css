@@ -528,7 +528,7 @@
      firm (light: black 72%; dark and the dark sidebar: white 80%), a step
      above the muted ink. Hover and active turn them to the foreground. */
   --chrome-label: oklch(0 0 0 / 72%);
-  --inverse: oklch(0.145 var(--tint-ink) var(--tint-h));
+  --inverse: oklch(0.145 0 0);
   /* Elevation: the app's only shadows (use as shadow-(--elev-N)). Each is
      a hairline, a small contact shadow and a wide ambient one with negative
      spread, so it falls down instead of out; higher = further, wider,
@@ -566,13 +566,9 @@
     var(--app-topbar-height) + var(--app-tabs-height, 0px) +
       var(--app-banner-height, 0px) + 0.5rem
   );
-  /* The page: white, leaning to the chrome tint (pure white when neutral).
-     An opaque mix, so solid children never show as white patches. */
-  --background: color-mix(
-    in oklab,
-    #fff calc(100% - var(--tint-c) * 7%),
-    var(--chrome)
-  );
+  /* The page and every fill on it: plain white and neutral grays in any
+     theme; the tint stays on the chrome and in the text. */
+  --background: #fff;
   --heading: oklch(0.289 var(--tint-ink) var(--tint-h));
   --foreground: oklch(0.289 var(--tint-ink) var(--tint-h));
   --card: var(--background);
@@ -598,20 +594,20 @@
   --primary-subtle: color-mix(in oklab, var(--primary) 14%, transparent);
   /* Fills, hovers, chips: see-through ink, so they pick up the tint of
      whatever they sit on (page, popover, chrome). */
-  --secondary: oklch(0.22 var(--tint-ink) var(--tint-h) / 0.035);
+  --secondary: oklch(0.22 0 0 / 0.035);
   /* Text ladder (light): foreground 0.289 → secondary 0.405 → muted 0.52
      → tertiary 0.633, even 0.115 steps. */
   --secondary-foreground: oklch(0.405 var(--tint-ink) var(--tint-h));
-  --muted: oklch(0.22 var(--tint-ink) var(--tint-h) / 0.035);
+  --muted: oklch(0.22 0 0 / 0.035);
   /* Opaque twin for sticky cells that cover scrolling content. */
   --muted-solid: color-mix(
     in oklab,
-    oklch(0.22 var(--tint-ink) var(--tint-h)) 3.5%,
+    oklch(0.22 0 0) 3.5%,
     var(--background)
   );
   --muted-foreground: oklch(0.52 var(--tint-ink) var(--tint-h));
   --tertiary-foreground: oklch(0.633 var(--tint-ink) var(--tint-h));
-  --accent: oklch(0.22 var(--tint-ink) var(--tint-h) / 0.06);
+  --accent: oklch(0.22 0 0 / 0.06);
   --accent-foreground: oklch(0.289 var(--tint-ink) var(--tint-h));
   --destructive: var(--red-9);
   --destructive-foreground: #ffffff;
@@ -632,7 +628,7 @@
   --info: var(--blue-9);
   --info-foreground: #ffffff;
   --info-subtle: var(--blue-3);
-  --neutral-subtle: oklch(0.22 var(--tint-ink) var(--tint-h) / 0.06);
+  --neutral-subtle: oklch(0.22 0 0 / 0.06);
   --neutral-ink: oklch(0.52 var(--tint-ink) var(--tint-h));
   --border: #f3f3f3;
   --input: #dddddd;
@@ -643,7 +639,7 @@
   --focus-ring: color-mix(in oklab, var(--primary) 22%, transparent);
   --ring: color-mix(in oklab, var(--primary) 50%, transparent);
   /* Behind dialogs: a light, tinted veil (the page stays readable). */
-  --backdrop: oklch(0.22 var(--tint-ink) var(--tint-h) / 0.18);
+  --backdrop: oklch(0.22 0 0 / 0.18);
   --chart-1: oklch(0.879 0.169 91.605);
   --chart-2: oklch(0.769 0.188 70.08);
   --chart-3: oklch(0.666 0.179 58.318);
@@ -668,7 +664,8 @@
 
 .dark,
 :root[data-dark-chrome]:not(.dark) [data-chrome-dark] {
-  /* Dark leans into the theme: the near-black surfaces carry its color. */
+  /* Dark: neutral graphite surfaces and fills (no tint); the theme shows
+     in the chrome and the primary. */
   --tint-ink: calc(var(--tint-c) * 0.025);
   --spinner: oklch(0.72 calc(var(--tint-c) * 0.13) var(--tint-h));
   --heading: var(--foreground);
@@ -683,11 +680,11 @@
   --backdrop: rgb(0 0 0 / 55%);
   /* Neutral graphite palette (design-tool inspector style): dark canvas,
      lifted panels, solid gray fields, navy/sky-blue accent. */
-  --background: oklch(0.235 var(--tint-ink) var(--tint-h));
+  --background: oklch(0.235 0 0);
   --foreground: oklch(0.935 0 0);
-  --card: oklch(0.265 var(--tint-ink) var(--tint-h));
+  --card: oklch(0.265 0 0);
   --card-foreground: oklch(0.935 0 0);
-  --popover: oklch(0.265 var(--tint-ink) var(--tint-h));
+  --popover: oklch(0.265 0 0);
   --popover-foreground: oklch(0.935 0 0);
   /* Dark: a light shade of the theme, with dark text on it. All or nothing
      (any tint switches it): halfway between blue with white text and the
@@ -728,7 +725,7 @@
   --warning-foreground: oklch(0.2 0.02 75);
   --info: var(--blue-9);
   --info-foreground: #ffffff;
-  --border: oklch(0.3 var(--tint-ink) var(--tint-h));
+  --border: oklch(0.3 0 0);
   --input: oklch(1 0 0 / 9%);
   --field: oklch(1 0 0 / 4.5%);
   --field-hover: oklch(1 0 0 / 6.3%);
@@ -763,7 +760,7 @@
   --elev-5:
     0 0 0 1px oklch(1 0 0 / 0.07), 0 36px 84px -18px oklch(0 0 0 / 0.42);
   --sidebar: var(--chrome);
-  --surface: oklch(0.25 var(--tint-ink) var(--tint-h));
+  --surface: oklch(0.25 0 0);
   --sidebar-foreground: oklch(0.935 0 0);
   --sidebar-primary: var(--primary);
   --sidebar-primary-foreground: var(--primary-foreground);

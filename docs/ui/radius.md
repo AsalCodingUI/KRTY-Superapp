@@ -103,7 +103,7 @@ parallel. The container sets it once; children follow.
 | Dialog, alert dialog, drawer                                    | `rounded-3xl`                                                             |
 | Dialog as a phone sheet                                         | `max-sm:rounded-t-[28px] rounded-b-none` (`dialogSheetOnMobileClassName`) |
 | Right sheet / side panel                                        | `rounded-nested` in the page sheet (14px; Mac 4px)                        |
-| Page sheet (web, md+)                                           | `md:rounded-md` (small, Fibery-like)                                      |
+| Page sheet (web, md+)                                           | `md:rounded-lg` (10px squircled, every corner alike)                     |
 | Page sheet (phone)                                              | `max-md:rounded-t-3xl`                                                    |
 | Page sheet (Mac app, md+)                                       | `md:rounded-[10px]`                                                       |
 | Minimal-screen glass card                                       | `rounded-[24px]` (`MinimalCard`)                                          |
