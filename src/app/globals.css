@@ -877,16 +877,23 @@
 }
 
 /* Translucent ink on the tinted chrome blends instead of just layering:
-   darken in light, lighten in dark (supported everywhere). */
+   black ink plus-darker (light), white ink plus-lighter (dark and the dark
+   chrome). plus-lighter works everywhere; plus-darker only in Safari,
+   so elsewhere black ink falls back to darken (@supports). Put it on the ink (labels,
+   icons), never on a row holding a colored tile (project avatars): a
+   blend on the row would tint the tile's white letter too. */
 @utility blend-ink {
   mix-blend-mode: darken;
+  @supports (mix-blend-mode: plus-darker) {
+    mix-blend-mode: plus-darker;
+  }
   &:where(
     .dark,
     .dark *,
     :root[data-dark-chrome]:not(.dark) [data-chrome-dark],
     :root[data-dark-chrome]:not(.dark) [data-chrome-dark] *
   ) {
-    mix-blend-mode: lighten;
+    mix-blend-mode: plus-lighter;
   }
 }
 /* See-through white (active pills, thumbs) blends lighten, so the tint
@@ -908,7 +915,7 @@
   --field-hover: #fff;
 }
 @utility blend-light {
-  mix-blend-mode: lighten;
+  mix-blend-mode: plus-lighter;
 }
 /* Shadows on the chrome blend darken, so they deepen the tint instead of
    laying gray on it. Dark keeps them as they are: darken would erase the
@@ -968,13 +975,18 @@
     mix-blend-mode: darken;
     pointer-events: none;
   }
+  @supports (mix-blend-mode: plus-darker) {
+    &::before {
+      mix-blend-mode: plus-darker;
+    }
+  }
   &:where(
       .dark,
       .dark *,
       :root[data-dark-chrome]:not(.dark) [data-chrome-dark],
       :root[data-dark-chrome]:not(.dark) [data-chrome-dark] *
     )::before {
-    mix-blend-mode: lighten;
+    mix-blend-mode: plus-lighter;
   }
 }
 

@@ -124,7 +124,9 @@ export const NavMain = memo(function NavMain({
                     // With the tabs listed, the active tab is highlighted instead.
                     isActive={item.isActive && !(open && childActive)}
                     className={cn(
-                      "not-data-active:blend-ink data-active:bg-transparent",
+                      // The ink blends (icon, label), not the row: a
+                      // project's tile (aria-hidden) keeps its white letter.
+                      "not-data-active:[&>svg]:blend-ink not-data-active:[&>span:not([aria-hidden])]:blend-ink data-active:bg-transparent",
                       nested && "pr-8",
                     )}
                     render={<PrefetchLink href={item.url} />}

@@ -171,6 +171,10 @@ color everywhere; don't pick one by index or name.
   ink), fills `bg-chrome-field` / `bg-chrome-hover`, active pill
   `bg-chrome-active`, and the blend utilities (`blend-ink`, `blend-light`,
   `blend-shadow`, `banner-ink`, `fill-ink`) so the tint shows through.
+  Black ink blends `plus-darker` (Safari; `darken` elsewhere), white ink
+  and white thumbs `plus-lighter`, in every theme. Blend the ink (a row's
+  icon and label), never a row holding a colored tile: project avatars
+  keep their pure white letter.
 - Nav labels on the chrome (sidebar rows, workspace tabs, app tabs):
   `text-chrome-label`: secondary when not active (black 72% in light, white
   80% in dark and under the dark sidebar), foreground on hover and when

@@ -141,7 +141,7 @@ export function NavUser({
                         "aria-expanded:bg-sidebar-accent gap-1.5 pl-2 group-data-[collapsible=icon]:p-1.5!"
                       : showName
                         ? "text-foreground h-8 w-auto gap-2 pr-3 pl-1 hover:bg-transparent active:bg-transparent aria-expanded:bg-transparent"
-                        : "aria-expanded:bg-sidebar-accent blend-ink size-8! justify-center p-0!"
+                        : "aria-expanded:bg-sidebar-accent size-8! justify-center p-0!"
                   }
                 />
               }
