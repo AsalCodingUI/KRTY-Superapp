@@ -81,6 +81,11 @@ read heavier than the label beside it at small sizes.
 - Beside text: icon box = 16px for 13–15px text, 14px (`size-3.5`) for
   13px meta, 12px (`size-3`) for 12px. The plus-type live area then equals
   the cap height.
+- Exception, sidebar nav rows: `size-3.5` with `gap-2.5` (text still
+  starts 34px into the row). A list of icons read top to bottom wants the
+  icon a step under the label, not level with it: live area ≈ 12px for a
+  9.8px cap (×1.2), as on Obvious (11.4px for a 9.5px cap, measured). At
+  `size-4` the column (14–15px live) outweighed the labels.
 - In a row, icon and text centre on the cap centre: `items-center` is
   right for Geist (cap centre = line centre).
 

@@ -125,7 +125,7 @@ export function useProjectTree(): NavMainItem[] {
           <ProjectAvatar
             id={project.id}
             name={project.name}
-            className="size-4"
+            className="size-3.5"
           />
         ),
         isActive: here,

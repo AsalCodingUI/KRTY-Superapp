@@ -43,7 +43,7 @@ then Cari (⌘K) as a plain row and the pages that are always there
 (`globalItems`: Beranda, Kalender, Tugas saya);
 then Kantor | Project as a full-width segmented pill (`WorkspaceTabs`,
 12px above the list). Rows are pills (`rounded-full`), 30px tall, 2px
-apart, 12px from the sidebar's edge; icons start 22px from the edge,
+apart, 12px from the sidebar's edge; icons (14px, `size-3.5`) start 22px from the edge,
 labels at 46px. In Project, "⌃ Project aktif" (a muted label with the
 chevron before it, folding, remembered per device) lists the projects.
 Its bottom: notices, then one row: the account, then What's new (dot
