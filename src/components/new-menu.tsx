@@ -97,6 +97,9 @@ export function NewMenu({
         <Button
           variant="outline"
           className={cn(
+            // Line only, no fill: the bell's 0.5px chrome hairline, the
+            // chrome's hover wash.
+            "border-chrome-border text-foreground hover:bg-chrome-hover aria-expanded:bg-chrome-hover dark:border-chrome-border dark:hover:bg-chrome-hover border-[0.5px] bg-transparent dark:bg-transparent",
             "min-w-0 flex-1 justify-center group-data-[collapsible=icon]:size-8 group-data-[collapsible=icon]:flex-none group-data-[collapsible=icon]:p-0",
           )}
         />
