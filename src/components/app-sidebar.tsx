@@ -252,7 +252,8 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
           as tabs. Collapsed: icons only, no tabs. */}
       <SidebarHeader
         // px-3: the same 12px edge as the menu rows below.
-        className={cn("gap-1 px-3 pb-4", desktop ? "pt-1" : "pt-2")}
+        // pt-3: the workspace row (32px) centres on the tab row beside it.
+        className={cn("gap-1 px-3 pb-4", desktop ? "pt-1" : "pt-3")}
       >
         {/* Obvious-style: a 20px avatar and the name (14px medium, starting
             at 46px like the labels below), the toggle at the
@@ -264,9 +265,13 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
             // pl-1.5: the avatar centres on the icon column below.
             className="flex min-w-0 flex-1 items-center gap-2 pl-1.5 group-data-[collapsible=icon]:hidden"
           >
-            <AppIcon size={96} className="size-5 shrink-0 rounded-[5px]" />
+            <AppIcon
+              variant="badge"
+              size={96}
+              className="size-5 shrink-0 rounded-[5px]"
+            />
             <span className="text-foreground truncate text-sm font-medium">
-              {siteConfig.name} Workspace
+              Kretya&apos;s Workspace
             </span>
           </PrefetchLink>
           {!desktop && (
