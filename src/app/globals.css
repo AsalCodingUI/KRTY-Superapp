@@ -550,12 +550,6 @@
     0 0 0 1px oklch(0.22 var(--elev-ink) var(--tint-h) / 0.045),
     0 2px 4px -1px oklch(0.22 var(--elev-ink) var(--tint-h) / 0.04),
     0 16px 40px -10px oklch(0.22 var(--elev-ink) var(--tint-h) / 0.11);
-  /* The page sheet on the chrome: a wider ambient all round (not only
-     below), so every edge lifts off the chrome. */
-  --elev-sheet:
-    0 0 0 1px oklch(0.22 var(--elev-ink) var(--tint-h) / 0.05),
-    0 1px 3px oklch(0.22 var(--elev-ink) var(--tint-h) / 0.06),
-    0 4px 28px oklch(0.22 var(--elev-ink) var(--tint-h) / 0.09);
   --elev-4:
     0 0 0 1px oklch(0.22 var(--elev-ink) var(--tint-h) / 0.05),
     0 4px 10px -2px oklch(0.22 var(--elev-ink) var(--tint-h) / 0.05),
@@ -761,7 +755,6 @@
   --elev-1: 0 0 0 1px oklch(1 0 0 / 0.06), 0 1px 2px oklch(0 0 0 / 0.2);
   --elev-2: 0 0 0 1px oklch(1 0 0 / 0.06), 0 6px 18px -4px oklch(0 0 0 / 0.24);
   --elev-3: 0 0 0 1px oklch(1 0 0 / 0.06), 0 16px 44px -10px oklch(0 0 0 / 0.3);
-  --elev-sheet: 0 0 0 1px oklch(1 0 0 / 0.06), 0 4px 28px oklch(0 0 0 / 0.35);
   --elev-4:
     0 0 0 1px oklch(1 0 0 / 0.07), 0 24px 60px -14px oklch(0 0 0 / 0.36);
   --elev-5:
