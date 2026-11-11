@@ -172,9 +172,9 @@ color everywhere; don't pick one by index or name.
   `bg-chrome-active`, and the blend utilities (`blend-ink`, `blend-light`,
   `blend-shadow`, `banner-ink`, `fill-ink`) so the tint shows through.
 - Nav labels on the chrome (sidebar rows, workspace tabs, app tabs):
-  `text-chrome-label`: secondary when not active (muted ink in light, white
-  68% in dark and under the dark sidebar), foreground on hover and when
-  active; icons `text-muted-foreground` (white 50% there).
+  `text-chrome-label`: secondary when not active (black 72% in light, white
+  80% in dark and under the dark sidebar), foreground on hover and when
+  active; the sidebar rows' icons take the same color as their label.
 - The page sheet (light) is `--paper`, pure `#fff` whatever the tint (set as `--background`
   inside `[data-paper]`, `page-sheet.tsx`). Cards (`--card`), fields
   (`--field`) and outline buttons (`bg-card`) on it are pure white.

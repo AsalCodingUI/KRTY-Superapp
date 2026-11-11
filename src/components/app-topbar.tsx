@@ -140,8 +140,12 @@ export function WorkspaceTabs({ className }: { className?: string }) {
   if (visible.length < 2 || !active) return null
   return (
     <SegmentedControl<WorkspaceId>
-      // The tray on the chrome: its field fill, light and dark.
-      className={cn("bg-chrome-field dark:bg-chrome-field", className)}
+      // The tray on the chrome: its field fill, light and dark; the tab
+      // not chosen reads like an inactive sidebar row (--chrome-label).
+      className={cn(
+        "bg-chrome-field dark:bg-chrome-field [--muted-foreground:var(--chrome-label)]",
+        className,
+      )}
       value={active.id}
       onChange={select}
       items={visible.map((ws) => ({
