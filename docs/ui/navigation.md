@@ -41,8 +41,9 @@ cuti, event, catatan, project for PMs up — each opening its page's own
 form via `?new=1` / `useNewParam`) with the bell (icon only) beside it;
 then Cari (⌘K) as a plain row and the pages that are always there
 (`globalItems`: Beranda, Kalender, Tugas saya);
-then Kantor | Project as a full-width segmented pill (`WorkspaceTabs`,
-12px above the list). Rows are pills (`rounded-full`), 30px tall, 2px
+then Kantor | Project as a full-width segmented pill (`WorkspaceTabs`).
+Blocks (the top rows, the tabs, the list, "Project aktif") sit 16px
+apart, as on Obvious; + Baru sits 12px above Cari. Rows are pills (`rounded-full`), 30px tall, 2px
 apart, 12px from the sidebar's edge; icons (14px, `size-3.5`) start 22px from the edge,
 labels at 46px. In Project, "⌃ Project aktif" (a muted label with the
 chevron before it, folding, remembered per device) lists the projects.

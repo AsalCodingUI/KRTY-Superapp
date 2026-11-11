@@ -139,8 +139,9 @@ function NavSection({
   children: React.ReactNode
 }) {
   return (
-    // mt-2: 20px from the list above (the content's 12px gap + 8).
-    <div className="mt-2 flex flex-col">
+    // mt-1: 16px from the list above (the content's 12px gap + 4), the
+    // same 16px as between every block of the sidebar.
+    <div className="mt-1 flex flex-col">
       <SidebarGroupLabel
         render={<button type="button" />}
         aria-expanded={open}
@@ -250,7 +251,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
       <SidebarHeader
         // px-3: the same 12px edge as the menu rows below.
         // No brand row: + Baru (32px) is level with the tab row beside it.
-        className={cn("gap-1 px-3 pb-3", desktop ? "pt-1" : "pt-3")}
+        className={cn("gap-1 px-3 pb-4", desktop ? "pt-1" : "pt-3")}
       >
         {/* + Baru, the bell (icon only) beside it. Collapsed: stacked. */}
         <NewMenu
@@ -268,7 +269,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         <div className="-mx-3 [&>[data-sidebar=group]]:py-0">
           <NavMain items={topNav} slots={topSlots} />
         </div>
-        <WorkspaceTabs className="mt-2 group-data-[collapsible=icon]:hidden" />
+        <WorkspaceTabs className="mt-3 group-data-[collapsible=icon]:hidden" />
       </SidebarHeader>
       {/* The open workspace's pages; in Project, then the active projects,
           each opening in place to its pages (no separate project menu). */}
