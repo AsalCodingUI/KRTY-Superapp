@@ -275,7 +275,7 @@ export function PortalShell({
               toggle, where you are, and the translator. */}
           <div
             data-chrome-dark=""
-            className="on-chrome text-foreground flex h-(--app-tabs-height) min-w-0 shrink-0 items-center gap-1 pt-3 pb-2 max-md:hidden"
+            className="on-chrome text-foreground flex h-(--app-tabs-height) min-w-0 shrink-0 items-center gap-1 py-2.5 max-md:hidden"
           >
             <SidebarTrigger className="text-muted-foreground hover:bg-chrome-hover" />
             <Breadcrumb className="ml-2 min-w-0 flex-1">
