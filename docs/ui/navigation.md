@@ -72,7 +72,7 @@ workspace row (the sidebar toggle lives in that row).
 - The tab title is the page's last step: `useBreadcrumbs` if the page sets
   it, else the project (+ section) or the sidebar section.
 - **Look**: pills on the chrome (`h-8 rounded-control text-meta`, icon
-  `size-3.5`; row `pt-3 pb-2`). The active one
+  `size-3.5`; row `py-2.5`: 10px above and below). The active one
   is a raised white pill (`bg-chrome-active shadow-raised`) and has its ×; the
   others are plain text, `bg-chrome-hover` and × on hover. The row stays
   put; only the sheet below scrolls.
