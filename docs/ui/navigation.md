@@ -34,8 +34,8 @@ examples: **/ui** → Navigasi.
 ## App tabs
 
 The shell has no top bar from `md` up. The sidebar (Obvious-style, 288px
-/ 18rem): first the workspace row (the studio's 24px mark, "Kretya Studio
-Workspace", the sidebar toggle at its end; collapsed, the toggle alone;
+/ 18rem): first the workspace row (the studio's 20px mark, "Kretya Studio
+Workspace" in 14px medium, the sidebar toggle at its end; collapsed, the toggle alone;
 the Mac app keeps its toggle by the traffic lights), 12px above "+ Baru" (
 `NewMenu`: the primary
 button, full width, label centred; a dropdown of what you can start —

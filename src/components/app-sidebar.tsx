@@ -254,17 +254,18 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         // px-3: the same 12px edge as the menu rows below.
         className={cn("gap-1 px-3 pb-4", desktop ? "pt-1" : "pt-2")}
       >
-        {/* Obvious-style: a 24px avatar and the name, the toggle at the
+        {/* Obvious-style: a 20px avatar and the name (14px medium, starting
+            at 46px like the labels below), the toggle at the
             end; mb-2: 12px to + Baru. Collapsed: the toggle alone. (The
             Mac app's toggle sits by its traffic lights instead.) */}
         <div className="mb-2 flex h-8 min-w-0 items-center gap-2.5 group-data-[collapsible=icon]:justify-center">
           <PrefetchLink
             href={siteConfig.baseLinks.dashboard}
-            // pl-1: the avatar sits on the icon column below.
-            className="flex min-w-0 flex-1 items-center gap-2.5 pl-1 group-data-[collapsible=icon]:hidden"
+            // pl-1.5: the avatar centres on the icon column below.
+            className="flex min-w-0 flex-1 items-center gap-2 pl-1.5 group-data-[collapsible=icon]:hidden"
           >
-            <AppIcon size={96} className="size-6 shrink-0 rounded-md" />
-            <span className="text-foreground truncate text-[15px] font-semibold">
+            <AppIcon size={96} className="size-5 shrink-0 rounded-[5px]" />
+            <span className="text-foreground truncate text-sm font-medium">
               {siteConfig.name} Workspace
             </span>
           </PrefetchLink>
