@@ -5,6 +5,7 @@ import { cn } from "@/lib/utils"
 import { siteConfig } from "@/app/siteConfig"
 import { useMacChrome } from "@/components/desktop-shell"
 import { AppIcon } from "@/components/app-icon"
+import { AppearancePopover } from "@/components/appearance-popover"
 import { AccountMenu, WorkspaceTabs } from "@/components/app-topbar"
 import { GlobalSearch } from "@/widgets/global-search/ui/GlobalSearch"
 import { Notifications } from "@/widgets/notifications/ui/Notifications"
@@ -96,31 +97,16 @@ function BottomIcon({
   )
 }
 
-const CLOSED_KEY = "sidebar_closed_sections"
-
-/** Which lists (Project aktif) are folded; remembered per device. */
+/**
+ * Folded sections, for this visit only: every load starts with them open
+ * (the projects are what you came for), and a fold lasts until reload.
+ */
 function useClosedSections() {
   const [closed, setState] = React.useState<string[]>([])
-  React.useEffect(() => {
-    try {
-      const saved = JSON.parse(window.localStorage.getItem(CLOSED_KEY) ?? "[]")
-      if (Array.isArray(saved)) setState(saved)
-    } catch {
-      // Storage blocked or a bad value: everything stays open.
-    }
-  }, [])
   const toggle = (id: string) =>
-    setState((prev) => {
-      const next = prev.includes(id)
-        ? prev.filter((x) => x !== id)
-        : [...prev, id]
-      try {
-        window.localStorage.setItem(CLOSED_KEY, JSON.stringify(next))
-      } catch {
-        // Storage blocked: the choice lasts for this visit only.
-      }
-      return next
-    })
+    setState((prev) =>
+      prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id],
+    )
   return [closed, toggle] as const
 }
 
@@ -345,6 +331,8 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
               side={sidebarState === "collapsed" ? "right" : "top"}
             />
           </div>
+          {/* Theme and the chrome's color (light / dark / system, tint). */}
+          <AppearancePopover className="size-[30px]" />
           <BottomIcon
             label={t("whatsNew")}
             active={matchesRoute(pathname, siteConfig.baseLinks.whatsNew)}

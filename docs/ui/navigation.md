@@ -48,8 +48,9 @@ Blocks (the top rows, the tabs, the list, "Project aktif") sit 16px
 apart, as on Obvious; + Baru sits 12px above Cari. Rows are pills (`rounded-full`), 30px tall, 2px
 apart, 12px from the sidebar's edge; icons (14px, `size-3.5`) start 22px from the edge,
 labels at 46px. In Project, "⌃ Project aktif" (a muted label with the
-chevron before it, folding, remembered per device) lists the projects.
-Its bottom: notices, then one row: the account, then What's new (dot
+chevron before it, folding for the visit, open on every load) lists the projects.
+Its bottom: notices, then one row: the account, then the color / theme
+swatch (`AppearancePopover`), What's new (dot
 when unseen) and Settings as 30px icons with tooltips (stacked when
 collapsed). Theme and chrome color are in Settings → Tampilan, like the
 language. Above the page sheet, on the
