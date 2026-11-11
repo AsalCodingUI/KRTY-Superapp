@@ -4,6 +4,7 @@ import * as React from "react"
 import { cn } from "@/lib/utils"
 import { siteConfig } from "@/app/siteConfig"
 import { useMacChrome } from "@/components/desktop-shell"
+import { AppIcon } from "@/components/app-icon"
 import { AccountMenu, WorkspaceTabs } from "@/components/app-topbar"
 import { GlobalSearch } from "@/widgets/global-search/ui/GlobalSearch"
 import { Notifications } from "@/widgets/notifications/ui/Notifications"
@@ -31,6 +32,7 @@ import {
   SidebarMenuItem,
   SidebarMenuSkeleton,
   SidebarRail,
+  SidebarTrigger,
   useSidebar,
   SidebarHeader,
 } from "@/components/ui/sidebar"
@@ -244,15 +246,32 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
       {...props}
     >
       <SidebarRail />
-      {/* + Baru with the bell, Cari (⌘K), the pages that are always there
-          (Beranda, Kalender, Tugas saya), then the workspaces as tabs. The
-          sidebar toggle and ‹ › lead the tab row above the page
-          (site-header.tsx). Collapsed: icons only, no tabs. */}
+      {/* The workspace row (the studio's mark and name, the sidebar
+          toggle), + Baru with the bell, Cari (⌘K), the pages that are
+          always there (Beranda, Kalender, Tugas saya), then the workspaces
+          as tabs. Collapsed: icons only, no tabs. */}
       <SidebarHeader
         // px-3: the same 12px edge as the menu rows below.
-        // No brand row: + Baru (32px) is level with the tab row beside it.
-        className={cn("gap-1 px-3 pb-4", desktop ? "pt-1" : "pt-3")}
+        className={cn("gap-1 px-3 pb-4", desktop ? "pt-1" : "pt-2")}
       >
+        {/* Obvious-style: a 24px avatar and the name, the toggle at the
+            end; mb-2: 12px to + Baru. Collapsed: the toggle alone. (The
+            Mac app's toggle sits by its traffic lights instead.) */}
+        <div className="mb-2 flex h-8 min-w-0 items-center gap-2.5 group-data-[collapsible=icon]:justify-center">
+          <PrefetchLink
+            href={siteConfig.baseLinks.dashboard}
+            // pl-1: the avatar sits on the icon column below.
+            className="flex min-w-0 flex-1 items-center gap-2.5 pl-1 group-data-[collapsible=icon]:hidden"
+          >
+            <AppIcon size={96} className="size-6 shrink-0 rounded-md" />
+            <span className="text-foreground truncate text-[15px] font-semibold">
+              {siteConfig.name} Workspace
+            </span>
+          </PrefetchLink>
+          {!desktop && (
+            <SidebarTrigger className="text-muted-foreground hover:bg-chrome-hover shrink-0" />
+          )}
+        </div>
         {/* + Baru, the bell (icon only) beside it. Collapsed: stacked. */}
         <NewMenu
           // mb-2: 12px to Cari.

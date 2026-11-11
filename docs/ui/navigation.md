@@ -34,7 +34,9 @@ examples: **/ui** → Navigasi.
 ## App tabs
 
 The shell has no top bar from `md` up. The sidebar (Obvious-style, 288px
-/ 18rem), no brand row: first "+ Baru" (level with the tab row;
+/ 18rem): first the workspace row (the studio's 24px mark, "Kretya Studio
+Workspace", the sidebar toggle at its end; collapsed, the toggle alone;
+the Mac app keeps its toggle by the traffic lights), 12px above "+ Baru" (
 `NewMenu`: the primary
 button, full width, label centred; a dropdown of what you can start —
 cuti, event, catatan, project for PMs up — each opening its page's own
@@ -51,9 +53,8 @@ Its bottom: notices, then one row: the account, then What's new (dot
 when unseen) and Settings as 30px icons with tooltips (stacked when
 collapsed). Theme and chrome color are in Settings → Tampilan, like the
 language. Above the page sheet, on the
-chrome: the sidebar toggle, ‹ › (the active tab's history), then the
-tabs, level with + Baru. The Mac app keeps its toggle by the
-traffic lights.
+chrome: ‹ › (the active tab's history), then the tabs, level with the
+workspace row (the sidebar toggle lives in that row).
 
 - **Main** is the first tab and can't be closed. The sidebar and every
   plain link navigate the active tab, like a browser's.
