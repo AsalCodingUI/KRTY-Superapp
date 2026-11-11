@@ -38,13 +38,15 @@ function SheetOverlay({ className, ...props }: SheetPrimitive.Backdrop.Props) {
 }
 
 /* A right sheet floats inside the page sheet with one 8px gap on top, right
- * and bottom: below the top bar, and (from md, where the page has a 12px
- * gutter) 12 + 8 = 20px from the window. */
+ * and bottom: below the tab row, and (from md, where the page sits 6px in
+ * from the window) 6 + 8 = 14px from the window's right and bottom. Its
+ * corner is the page sheet's (rounded-lg): --nest-r is that plus the 8px
+ * gap, so rounded-nested lands on it. */
 /* `floating` on a left sheet: the right sheet's card, mirrored (8px from
  * the window's left, over the sidebar; same top and bottom as the right
  * one). Notifications open this way, from the bell in the sidebar. */
 const FLOATING_LEFT =
-  "data-[side=left]:top-(--app-sheet-top) data-[side=left]:bottom-2 data-[side=left]:left-2 data-[side=left]:h-auto data-[side=left]:w-[calc(100%-1rem)] data-[side=left]:border-r-0 data-[side=left]:rounded-nested data-[side=left]:overflow-hidden data-[side=left]:[--nest-p:0.5rem] data-[side=left]:[--nest-r:var(--radius-3xl)] data-[side=left]:data-ending-style:translate-x-[-1.5rem] data-[side=left]:data-starting-style:translate-x-[-1.5rem] data-[side=left]:sm:max-w-md md:data-[side=left]:bottom-4"
+  "data-[side=left]:top-(--app-sheet-top) data-[side=left]:bottom-2 data-[side=left]:left-2 data-[side=left]:h-auto data-[side=left]:w-[calc(100%-1rem)] data-[side=left]:border-r-0 data-[side=left]:rounded-nested data-[side=left]:overflow-hidden data-[side=left]:[--nest-p:0.5rem] data-[side=left]:[--nest-r:calc(var(--radius-lg)+0.5rem*var(--corner-k,1))] data-[side=left]:data-ending-style:translate-x-[-1.5rem] data-[side=left]:data-starting-style:translate-x-[-1.5rem] data-[side=left]:sm:max-w-md md:data-[side=left]:bottom-[14px]"
 
 function SheetContent({
   className,
@@ -64,9 +66,8 @@ function SheetContent({
     <SheetPortal>
       {/* The right panel floats over the page like a card (Voicenotes):
           the page stays visible, so no dimming behind it. It sits inside the
-          page sheet (which has an 8px margin from md up) with an even 8px gap
-          on top, right and bottom, its corners concentric with the page
-          sheet's (rounded-3xl less that 8px gap). */}
+          page sheet with an even 8px gap on top, right and bottom, its
+          corners the page sheet's own (see FLOATING_LEFT's note). */}
       <SheetOverlay
         className={
           side === "right" || (side === "left" && floating)
@@ -78,7 +79,7 @@ function SheetContent({
         data-slot="sheet-content"
         data-side={side}
         className={cn(
-          "bg-popover text-popover-foreground ease-drawer data-[side=right]:rounded-nested shadow-dialog fixed z-50 flex flex-col bg-clip-padding text-sm transition-[opacity,translate,transform] duration-[400ms] data-ending-style:opacity-0 data-starting-style:opacity-0 data-[side=bottom]:inset-x-0 data-[side=bottom]:bottom-0 data-[side=bottom]:h-auto data-[side=bottom]:border-t data-[side=bottom]:data-ending-style:translate-y-[2.5rem] data-[side=bottom]:data-starting-style:translate-y-[2.5rem] data-[side=left]:inset-y-0 data-[side=left]:left-0 data-[side=left]:h-full data-[side=left]:w-3/4 data-[side=left]:border-r data-[side=left]:data-ending-style:translate-x-[-2.5rem] data-[side=left]:data-starting-style:translate-x-[-2.5rem] data-[side=right]:top-(--app-sheet-top) data-[side=right]:right-2 data-[side=right]:bottom-2 data-[side=right]:w-[calc(100%-1rem)] data-[side=right]:overflow-hidden data-[side=right]:[--nest-p:0.5rem] data-[side=right]:[--nest-r:var(--radius-3xl)] data-[side=right]:data-ending-style:translate-x-[1.5rem] data-[side=right]:data-starting-style:translate-x-[1.5rem] data-[side=top]:inset-x-0 data-[side=top]:top-0 data-[side=top]:h-auto data-[side=top]:border-b data-[side=top]:data-ending-style:translate-y-[-2.5rem] data-[side=top]:data-starting-style:translate-y-[-2.5rem] data-[side=left]:sm:max-w-sm data-[side=right]:sm:max-w-md md:data-[side=right]:right-4 md:data-[side=right]:bottom-4",
+          "bg-popover text-popover-foreground ease-drawer data-[side=right]:rounded-nested shadow-dialog fixed z-50 flex flex-col bg-clip-padding text-sm transition-[opacity,translate,transform] duration-[400ms] data-ending-style:opacity-0 data-starting-style:opacity-0 data-[side=bottom]:inset-x-0 data-[side=bottom]:bottom-0 data-[side=bottom]:h-auto data-[side=bottom]:border-t data-[side=bottom]:data-ending-style:translate-y-[2.5rem] data-[side=bottom]:data-starting-style:translate-y-[2.5rem] data-[side=left]:inset-y-0 data-[side=left]:left-0 data-[side=left]:h-full data-[side=left]:w-3/4 data-[side=left]:border-r data-[side=left]:data-ending-style:translate-x-[-2.5rem] data-[side=left]:data-starting-style:translate-x-[-2.5rem] data-[side=right]:top-(--app-sheet-top) data-[side=right]:right-2 data-[side=right]:bottom-2 data-[side=right]:w-[calc(100%-1rem)] data-[side=right]:overflow-hidden data-[side=right]:[--nest-p:0.5rem] data-[side=right]:[--nest-r:calc(var(--radius-lg)+0.5rem*var(--corner-k,1))] data-[side=right]:data-ending-style:translate-x-[1.5rem] data-[side=right]:data-starting-style:translate-x-[1.5rem] data-[side=top]:inset-x-0 data-[side=top]:top-0 data-[side=top]:h-auto data-[side=top]:border-b data-[side=top]:data-ending-style:translate-y-[-2.5rem] data-[side=top]:data-starting-style:translate-y-[-2.5rem] data-[side=left]:sm:max-w-sm data-[side=right]:sm:max-w-md md:data-[side=right]:right-[14px] md:data-[side=right]:bottom-[14px]",
           side === "left" && floating && FLOATING_LEFT,
           className,
         )}

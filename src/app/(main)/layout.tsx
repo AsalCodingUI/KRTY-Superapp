@@ -35,9 +35,9 @@ import { Suspense } from "react"
  * window's native blur, its wash leaning a little to the theme color (near
  * white when neutral). The page stays solid.
  */
-// As on the web: 8px inside the page on every side, the radius nested in
-// the page's (10px, squircle-scaled) minus that gap.
-const CORNER = "right:14px;bottom:14px;--nest-r:calc(10px * var(--corner-k,1))"
+// As on the web: 8px inside the page on every side, the corner the page's
+// own (10px, squircle-scaled): --nest-r is that plus the 8px gap.
+const CORNER = "right:14px;bottom:14px;--nest-r:calc((10px + 0.5rem) * var(--corner-k,1))"
 const DESKTOP_CSS =
   ":root:root{--app-topbar-height:52px;--app-tabs-height:0px}" +
   `@media (min-width:768px){[data-slot="sheet-content"][data-side="right"]{${CORNER}}}` +

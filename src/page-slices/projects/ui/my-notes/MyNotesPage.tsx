@@ -370,7 +370,7 @@ export function MyNotesPage() {
         <aside
           data-slot="side-panel"
           aria-label={t("myNotesTitle")}
-          className="bg-popover text-popover-foreground border-field-border dark:border-border lg:rounded-nested lg:shadow-dialog flex min-h-96 flex-col overflow-hidden rounded-3xl border bg-clip-padding text-sm lg:fixed lg:top-(--app-sheet-top) lg:right-5 lg:bottom-5 lg:z-30 lg:w-md lg:border-0 lg:[--nest-p:0.5rem] lg:[--nest-r:var(--radius-3xl)]"
+          className="bg-popover text-popover-foreground border-field-border dark:border-border lg:rounded-nested lg:shadow-dialog flex min-h-96 flex-col overflow-hidden rounded-3xl border bg-clip-padding text-sm lg:fixed lg:top-(--app-sheet-top) lg:right-[14px] lg:bottom-[14px] lg:z-30 lg:w-md lg:border-0 lg:[--nest-p:0.5rem] lg:[--nest-r:calc(var(--radius-lg)+0.5rem*var(--corner-k,1))]"
         >
           {selected ? (
             <NoteEditor

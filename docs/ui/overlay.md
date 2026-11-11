@@ -81,8 +81,9 @@ own their layout; don't copy them for normal dialogs.
 
 - `SheetContent` default `side="right"`: floats 8px inside the page sheet
   (its top is `top-(--app-sheet-top)`: the top bar, the tab row and any
-  banner + 8px; `md:` 20px from the window's right and bottom), rounded
-  `rounded-nested`, `shadow-(--elev-5)`, no dimming (transparent overlay),
+  banner + 8px; `md:` 14px from the window's right and bottom, the page
+  being 6px in: 8px on every side), its corner the page sheet's own
+  (`rounded-nested`, `--nest-r` = `--radius-lg` + the 8px gap), `shadow-(--elev-5)`, no dimming (transparent overlay),
   width `w-full sm:max-w-md` (wider: `data-[side=right]:sm:max-w-2xl`).
   Never hand-write the top offset: use `--app-sheet-top`.
 - `side="left" floating`: the same card mirrored. Notifications open this
