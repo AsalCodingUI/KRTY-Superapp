@@ -46,7 +46,7 @@ export function PageSheet({
         aria-hidden
         data-slot="page-sheet-shadow"
         className={cn(
-          "blend-shadow shadow-raised pointer-events-none absolute inset-0 z-20 hidden md:block",
+          "blend-shadow pointer-events-none absolute inset-0 z-20 hidden shadow-(--elev-sheet) md:block",
           radius,
         )}
       />
