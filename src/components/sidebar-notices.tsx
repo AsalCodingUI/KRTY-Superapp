@@ -238,7 +238,9 @@ export function SidebarNotices() {
         <div
           data-slot="sidebar-notices"
           // pb-1: 4px to What's new, the step between sidebar sections.
-          className="flex flex-col gap-2 px-3 pb-1 group-data-[collapsible=icon]:hidden"
+          // Short windows (< 700px tall) drop them: the fixed top already
+          // takes ~290px, and the cards would leave the list a sliver.
+          className="flex flex-col gap-2 px-3 pb-1 group-data-[collapsible=icon]:hidden [@media(max-height:699px)]:hidden"
         >
           {visible.map(({ id, priority: _p, element: _e, ...card }) => (
             <SidebarNoticeCard key={id} {...card} />

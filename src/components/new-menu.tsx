@@ -135,7 +135,8 @@ export function NewMenu({
           sideOffset={4}
           // Fills the row (the button and the bell), not just the button.
           anchor={collapsed ? undefined : rowRef}
-          className="w-(--anchor-width) max-w-none"
+          // Collapsed, the anchor is the 32px button: the menu's own width.
+          className={collapsed ? undefined : "w-(--anchor-width) max-w-none"}
         >
           {items.map((item) => (
             <DropdownMenuItem
