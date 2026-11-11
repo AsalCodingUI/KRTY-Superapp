@@ -40,7 +40,7 @@ type NewItem = {
 }
 
 /**
- * "+ Baru" at the sidebar's top: the primary button, opening
+ * "+ Baru" at the sidebar's top: an outline button, opening
  * what you can start from anywhere. Each item opens its page's own form
  * (?new=1), so there's one form per thing, not a second copy here.
  */
@@ -91,10 +91,11 @@ export function NewMenu({
   const trigger = (
     <DropdownMenuTrigger
       aria-label={t("newMenu")}
-      // The primary button, full width, its label centred; collapsed to
+      // An outline button, full width, its label centred; collapsed to
       // icons, the + alone.
       render={
         <Button
+          variant="outline"
           className={cn(
             "min-w-0 flex-1 justify-center group-data-[collapsible=icon]:size-8 group-data-[collapsible=icon]:flex-none group-data-[collapsible=icon]:p-0",
           )}

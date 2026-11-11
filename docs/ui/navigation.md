@@ -37,7 +37,7 @@ The shell has no top bar from `md` up. The sidebar (Obvious-style, 288px
 / 18rem): first the workspace row (a 20px avatar: the white mark on the brand
 gradient, `AppIcon variant="badge"`; "Kretya's Workspace" in 14px medium, the sidebar toggle at its end; collapsed, the toggle alone;
 the Mac app keeps its toggle by the traffic lights), 12px above "+ Baru" (
-`NewMenu`: the primary
+`NewMenu`: an outline
 button, full width, label centred; a dropdown of what you can start —
 cuti, event, catatan, project for PMs up — each opening its page's own
 form via `?new=1` / `useNewParam`) with the bell (icon only) beside it;
