@@ -19,7 +19,10 @@ z-index ladder. Live examples: **/ui** → Elevation.
 Each `--elev-N` is a 1px hairline ring, a small contact shadow and a wide
 ambient shadow with negative spread (it falls down, not out). The ink
 leans to the theme hue (`--elev-ink`). Dark mode: a white 6–7% hairline
-carries the edge and the shadow is a soft wide falloff.
+carries the edge and the shadow is a soft wide falloff. All of them are
+soft and wide: low opacity over a long blur, so a surface lifts without a
+dark edge. The page sheet uses `--elev-paper` (`shadow-paper`): elev-2's
+shadows without the hairline.
 
 | Token      | Level                                    | Used by                                                                                                                                             |
 | ---------- | ---------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------- |

@@ -535,33 +535,34 @@
        2 resting card / active item on the chrome
        3 sheet / paper (page on the chrome, invoice, editor panels)
        4 popover / menu (dropdown, select, popover, dragged item)
-       5 dialog (dialog, side sheet, file viewer) */
+       5 dialog (dialog, side sheet, file viewer)
+     Soft and wide: low opacity, long blur (the shadow fades, not edges). */
   --elev-ink: calc(var(--tint-c) * 0.04);
   --elev-1:
     0 0 0 1px oklch(0.22 var(--elev-ink) var(--tint-h) / 0.05),
-    0 1px 2px oklch(0.22 var(--elev-ink) var(--tint-h) / 0.06);
+    0 1px 3px oklch(0.22 var(--elev-ink) var(--tint-h) / 0.045);
   --elev-2:
     0 0 0 1px oklch(0.22 var(--elev-ink) var(--tint-h) / 0.04),
-    0 1px 2px oklch(0.22 var(--elev-ink) var(--tint-h) / 0.04),
-    0 6px 16px -4px oklch(0.22 var(--elev-ink) var(--tint-h) / 0.07);
+    0 1px 3px oklch(0.22 var(--elev-ink) var(--tint-h) / 0.03),
+    0 8px 22px -4px oklch(0.22 var(--elev-ink) var(--tint-h) / 0.05);
   /* The page sheet on the chrome: elev-2's shadows without its hairline
      (ChatGPT's sheet: no stroke, a soft shadow only). */
   --elev-paper:
-    0 0 4px oklch(0.22 var(--elev-ink) var(--tint-h) / 0.05),
-    0 1px 2px oklch(0.22 var(--elev-ink) var(--tint-h) / 0.04),
-    0 6px 16px -4px oklch(0.22 var(--elev-ink) var(--tint-h) / 0.07);
+    0 0 6px oklch(0.22 var(--elev-ink) var(--tint-h) / 0.035),
+    0 1px 3px oklch(0.22 var(--elev-ink) var(--tint-h) / 0.03),
+    0 8px 22px -4px oklch(0.22 var(--elev-ink) var(--tint-h) / 0.05);
   --elev-3:
     0 0 0 1px oklch(0.22 var(--elev-ink) var(--tint-h) / 0.045),
-    0 2px 4px -1px oklch(0.22 var(--elev-ink) var(--tint-h) / 0.04),
-    0 16px 40px -10px oklch(0.22 var(--elev-ink) var(--tint-h) / 0.11);
+    0 2px 6px -1px oklch(0.22 var(--elev-ink) var(--tint-h) / 0.03),
+    0 20px 52px -10px oklch(0.22 var(--elev-ink) var(--tint-h) / 0.08);
   --elev-4:
     0 0 0 1px oklch(0.22 var(--elev-ink) var(--tint-h) / 0.05),
-    0 4px 10px -2px oklch(0.22 var(--elev-ink) var(--tint-h) / 0.05),
-    0 24px 56px -14px oklch(0.22 var(--elev-ink) var(--tint-h) / 0.17);
+    0 6px 14px -2px oklch(0.22 var(--elev-ink) var(--tint-h) / 0.035),
+    0 28px 72px -14px oklch(0.22 var(--elev-ink) var(--tint-h) / 0.12);
   --elev-5:
     0 0 0 1px oklch(0.22 var(--elev-ink) var(--tint-h) / 0.05),
-    0 8px 18px -4px oklch(0.22 var(--elev-ink) var(--tint-h) / 0.06),
-    0 36px 80px -18px oklch(0.22 var(--elev-ink) var(--tint-h) / 0.22);
+    0 10px 24px -4px oklch(0.22 var(--elev-ink) var(--tint-h) / 0.045),
+    0 42px 100px -18px oklch(0.22 var(--elev-ink) var(--tint-h) / 0.16);
   --app-topbar-height: 3.5rem;
   /* Where floating side sheets and the docked side panel start: 8px inside
      the page sheet's top (below the top bar, the tab row and any banner;
@@ -760,14 +761,14 @@
   --chrome-label: oklch(1 0 0 / 80%);
   /* Dark: a white hairline carries the edge; the shadows stay soft (a
      faint, wide falloff) so surfaces lift without dark halos. */
-  --elev-1: 0 0 0 1px oklch(1 0 0 / 0.06), 0 1px 2px oklch(0 0 0 / 0.2);
-  --elev-2: 0 0 0 1px oklch(1 0 0 / 0.06), 0 6px 18px -4px oklch(0 0 0 / 0.24);
-  --elev-3: 0 0 0 1px oklch(1 0 0 / 0.06), 0 16px 44px -10px oklch(0 0 0 / 0.3);
-  --elev-paper: 0 0 4px oklch(0 0 0 / 0.2), 0 6px 18px -4px oklch(0 0 0 / 0.24);
+  --elev-1: 0 0 0 1px oklch(1 0 0 / 0.06), 0 1px 3px oklch(0 0 0 / 0.15);
+  --elev-2: 0 0 0 1px oklch(1 0 0 / 0.06), 0 8px 24px -4px oklch(0 0 0 / 0.18);
+  --elev-3: 0 0 0 1px oklch(1 0 0 / 0.06), 0 20px 56px -10px oklch(0 0 0 / 0.22);
+  --elev-paper: 0 0 6px oklch(0 0 0 / 0.15), 0 8px 24px -4px oklch(0 0 0 / 0.18);
   --elev-4:
-    0 0 0 1px oklch(1 0 0 / 0.07), 0 24px 60px -14px oklch(0 0 0 / 0.36);
+    0 0 0 1px oklch(1 0 0 / 0.07), 0 28px 76px -14px oklch(0 0 0 / 0.27);
   --elev-5:
-    0 0 0 1px oklch(1 0 0 / 0.07), 0 36px 84px -18px oklch(0 0 0 / 0.42);
+    0 0 0 1px oklch(1 0 0 / 0.07), 0 42px 104px -18px oklch(0 0 0 / 0.32);
   --sidebar: var(--chrome);
   --surface: oklch(0.25 0 0);
   --sidebar-foreground: oklch(0.935 0 0);
