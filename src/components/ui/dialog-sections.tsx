@@ -36,7 +36,7 @@ export const documentDialogClassName =
 // itself: on a pseudo-element it didn't reach the page behind), the
 // popover shadow and corner, so the two read as one family.
 export const searchDialogClassName =
-  "dark [color-scheme:dark] isolate top-[14vh] flex max-h-[min(560px,76svh)] translate-y-0 flex-col overflow-hidden bg-popover/88 backdrop-blur-xl backdrop-saturate-150 p-0 text-popover-foreground shadow-popover sm:max-w-[600px] sm:rounded-popover!"
+  "dark [color-scheme:dark] isolate top-[14vh] flex max-h-[min(560px,76svh)] translate-y-0 flex-col overflow-hidden bg-popover/92 backdrop-blur-xl backdrop-saturate-150 p-0 text-popover-foreground shadow-popover sm:max-w-[600px] sm:rounded-popover!"
 
 // The body scrolls, so it keeps 4px below its last field (and nested scroll
 // wrappers get 4px all round) so focus rings are not clipped by the overflow.

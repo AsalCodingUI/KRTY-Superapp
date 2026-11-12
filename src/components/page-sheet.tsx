@@ -88,10 +88,10 @@ export function PageSheet({
         // bottom off and dropping repaints on hover.
         <div
           className={cn(
-            // 85% white (90% over the dark chrome): the panel over it lets
+            // 85% white (95% over the dark chrome): the panel over it lets
             // the chrome's blur through a little (ChatGPT's panel); the
             // page paints its own white.
-            "md:bg-background/85 md:dark:bg-surface/85 [:root[data-dark-chrome]:not(.dark)_&]:md:bg-background/90 flex min-h-0 min-w-0 flex-1 md:z-20",
+            "md:bg-background/85 md:dark:bg-surface/85 [:root[data-dark-chrome]:not(.dark)_&]:md:bg-background/95 flex min-h-0 min-w-0 flex-1 md:z-20",
             radius,
           )}
         >
