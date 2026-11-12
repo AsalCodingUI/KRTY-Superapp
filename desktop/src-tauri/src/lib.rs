@@ -842,6 +842,7 @@ pub fn run() {
                 | WindowEvent::ScaleFactorChanged { .. }
                 | WindowEvent::Focused(true) => {
                     leads::fit_page(&page);
+                    leads::settle_page(&page);
                 }
                 _ => {}
             });

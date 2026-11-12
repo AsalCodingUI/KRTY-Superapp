@@ -57,15 +57,8 @@ export function PageSheet({
   const page = (
     <SidebarInset
       data-paper=""
-      // Beside the panel: square and see-through, the wrapper paints the
-      // fill and corners. No rounded clip on this scroller either: WebKit
-      // offsets it by the scroller's position (see the wrapper below).
-      className={cn(
-        pageSheetClassName,
-        radius,
-        aside && "md:rounded-none md:bg-transparent md:dark:bg-transparent",
-        className,
-      )}
+      // Beside the panel: its own right corners (the wrapper doesn't clip).
+      className={cn(pageSheetClassName, radius, aside && "md:rounded-l-none", className)}
       {...props}
     />
   )

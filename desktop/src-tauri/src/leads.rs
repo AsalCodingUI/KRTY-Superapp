@@ -38,11 +38,15 @@ fn label(id: &str) -> String {
 /// So AppKit sizes it, as without child views: the window's content bounds
 /// and width + height autoresizing.
 pub fn fit_page(app: &AppHandle) {
+    fit(app, false);
+}
+
+fn fit(app: &AppHandle, nudge: bool) {
     let Some(page) = app.get_webview(crate::APP) else {
         return;
     };
     #[cfg(target_os = "macos")]
-    let _ = page.with_webview(|platform| {
+    let _ = page.with_webview(move |platform| {
         use objc2::msg_send;
         use objc2::runtime::AnyObject;
         use objc2_foundation::NSRect;
@@ -56,6 +60,16 @@ pub fn fit_page(app: &AppHandle) {
                 return;
             }
             let bounds: NSRect = msg_send![parent, bounds];
+            // A frame a point short first, then the real one: WebKit then
+            // takes the new size for its drawing area too. After a resize
+            // (live resize pauses its painting) it sometimes kept the old
+            // one, painting the page cut off at the right and bottom until
+            // something repainted it.
+            if nudge {
+                let mut short = bounds;
+                short.size.height -= 1.0;
+                let _: () = msg_send![web, setFrame: short];
+            }
             let _: () = msg_send![web, setFrame: bounds];
             // NSViewWidthSizable | NSViewHeightSizable
             let _: () = msg_send![web, setAutoresizingMask: 2usize | 16usize];
@@ -68,6 +82,24 @@ pub fn fit_page(app: &AppHandle) {
             let _ = page.set_size(size.to_logical::<f64>(scale));
         }
     }
+}
+
+/// The window has settled after a resize: fit the page once more, a moment
+/// after the last resize event (WebKit pauses painting during a live
+/// resize and can miss the final size).
+pub fn settle_page(app: &AppHandle) {
+    use std::sync::atomic::{AtomicU64, Ordering};
+    static TICK: AtomicU64 = AtomicU64::new(0);
+    let mine = TICK.fetch_add(1, Ordering::SeqCst) + 1;
+    let handle = app.clone();
+    std::thread::spawn(move || {
+        std::thread::sleep(std::time::Duration::from_millis(250));
+        if TICK.load(Ordering::SeqCst) != mine {
+            return;
+        }
+        let inner = handle.clone();
+        let _ = handle.run_on_main_thread(move || fit(&inner, true));
+    });
 }
 
 fn hide_all_but(app: &AppHandle, keep: Option<&str>) {
