@@ -100,7 +100,8 @@ export function SplitPaneHead({
 export const splitPaneSearchClassName =
   "border-chrome-border hover:border-chrome-border w-full border bg-transparent hover:bg-transparent"
 
-/** The list's rows, scrolling under the head (ends fade, scroll-fade). */
+/** The list's rows, scrolling under the head (ends fade, scroll-fade).
+ *  px-2 + a row's px-3: the rows' content on the head's 20px edge. */
 export function SplitPaneScroll({
   className,
   ...props
@@ -108,7 +109,7 @@ export function SplitPaneScroll({
   return (
     <div
       className={cn(
-        "scroll-fade flex min-h-0 flex-1 flex-col gap-1 overflow-y-auto px-3 pt-1 pb-3",
+        "scroll-fade flex min-h-0 flex-1 flex-col gap-1 overflow-y-auto px-2 pt-1 pb-3",
         className,
       )}
       {...props}

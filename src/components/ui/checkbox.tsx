@@ -21,7 +21,7 @@ function Checkbox({ className, ...props }: CheckboxPrimitive.Root.Props) {
         {/* The tick draws itself in when checked (the indicator mounts then). */}
         <Check
           strokeWidth={2.5}
-          className="animate-check-draw [stroke-dasharray:24] group-data-indeterminate/checkbox:hidden motion-reduce:animate-none"
+          className="animate-check-draw [stroke-dasharray:30] group-data-indeterminate/checkbox:hidden motion-reduce:animate-none"
         />
         <Minus className="hidden group-data-indeterminate/checkbox:block" />
       </CheckboxPrimitive.Indicator>

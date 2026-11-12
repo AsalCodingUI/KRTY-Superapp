@@ -5,6 +5,7 @@ import { MarkdownDocEditor } from "@/page-slices/policies/ui/doc-editor-lazy"
 import dynamic from "next/dynamic"
 import { ConfirmDialog } from "@/components/confirm-dialog"
 import { EmptyValue } from "@/components/empty-value"
+import { ProjectAvatar } from "@/components/project-avatar"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Button } from "@/components/ui/button"
 import { Checkbox } from "@/components/ui/checkbox"
@@ -194,10 +195,43 @@ export function TaskPane({
   task: TaskRow
   focus?: "due" | "subtask" | null
 }) {
+  const t = useT("projects")
+  const { data: workspace } = useWorkspace(props.projectId)
+  const project = workspace?.project
   return (
-    <div className="grid min-h-0 flex-1 max-xl:overflow-y-auto xl:grid-cols-[minmax(0,1fr)_17rem] xl:grid-rows-[minmax(0,1fr)] xl:overflow-hidden">
-      <TaskBody key={task.id} task={task} focus={focus ?? null} {...props} />
-    </div>
+    <>
+      {/* The pane's bar (as Catatan's): where the task is, Project ›
+          title, 32px and 12px from the top, level with the list's title
+          row; a hairline under it. */}
+      <div className="border-border flex shrink-0 items-center border-b px-6 pt-3 pb-3">
+        <nav
+          aria-label={t("sectionTasks")}
+          className="text-muted-foreground text-meta flex h-8 min-w-0 items-center gap-1.5"
+        >
+          {project && (
+            <>
+              <ProjectAvatar
+                id={project.id}
+                name={project.name}
+                className="size-3.5 shrink-0"
+              />
+              <span className="max-w-48 shrink-0 truncate">{project.name}</span>
+              <span aria-hidden>›</span>
+            </>
+          )}
+          <span className="truncate">{task.title}</span>
+        </nav>
+      </div>
+      <div className="grid min-h-0 flex-1 max-xl:overflow-y-auto xl:grid-cols-[minmax(0,1fr)_17rem] xl:grid-rows-[minmax(0,1fr)] xl:overflow-hidden">
+        <TaskBody
+          key={task.id}
+          task={task}
+          focus={focus ?? null}
+          layout="pane"
+          {...props}
+        />
+      </div>
+    </>
   )
 }
 
@@ -249,6 +283,7 @@ function TaskBody({
   onRemove,
   menuFor,
   focus,
+  layout = "dialog",
 }: {
   task: TaskRow
   projectId: string
@@ -261,6 +296,9 @@ function TaskBody({
   onRemove: (id: string) => void
   menuFor?: (task: TaskRow) => TaskMenuConfig
   focus: "due" | "subtask" | null
+  /** In a page's pane (TaskPane): under its bar, so the content and the
+   *  side panel start on one line (24px down), not the dialog's. */
+  layout?: "dialog" | "pane"
 }) {
   const t = useT("projects")
   const tc = useT("common")
@@ -324,7 +362,10 @@ function TaskBody({
       <div className="flex min-h-0 flex-col">
         <div
           ref={scrollRef}
-          className="scroll-pane pane-px-6 md:pane-px-8 flex min-h-0 flex-1 flex-col gap-6 pt-6 pb-6 md:pt-7"
+          className={cn(
+            "scroll-pane pane-px-6 md:pane-px-8 flex min-h-0 flex-1 flex-col gap-6 pt-6 pb-6",
+            layout === "dialog" && "md:pt-7",
+          )}
         >
           <div className="flex flex-col gap-1.5">
             <TitleField
@@ -478,7 +519,15 @@ function TaskBody({
           }
         }
       >
-        <aside className="border-border bg-muted/70 dark:bg-foreground/[0.02] flex flex-col gap-4 border-t px-4 pt-5 pb-5 md:border-t-0 md:border-l md:pt-14">
+        <aside
+          className={cn(
+            "border-border bg-muted/70 dark:bg-foreground/[0.02] flex flex-col gap-4 border-t px-4 pt-5 pb-5",
+            layout === "dialog"
+              ? "md:border-t-0 md:border-l md:pt-14"
+              : // Level with the title beside it (24px under the bar).
+                "xl:border-t-0 xl:border-l xl:px-5 xl:pt-6",
+          )}
+        >
           <dl className="text-meta grid grid-cols-[5rem_minmax(0,1fr)] items-center gap-x-2 gap-y-1.5">
             <dt className="text-muted-foreground">{t("taskStatus")}</dt>
             <dd>

@@ -321,7 +321,7 @@ export function MyNotesPage() {
                     onClick={() => setSelectedId(note.id)}
                     className={cn(
                       splitPaneItemClassName(active),
-                      "flex-col gap-1 px-4 py-3.5",
+                      "flex-col gap-1 px-3 py-3.5",
                     )}
                   >
                     <span className="flex min-w-0 items-center gap-1.5 text-sm">
