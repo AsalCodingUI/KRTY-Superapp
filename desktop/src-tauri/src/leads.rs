@@ -301,10 +301,19 @@ fn focus(view: &tauri::Webview) {
         // Already the site's (or a view inside it, its page): nothing to do,
         // so a re-placement doesn't bounce the focus.
         let current: *mut AnyObject = msg_send![window, firstResponder];
+        if current == web {
+            return;
+        }
+        // The first responder can be the window itself (not a view, no
+        // isDescendantOf:): ask only a responder that understands it.
         if !current.is_null() {
-            let inside: Bool = msg_send![current, isDescendantOf: web];
-            if current == web || inside.as_bool() {
-                return;
+            let is_view: Bool =
+                msg_send![current, respondsToSelector: objc2::sel!(isDescendantOf:)];
+            if is_view.as_bool() {
+                let inside: Bool = msg_send![current, isDescendantOf: web];
+                if inside.as_bool() {
+                    return;
+                }
             }
         }
         let _: Bool = msg_send![window, makeFirstResponder: web];
