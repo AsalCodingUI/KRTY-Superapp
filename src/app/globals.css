@@ -1253,13 +1253,22 @@
 /* The same WebKit bug (bug 327003, fixed in WebKit 323487@main): a layer
    that gains or loses a clipping layer leaves its composited children at
    the old offset, so on hover parts of the page jump, vanish or are cut
-   off. will-change makes layers come and go with every hover and
-   transition; without it the page stays put (animations still run). */
+   off. Transitions, animations and will-change make layers come and go
+   with every hover; without them the page stays put. Only the loading
+   indicators keep moving. Lift once macOS ships the fix. */
 @supports (font: -apple-system-body) {
   *,
   *::before,
   *::after {
+    transition: none !important;
+    animation: none !important;
     will-change: auto !important;
+  }
+  .animate-spin {
+    animation: spin 1s linear infinite !important;
+  }
+  .animate-pulse {
+    animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite !important;
   }
 }
 
