@@ -3,7 +3,13 @@ import { playNotificationSound } from "@/shared/lib/notification-sound"
 import { Database } from "@/shared/types/database.types"
 import { useQuery, useQueryClient } from "@tanstack/react-query"
 import { createClient } from "@/shared/api/supabase/client"
-import { useCallback, useEffect, useMemo, useSyncExternalStore } from "react"
+import {
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useSyncExternalStore,
+} from "react"
 
 type Notification = Database["public"]["Tables"]["notifications"]["Row"]
 
@@ -312,7 +318,7 @@ export const URGENT_NOTIFICATION_TYPES = new Set(["announcement_urgent"])
  * New notifications as they're created (Supabase realtime), instead of
  * waiting for the next poll. While the tab is in the background, urgent
  * ones also raise a desktop notification (if the browser allows it).
- * Mount once (the bell does).
+ * Mount once: NotificationsLive in the app layout.
  */
 /** Inside Kretya Flow for Mac, which plays the sound with its own
  *  notification. (The Windows app's toasts stay silent: the page plays it.) */
@@ -331,8 +337,13 @@ export function useNotificationsRealtime() {
   useEffect(() => {
     if (!userId) return
     const supabase = createClient()
+    // A topic of its own per subscription: supabase-js hands back the same
+    // channel for a repeated topic, so a second subscriber (or React's
+    // remount in dev) removing "its" channel closed everyone's, and no new
+    // notification (nor its sound) came in until a reload.
+    const topic = `notifications:${userId}:${Math.random().toString(36).slice(2, 10)}`
     const channel = supabase
-      .channel(`notifications:${userId}`)
+      .channel(topic)
       .on(
         "postgres_changes",
         {
@@ -372,4 +383,34 @@ export function useNotificationsRealtime() {
       void supabase.removeChannel(channel)
     }
   }, [queryClient, userId])
+}
+
+/**
+ * The sound for a notification that arrived by the poll instead (realtime
+ * down or not yet joined): an unread one this page hasn't seen, made in the
+ * last few minutes. The realtime handler plays the same id; the sound's
+ * own once-per-id guard keeps it to one.
+ */
+export function useNotificationSoundOnArrival() {
+  const { notifications } = useNotifications()
+  const { isImpersonating } = useUserProfile()
+  const seen = useRef<Set<string> | null>(null)
+  useEffect(() => {
+    if (!notifications.length && !seen.current) return
+    // The first list is what was already there: no sound for it.
+    if (!seen.current) {
+      seen.current = new Set(notifications.map((n) => n.id))
+      return
+    }
+    const fresh = notifications.filter(
+      (n) =>
+        !seen.current!.has(n.id) &&
+        !n.is_read &&
+        n.created_at &&
+        Date.now() - new Date(n.created_at).getTime() < 5 * 60_000,
+    )
+    for (const n of notifications) seen.current.add(n.id)
+    if (!fresh.length || isImpersonating || isMacApp()) return
+    playNotificationSound(undefined, fresh[0].id)
+  }, [notifications, isImpersonating])
 }

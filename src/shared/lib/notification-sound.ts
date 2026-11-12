@@ -55,6 +55,52 @@ export const playable = (value: NotificationSound) => Boolean(FILES[value])
 
 let lastAt = 0
 
+/**
+ * One audio element per file, reused. Browsers block sound until the page
+ * has been clicked or typed in (Safari: until that very element has been
+ * played from a click), and a notification can come long after, with no
+ * click to hang it on. So the first click or key on the page plays each
+ * element muted and stops it: from then on they may sound.
+ */
+const elements = new Map<string, HTMLAudioElement>()
+function element(file: string) {
+  let audio = elements.get(file)
+  if (!audio) {
+    audio = new Audio(file)
+    audio.preload = "auto"
+    elements.set(file, audio)
+  }
+  return audio
+}
+
+let unlockArmed = false
+function armUnlock() {
+  if (unlockArmed || typeof window === "undefined") return
+  unlockArmed = true
+  const unlock = () => {
+    window.removeEventListener("pointerdown", unlock, true)
+    window.removeEventListener("keydown", unlock, true)
+    for (const file of Object.values(FILES)) {
+      const audio = element(file!)
+      audio.muted = true
+      void audio
+        .play()
+        .then(() => {
+          audio.pause()
+          audio.currentTime = 0
+        })
+        .catch(() => {})
+        .finally(() => {
+          audio.muted = false
+        })
+    }
+  }
+  window.addEventListener("pointerdown", unlock, true)
+  window.addEventListener("keydown", unlock, true)
+}
+// Armed as soon as the app loads this module (the notifications hook does).
+armUnlock()
+
 /** Plays it (a preview, or a new notification). `once` keys a
  *  notification: several tabs open, or a burst, still sound once. */
 export function playNotificationSound(
@@ -75,9 +121,11 @@ export function playNotificationSound(
     lastAt = now
   }
   try {
-    const audio = new Audio(file)
+    const audio = element(file)
+    audio.muted = false
     audio.volume = 0.7
-    // A browser may refuse until the page has been clicked once.
+    audio.currentTime = 0
+    // Still refused if the page was never clicked since it loaded.
     void audio.play().catch(() => {})
   } catch {}
 }

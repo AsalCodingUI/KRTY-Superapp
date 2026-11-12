@@ -2,7 +2,6 @@
 
 import {
   useNotifications,
-  useNotificationsRealtime,
 } from "@/shared/hooks/useNotifications"
 import { useT } from "@/shared/i18n/client"
 import { cx, focusRing } from "@/shared/lib/utils"
@@ -50,7 +49,6 @@ export function Notifications({
     loading,
     isError,
   } = useNotifications()
-  useNotificationsRealtime()
   const [isOpen, setIsOpen] = useState(false)
   const t = useT("shell")
   // The drawer loads on first open, then stays mounted for its exit animation.
