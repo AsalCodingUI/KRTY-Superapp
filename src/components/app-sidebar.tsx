@@ -405,7 +405,7 @@ export function AppRail() {
           lights instead. */}
       {!desktop && (
         <div className="flex justify-center">
-          <SidebarTrigger className="text-chrome-label hover:bg-chrome-hover blend-ink rounded-control size-8 [&_svg]:size-4" />
+          <SidebarTrigger className="text-chrome-label hover:bg-chrome-hover blend-ink rounded-[10px] size-8 [&_svg]:size-4" />
         </div>
       )}
       {/* 12px under the toggle, the sidebar's block gap: the mark, then
@@ -417,7 +417,7 @@ export function AppRail() {
       {/* Theme and the chrome's color (light / dark / system, tint); its
           bottom on the sheet's. */}
       <div className="flex justify-center">
-        <AppearancePopover className="blend-ink rounded-control size-8" />
+        <AppearancePopover className="blend-ink rounded-[10px] size-8" />
       </div>
     </SidebarCompact>
   )
@@ -441,7 +441,7 @@ function WorkspaceRail() {
           <SidebarMenuButton
             tooltip={brand}
             aria-label={brand}
-            className="blend-ink rounded-control"
+            className="blend-ink rounded-[10px]"
             render={<PrefetchLink href={siteConfig.baseLinks.dashboard} />}
           >
             {/* The PNG's mark fills 2/3 of it: a 20px box draws it ~13px,
@@ -459,11 +459,11 @@ function WorkspaceRail() {
                   tooltip={t(ws.name)}
                   isActive={shown}
                   aria-pressed={shown}
-                  // Square like the app tabs (rounded-control), the shown one
+                  // Square (a fixed 10px corner: the theme's radius can be a pill), the shown one
                   // filled like the active tab (chrome-active, not blended:
                   // it's a solid fill); the rest blend into the chrome. 16px
                   // icons, one size for everything on the rail.
-                  className="not-data-active:blend-ink rounded-control data-active:bg-chrome-active data-active:text-foreground relative [&_svg]:size-4"
+                  className="not-data-active:blend-ink rounded-[10px] data-active:bg-chrome-active data-active:text-foreground relative [&_svg]:size-4"
                   // The one shown folds the panel away; another shows its
                   // pages (opening the panel when it's folded).
                   onClick={() => {

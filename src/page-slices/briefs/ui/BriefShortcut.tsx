@@ -6,6 +6,7 @@ import { accessLevel, canRunProjects } from "@/shared/config/access"
 import { useUserProfile } from "@/shared/hooks/useUserProfile"
 import { useT } from "@/shared/i18n/client"
 import { FileText } from "@/components/icons"
+import { RiAddLine } from "@/shared/ui/lucide-icons"
 import dynamic from "next/dynamic"
 import { useState, type SyntheticEvent } from "react"
 import { useBriefLinks } from "../model/data"
@@ -15,11 +16,17 @@ const BriefDialog = dynamic(
   () => import("./BriefDialog").then((m) => m.BriefDialog),
   { ssr: false },
 )
+const BriefCreateDialog = dynamic(
+  () => import("./BriefCreateDialog").then((m) => m.BriefCreateDialog),
+  { ssr: false },
+)
 
 /**
  * A project's linked briefs as shortcuts: a small "Brief" chip on list rows,
  * board cards and table rows, a button in the project's header. Opens the
- * brief's answers right there, without leaving the page.
+ * brief's answers right there, without leaving the page. In the header
+ * (button), a project with no brief yet gets "Brief baru" for the people
+ * who can make one, so it starts from the dashboard (not only Dokumen).
  */
 export function BriefShortcut({
   projectId,
@@ -35,8 +42,42 @@ export function BriefShortcut({
   const canManage = canRunProjects(accessLevel(profile))
   const { data } = useBriefLinks()
   const [open, setOpen] = useState<string | null>(null)
+  const [creating, setCreating] = useState(false)
   const briefs = data?.get(projectId) ?? []
-  if (!briefs.length) return null
+  if (!briefs.length) {
+    if (variant !== "button" || !canManage) return null
+    return (
+      <>
+        <Button
+          variant="outline"
+          onClick={() => setCreating(true)}
+          className={className}
+        >
+          <RiAddLine data-icon="inline-start" />
+          {t("newBrief")}
+        </Button>
+        {creating && (
+          <BriefCreateDialog
+            open={creating}
+            onOpenChange={setCreating}
+            defaultProjectId={projectId}
+            // Its answers open right here once it's made.
+            onCreated={(id) => {
+              setCreating(false)
+              setOpen(id)
+            }}
+          />
+        )}
+        {open && (
+          <BriefDialog
+            briefId={open}
+            canManage={canManage}
+            onClose={() => setOpen(null)}
+          />
+        )}
+      </>
+    )
+  }
 
   // Rows and cards are links (and drag handles): the shortcut is its own.
   const stop = (e: SyntheticEvent) => {
