@@ -6,6 +6,7 @@
 //! and so does Google sign-in (Google won't run inside an app's webview):
 //! the browser signs the app in over krty://auth (see /desktop/connect).
 
+mod leads;
 mod updater;
 
 use std::time::Duration;
@@ -763,7 +764,10 @@ pub fn run() {
             native_edit,
             updater::update_status,
             updater::update_check,
-            updater::update_install
+            updater::update_install,
+            leads::lead_show,
+            leads::lead_hide,
+            leads::lead_close
         ]);
     #[cfg(target_os = "macos")]
     let builder = builder.menu(app_menu).on_menu_event(on_app_menu);

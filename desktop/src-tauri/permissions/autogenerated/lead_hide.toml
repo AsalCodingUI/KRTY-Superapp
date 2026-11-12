@@ -1,0 +1,11 @@
+# Automatically generated - DO NOT EDIT!
+
+[[permission]]
+identifier = "allow-lead-hide"
+description = "Enables the lead_hide command without any pre-configured scope."
+commands.allow = ["lead_hide"]
+
+[[permission]]
+identifier = "deny-lead-hide"
+description = "Denies the lead_hide command without any pre-configured scope."
+commands.deny = ["lead_hide"]

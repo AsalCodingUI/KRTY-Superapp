@@ -1,0 +1,11 @@
+# Automatically generated - DO NOT EDIT!
+
+[[permission]]
+identifier = "allow-lead-show"
+description = "Enables the lead_show command without any pre-configured scope."
+commands.allow = ["lead_show"]
+
+[[permission]]
+identifier = "deny-lead-show"
+description = "Denies the lead_show command without any pre-configured scope."
+commands.deny = ["lead_show"]
