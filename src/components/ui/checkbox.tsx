@@ -2,7 +2,7 @@
 
 import { Checkbox as CheckboxPrimitive } from "@base-ui/react/checkbox"
 import { cn } from "@/lib/utils"
-import { Check, Minus } from "@/components/icons"
+import { Minus } from "@/components/icons"
 
 function Checkbox({ className, ...props }: CheckboxPrimitive.Root.Props) {
   return (
@@ -18,11 +18,22 @@ function Checkbox({ className, ...props }: CheckboxPrimitive.Root.Props) {
         data-slot="checkbox-indicator"
         className="grid place-content-center text-current transition-none [&_svg]:size-3.5"
       >
-        {/* The tick draws itself in when checked (the indicator mounts then). */}
-        <Check
-          strokeWidth={2.5}
-          className="animate-check-draw [stroke-dasharray:30] group-data-indeterminate/checkbox:hidden motion-reduce:animate-none"
-        />
+        {/* The tick draws itself in when checked (the indicator mounts
+            then). Its own path, not the icon set's Check: that one, cropped
+            to the box, read too long and too big for a 16px box. ~9px wide,
+            1.75px stroke; the dash (16) is longer than the path (~13). */}
+        <svg
+          viewBox="0 0 16 16"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth={1.75}
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          aria-hidden
+          className="animate-check-draw size-4! [stroke-dasharray:16] group-data-indeterminate/checkbox:hidden motion-reduce:animate-none"
+        >
+          <path d="M4.25 8.25 6.75 10.75 11.75 5.25" />
+        </svg>
         <Minus className="hidden group-data-indeterminate/checkbox:block" />
       </CheckboxPrimitive.Indicator>
     </CheckboxPrimitive.Root>

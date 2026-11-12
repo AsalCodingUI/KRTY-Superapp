@@ -65,11 +65,11 @@
   --ease-drawer: cubic-bezier(0.32, 0.72, 0, 1);
 
   /* Checkbox tick draws itself in (stroke), once, when it gets checked. */
-  /* 30: longer than the tick (26.2 in the icon set), or its end is cut. */
+  /* The checkbox tick's dash (16, components/ui/checkbox.tsx). */
   --animate-check-draw: check-draw 150ms var(--ease-out) both;
   @keyframes check-draw {
     from {
-      stroke-dashoffset: 30;
+      stroke-dashoffset: 16;
     }
     to {
       stroke-dashoffset: 0;
