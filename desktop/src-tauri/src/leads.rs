@@ -100,10 +100,9 @@ pub fn lead_show(
     let size = LogicalSize::new(width.max(1.0), height.max(1.0));
     let corners = (radius.unwrap_or(0.0), round_left.unwrap_or(false));
 
+    let rect = (position.x, position.y, size.width, size.height);
     if let Some(view) = app.get_webview(&target) {
-        let _ = view.set_position(position);
-        let _ = view.set_size(size);
-        round(&view, corners);
+        place(&view, rect, corners);
         let _ = view.show();
         return Ok(());
     }
@@ -127,28 +126,84 @@ pub fn lead_show(
     let view = window
         .add_child(builder, position, size)
         .map_err(|e| e.to_string())?;
-    round(&view, corners);
+    place(&view, rect, corners);
     fit_page(&app);
     Ok(())
 }
 
-/// The page sheet's corners on the web view (a native view ignores the
-/// page's CSS): `radius` on the right ones, and the left ones too when the
-/// sidebar panel is folded (open, the view's left edge meets it). macOS's
-/// continuous curve, the squircle the page's corners use.
+/// Lays the site's web view over `rect` (CSS pixels from the window's top
+/// left) with the page sheet's corners (a native view ignores the page's
+/// CSS): `radius` on the right ones, and the left ones too when the sidebar
+/// panel is folded; macOS's continuous curve, the squircle the page uses.
+///
+/// The corners are a plain wrapper NSView's (its layer rounds and clips),
+/// never the WKWebView's own layer: WebKit composites its content in layers
+/// of its own and re-promotes them on hover, and a mask on the web view
+/// itself then paints in pieces. The web view fills the wrapper, untouched.
 #[cfg(target_os = "macos")]
-fn round(view: &tauri::Webview, (radius, left): (f64, bool)) {
+fn place(view: &tauri::Webview, rect: (f64, f64, f64, f64), (radius, left): (f64, bool)) {
     let _ = view.with_webview(move |platform| {
-        use objc2::msg_send;
         use objc2::runtime::{AnyObject, Bool};
-        use objc2_foundation::NSString;
+        use objc2::{class, msg_send};
+        use objc2_foundation::{NSPoint, NSRect, NSSize, NSString};
         let web = platform.inner() as *mut AnyObject;
         if web.is_null() {
             return;
         }
+        let id = NSString::from_str(WRAP);
         unsafe {
-            let _: () = msg_send![web, setWantsLayer: Bool::YES];
-            let layer: *mut AnyObject = msg_send![web, layer];
+            let mut wrap: *mut AnyObject = msg_send![web, superview];
+            if wrap.is_null() {
+                return;
+            }
+            let ident: *mut AnyObject = msg_send![wrap, identifier];
+            let wrapped = !ident.is_null() && {
+                let same: Bool = msg_send![ident, isEqualToString: &*id];
+                same.as_bool()
+            };
+            if !wrapped {
+                // First time: move the web view into a wrapper at its place
+                // in the window (kept alive across the move).
+                let content = wrap;
+                let _: *mut AnyObject = msg_send![web, retain];
+                let made: *mut AnyObject = msg_send![class!(NSView), alloc];
+                let made: *mut AnyObject = msg_send![made, initWithFrame: NSRect::ZERO];
+                let _: () = msg_send![made, setIdentifier: &*id];
+                let _: () = msg_send![made, setWantsLayer: Bool::YES];
+                // Above the app's page, where the web view was.
+                let _: () = msg_send![content, addSubview: made, positioned: 1isize, relativeTo: web];
+                let _: () = msg_send![web, removeFromSuperview];
+                let _: () = msg_send![made, addSubview: web];
+                let _: () = msg_send![web, release];
+                let _: () = msg_send![made, release];
+                // Whatever an older build set on the web view's own layer.
+                let layer: *mut AnyObject = msg_send![web, layer];
+                if !layer.is_null() {
+                    let _: () = msg_send![layer, setCornerRadius: 0f64];
+                    let _: () = msg_send![layer, setMasksToBounds: Bool::NO];
+                }
+                wrap = made;
+            }
+            let content: *mut AnyObject = msg_send![wrap, superview];
+            if content.is_null() {
+                return;
+            }
+            // AppKit's y runs up unless the view is flipped.
+            let flipped: Bool = msg_send![content, isFlipped];
+            let bounds: NSRect = msg_send![content, bounds];
+            let (x, y, w, h) = rect;
+            let top = if flipped.as_bool() {
+                y
+            } else {
+                bounds.size.height - y - h
+            };
+            let frame = NSRect::new(NSPoint::new(x, top), NSSize::new(w, h));
+            let _: () = msg_send![wrap, setFrame: frame];
+            let inner = NSRect::new(NSPoint::new(0.0, 0.0), NSSize::new(w, h));
+            let _: () = msg_send![web, setFrame: inner];
+            // NSViewWidthSizable | NSViewHeightSizable
+            let _: () = msg_send![web, setAutoresizingMask: 2usize | 16usize];
+            let layer: *mut AnyObject = msg_send![wrap, layer];
             if layer.is_null() {
                 return;
             }
@@ -164,7 +219,14 @@ fn round(view: &tauri::Webview, (radius, left): (f64, bool)) {
 }
 
 #[cfg(not(target_os = "macos"))]
-fn round(_view: &tauri::Webview, _corners: (f64, bool)) {}
+fn place(view: &tauri::Webview, (x, y, w, h): (f64, f64, f64, f64), _corners: (f64, bool)) {
+    let _ = view.set_position(LogicalPosition::new(x, y));
+    let _ = view.set_size(LogicalSize::new(w, h));
+}
+
+/// The wrapper NSView's identifier (see `place`).
+#[cfg(target_os = "macos")]
+const WRAP: &str = "krty-lead-wrap";
 
 /// A picture of the site as it is (a JPEG), for the page to show in its
 /// place while an overlay (a menu, a tooltip, a dialog) needs the view out
@@ -272,6 +334,23 @@ pub fn lead_hide(app: AppHandle) {
 #[tauri::command]
 pub fn lead_close(app: AppHandle, id: String) {
     if let Some(view) = app.get_webview(&label(&id)) {
+        // Its wrapper (see `place`) goes too.
+        #[cfg(target_os = "macos")]
+        let _ = view.with_webview(|platform| unsafe {
+            use objc2::msg_send;
+            use objc2::runtime::AnyObject;
+            let web = platform.inner() as *mut AnyObject;
+            if web.is_null() {
+                return;
+            }
+            let wrap: *mut AnyObject = msg_send![web, superview];
+            if !wrap.is_null() {
+                let ident: *mut AnyObject = msg_send![wrap, identifier];
+                if !ident.is_null() {
+                    let _: () = msg_send![wrap, removeFromSuperview];
+                }
+            }
+        });
         let _ = view.close();
     }
 }
