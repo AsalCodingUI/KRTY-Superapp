@@ -10,7 +10,7 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from "@/components/ui/tooltip"
-import { ArrowLeft, ArrowRight, RotateCw } from "@/components/icons"
+import { ArrowLeft, ArrowRight, RotateCw, X } from "@/components/icons"
 import { Spinner } from "@/components/ui/spinner"
 import { cn } from "@/lib/utils"
 import { useT } from "@/shared/i18n/client"
@@ -20,7 +20,8 @@ import {
   focusLead,
   hideLeads,
   inApp,
-  leadUrl,
+  leadState,
+  type LeadState,
   navLead,
   showLead,
   snapshotLead,
@@ -338,31 +339,41 @@ export function LeadViewer({ id }: { id: string }) {
  *  never fall over the site. */
 function LeadToolbar({ id, fallback }: { id: string; fallback: string }) {
   const t = useT("leads")
-  const [url, setUrl] = useState(fallback)
-  // The site moves itself (links, its own app routes): read where it is.
+  const [state, setState] = useState<LeadState | null>(null)
+  // The site moves itself (links, its own app routes): read where it is,
+  // quicker while it loads.
   useEffect(() => {
     let alive = true
+    let timer = 0
     const read = async () => {
-      if (document.visibilityState !== "visible") return
-      const now = await leadUrl(id)
-      if (alive && now) setUrl(now)
+      if (document.visibilityState === "visible") {
+        const now = await leadState(id)
+        if (!alive) return
+        if (now) setState(now)
+        timer = window.setTimeout(read, now?.loading ? 300 : 1000)
+        return
+      }
+      timer = window.setTimeout(read, 1000)
     }
     void read()
-    const timer = window.setInterval(read, 1000)
     return () => {
       alive = false
-      window.clearInterval(timer)
+      window.clearTimeout(timer)
     }
   }, [id])
+  const url = state?.url || fallback
   let shown = url
   try {
     const u = new URL(url)
-    shown = u.hostname.replace(/^www\./, "") + (u.pathname === "/" ? "" : u.pathname)
+    shown =
+      u.hostname.replace(/^www\./, "") + (u.pathname === "/" ? "" : u.pathname)
   } catch {}
+  const loading = state?.loading ?? false
   const button = (
     label: string,
-    action: "back" | "forward" | "reload",
+    action: "back" | "forward" | "reload" | "stop",
     icon: React.ReactNode,
+    disabled = false,
   ) => (
     <Tooltip>
       <TooltipTrigger
@@ -371,6 +382,7 @@ function LeadToolbar({ id, fallback }: { id: string; fallback: string }) {
             variant="ghost"
             size="icon-sm"
             aria-label={label}
+            disabled={disabled}
             className="text-foreground/55 hover:text-foreground"
             onClick={() => void navLead(id, action)}
           />
@@ -382,10 +394,12 @@ function LeadToolbar({ id, fallback }: { id: string; fallback: string }) {
     </Tooltip>
   )
   return (
-    <div className="border-border flex h-11 shrink-0 items-center gap-1.5 border-b px-2">
-      {button(t("back"), "back", <ArrowLeft />)}
-      {button(t("forward"), "forward", <ArrowRight />)}
-      {button(t("reload"), "reload", <RotateCw />)}
+    <div className="border-border relative flex h-11 shrink-0 items-center gap-1.5 border-b px-2">
+      {button(t("back"), "back", <ArrowLeft />, state ? !state.back : false)}
+      {button(t("forward"), "forward", <ArrowRight />, state ? !state.forward : false)}
+      {loading
+        ? button(t("stop"), "stop", <X />)
+        : button(t("reload"), "reload", <RotateCw />)}
       <span className="text-muted-foreground text-meta min-w-0 flex-1 truncate px-1.5">
         {shown}
       </span>
@@ -406,6 +420,14 @@ function LeadToolbar({ id, fallback }: { id: string; fallback: string }) {
         </TooltipTrigger>
         <TooltipContent side="top">{t("openInBrowser")}</TooltipContent>
       </Tooltip>
+      {/* Loading: a thin bar along the toolbar's bottom edge (static: no
+          motion in WebKit). */}
+      {loading && (
+        <span
+          aria-hidden
+          className="bg-primary/60 absolute inset-x-0 -bottom-px h-0.5"
+        />
+      )}
     </div>
   )
 }

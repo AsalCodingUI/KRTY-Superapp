@@ -461,6 +461,10 @@ fn focus(view: &tauri::Webview) {
             return;
         }
         let _: () = msg_send![window, setAcceptsMouseMovedEvents: Bool::YES];
+        // Safari's trackpad gestures: two-finger swipe back / forward,
+        // pinch to zoom.
+        let _: () = msg_send![web, setAllowsBackForwardNavigationGestures: Bool::YES];
+        let _: () = msg_send![web, setAllowsMagnification: Bool::YES];
         // Already the site's (or a view inside it, its page): nothing to do,
         // so a re-placement doesn't bounce the focus.
         let current: *mut AnyObject = msg_send![window, firstResponder];
@@ -606,18 +610,77 @@ pub fn lead_nav(app: AppHandle, id: String, action: String) -> Result<(), String
         "back" => "history.back()",
         "forward" => "history.forward()",
         "reload" => "location.reload()",
+        "stop" => "window.stop()",
         _ => return Err("unknown action".into()),
     };
     view.eval(script).map_err(|e| e.to_string())
 }
 
-/// Where the site is now (its own navigation moves it: the toolbar shows
-/// it), or None before it's made.
+/// What the toolbar shows for a site: where it is, its title (Gmail's and
+/// Telegram's carry an unread count), whether it can go back / forward and
+/// whether it's loading. One cheap read of the web view's own properties.
+#[derive(serde::Serialize, Default)]
+pub struct LeadState {
+    url: Option<String>,
+    title: Option<String>,
+    back: bool,
+    forward: bool,
+    loading: bool,
+}
+
 #[tauri::command]
-pub fn lead_url(app: AppHandle, id: String) -> Option<String> {
-    app.get_webview(&label(&id))
-        .and_then(|view| view.url().ok())
-        .map(|url| url.to_string())
+pub async fn lead_state(app: AppHandle, id: String) -> Result<LeadState, String> {
+    let view = app
+        .get_webview(&label(&id))
+        .ok_or_else(|| "no such lead".to_string())?;
+    let (tx, rx) = std::sync::mpsc::channel::<LeadState>();
+    view.with_webview(move |platform| {
+        let _ = tx.send(read_state(platform));
+    })
+    .map_err(|e| e.to_string())?;
+    tauri::async_runtime::spawn_blocking(move || {
+        rx.recv_timeout(std::time::Duration::from_millis(500)).unwrap_or_default()
+    })
+    .await
+    .map_err(|e| e.to_string())
+}
+
+#[cfg(target_os = "macos")]
+fn read_state(platform: tauri::webview::PlatformWebview) -> LeadState {
+    use objc2::msg_send;
+    use objc2::runtime::{AnyObject, Bool};
+    let web = platform.inner() as *mut AnyObject;
+    if web.is_null() {
+        return LeadState::default();
+    }
+    unsafe {
+        let string = |obj: *mut AnyObject| -> Option<String> {
+            if obj.is_null() {
+                return None;
+            }
+            let utf8: *const std::ffi::c_char = msg_send![obj, UTF8String];
+            (!utf8.is_null())
+                .then(|| std::ffi::CStr::from_ptr(utf8).to_string_lossy().into_owned())
+        };
+        let url: *mut AnyObject = msg_send![web, URL];
+        let abs: *mut AnyObject = if url.is_null() { url } else { msg_send![url, absoluteString] };
+        let title: *mut AnyObject = msg_send![web, title];
+        let back: Bool = msg_send![web, canGoBack];
+        let forward: Bool = msg_send![web, canGoForward];
+        let loading: Bool = msg_send![web, isLoading];
+        LeadState {
+            url: string(abs),
+            title: string(title),
+            back: back.as_bool(),
+            forward: forward.as_bool(),
+            loading: loading.as_bool(),
+        }
+    }
+}
+
+#[cfg(not(target_os = "macos"))]
+fn read_state(_platform: tauri::webview::PlatformWebview) -> LeadState {
+    LeadState::default()
 }
 
 /// Hides every lead (the web app left its /leads page, or a dialog opened

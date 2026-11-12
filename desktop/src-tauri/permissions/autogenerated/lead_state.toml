@@ -1,0 +1,11 @@
+# Automatically generated - DO NOT EDIT!
+
+[[permission]]
+identifier = "allow-lead-state"
+description = "Enables the lead_state command without any pre-configured scope."
+commands.allow = ["lead_state"]
+
+[[permission]]
+identifier = "deny-lead-state"
+description = "Denies the lead_state command without any pre-configured scope."
+commands.deny = ["lead_state"]

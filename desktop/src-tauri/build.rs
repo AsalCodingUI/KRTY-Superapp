@@ -23,7 +23,7 @@ fn main() {
             "lead_close",
             "lead_focus",
             "lead_nav",
-            "lead_url",
+            "lead_state",
             "lead_snapshot",
         ]),
     ))

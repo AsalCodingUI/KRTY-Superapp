@@ -27,6 +27,7 @@ const id = {
   back: "Kembali",
   forward: "Maju",
   reload: "Muat ulang",
+  stop: "Berhenti memuat",
   empty: "Belum ada situs",
   emptyDesc:
     "Tambah situs yang biasa kamu pakai cari klien: Gmail, Telegram, Dribbble, Behance, LinkedIn…",
@@ -67,6 +68,7 @@ const en: Record<keyof typeof id, string> = {
   back: "Back",
   forward: "Forward",
   reload: "Reload",
+  stop: "Stop loading",
   empty: "No sites yet",
   emptyDesc:
     "Add the sites you look for clients on: Gmail, Telegram, Dribbble, Behance, LinkedIn…",

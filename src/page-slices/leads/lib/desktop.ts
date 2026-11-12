@@ -81,17 +81,39 @@ export async function snapshotLead(id: string): Promise<string | null> {
 }
 
 /** The site's own back / forward / reload. */
-export async function navLead(id: string, action: "back" | "forward" | "reload") {
+export async function navLead(
+  id: string,
+  action: "back" | "forward" | "reload" | "stop",
+) {
   try {
     await tauri()?.core.invoke("lead_nav", { id, action })
   } catch {}
 }
 
-/** Where the site is now (null outside the app or before it's made). */
-export async function leadUrl(id: string): Promise<string | null> {
+/** What a site's toolbar shows: where it is, its title, whether it can
+ *  go back / forward, whether it's loading. */
+export type LeadState = {
+  url: string | null
+  title: string | null
+  back: boolean
+  forward: boolean
+  loading: boolean
+}
+
+/** A site's state now (null outside the app or before its view is made). */
+export async function leadState(id: string): Promise<LeadState | null> {
+  const t = tauri()
+  if (!t) return null
   try {
-    return ((await tauri()?.core.invoke("lead_url", { id })) as string | null) ?? null
+    return (await t.core.invoke("lead_state", { id })) as LeadState
   } catch {
     return null
   }
+}
+
+/** The unread count a site puts in its title ("Inbox (3)", "(12) Telegram
+ *  Web"), or 0. */
+export function unreadOf(title: string | null | undefined): number {
+  const m = title?.match(/\((\d[\d.,]*)\)/)
+  return m ? Number(m[1].replace(/[.,]/g, "")) || 0 : 0
 }
