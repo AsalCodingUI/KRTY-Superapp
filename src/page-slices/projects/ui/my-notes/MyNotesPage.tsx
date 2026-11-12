@@ -262,7 +262,9 @@ export function MyNotesPage() {
               </Tooltip>
             )}
           </div>
-          <InputGroup className="w-full">
+          {/* The same line as + Baru beside it (0.5px chrome hairline, no
+              fill), not the 1px field edge. */}
+          <InputGroup className="border-chrome-border hover:border-chrome-border w-full border-[0.5px] bg-transparent hover:bg-transparent">
             <InputGroupAddon>
               <RiSearchLine />
             </InputGroupAddon>
@@ -316,10 +318,11 @@ export function MyNotesPage() {
                     aria-current={active || undefined}
                     onClick={() => setSelectedId(note.id)}
                     className={cn(
-                      "focus-visible:ring-focus-ring flex w-full min-w-0 flex-col gap-1 rounded-lg border px-4 py-3.5 text-left transition-colors outline-none focus-visible:ring-2",
-                      active
-                        ? "border-primary/50 bg-background"
-                        : "hover:bg-muted/60 border-transparent",
+                      // The open one filled like the sidebar's active row
+                      // (no outline); the focus ring drawn inside, so the
+                      // scroller never clips it.
+                      "focus-visible:ring-focus-ring flex w-full min-w-0 flex-col gap-1 rounded-lg px-4 py-3.5 text-left transition-colors outline-none focus-visible:ring-2 focus-visible:ring-inset",
+                      active ? "bg-sidebar-active" : "hover:bg-chrome-hover",
                     )}
                   >
                     <span className="flex min-w-0 items-center gap-1.5 text-sm">
