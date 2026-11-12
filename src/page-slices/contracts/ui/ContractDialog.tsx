@@ -153,7 +153,7 @@ export function ContractDialog({
             )}
           </div>
 
-          <aside className="border-border md:scroll-pane md:pane-px-5 flex shrink-0 flex-col gap-5 border-t p-5 md:w-80 md:border-t-0 md:border-l">
+          <aside className="border-border md:scroll-pane-framed md:pane-px-5 flex shrink-0 flex-col gap-5 border-t md:block md:space-y-5 p-5 md:w-80 md:border-t-0 md:border-l">
             <section className="flex flex-col gap-2">
               <h3 className="text-muted-foreground text-meta font-medium">
                 {t("details")}

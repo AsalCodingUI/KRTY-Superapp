@@ -1,6 +1,7 @@
 "use client"
 
 import { applyTint, readTint } from "@/shared/lib/chrome-tint"
+import { remeasureScrollbarWidth } from "@/shared/lib/scrollbar-width-script"
 import { useEffect, useLayoutEffect } from "react"
 
 // One shared 1×1 canvas for color conversion (created on first use).
@@ -29,7 +30,11 @@ function toHex(color: string) {
 export function ThemeColorSync() {
   // Hydrating <html> drops the inline tint TINT_SCRIPT set before paint;
   // put it back before the browser paints the hydrated page.
-  useLayoutEffect(() => applyTint(readTint()), [])
+  // The same for the scrollbar's width (--sbw, the panes' even spacing).
+  useLayoutEffect(() => {
+    applyTint(readTint())
+    remeasureScrollbarWidth()
+  }, [])
 
   useEffect(() => {
     const root = document.documentElement

@@ -162,6 +162,27 @@
 @utility scroll-pane {
   overflow-y: auto;
   scrollbar-gutter: stable both-edges;
+  /* WebKit (the Mac app, Safari) keeps no gutter until the pane overflows,
+     and in a flex or grid scroller puts both sides' room on the right
+     (measured: 0px left, 24px right). There the scrollbar is always shown
+     (an empty track while short) and the left room is a clear border of
+     the same width, so both sides match on every page, short or long. */
+  @supports (font: -apple-system-body) {
+    overflow-y: scroll;
+    scrollbar-gutter: auto;
+    border-left: var(--sbw, 0px) solid transparent;
+  }
+}
+/* A scrolling box with its own visible border (a framed list): the same
+   kept room, without the clear left border, which would replace its own.
+   WebKit keeps both sides' room only in a block scroller, so make it one
+   (one wrapper inside for a flex column), not flex or grid. */
+@utility scroll-pane-framed {
+  overflow-y: auto;
+  scrollbar-gutter: stable both-edges;
+  @supports (font: -apple-system-body) {
+    overflow-y: scroll;
+  }
 }
 @utility pane-px-* {
   padding-inline: max(
@@ -181,6 +202,11 @@
 @utility scroll-gutter-match {
   overflow-y: hidden;
   scrollbar-gutter: stable both-edges;
+  @supports (font: -apple-system-body) {
+    scrollbar-gutter: auto;
+    border-left: var(--sbw, 0px) solid transparent;
+    border-right: var(--sbw, 0px) solid transparent;
+  }
 }
 
 @utility gutter-x {
@@ -1242,11 +1268,14 @@
 /* A page that fills the page sheet from lg (data-sheet-fill: SplitPane,
    the calendar) never scrolls it: the sheet keeps no scrollbar room (its
    kept gutter would clip the page's right edge), so it reaches both
-   sides. */
+   sides, and its gutter is the full 24px (none of it is scrollbar room),
+   so the bars inside line up 24px from each edge like every other page. */
 @media (min-width: 1024px) {
   [data-paper]:has([data-sheet-fill]) {
     overflow-y: hidden;
     scrollbar-gutter: auto;
+    border-left-width: 0;
+    --page-gutter: 1.5rem;
   }
 }
 
@@ -1278,6 +1307,9 @@
         linear-gradient(var(--sheet-c), var(--sheet-c)) var(--c-bl) 100% / calc(50% - var(--c-bl)) 50% no-repeat,
         linear-gradient(var(--sheet-c), var(--sheet-c)) calc(100% - var(--c-tr)) 0 / calc(50% - var(--c-tr)) 50% no-repeat,
         linear-gradient(var(--sheet-c), var(--sheet-c)) calc(100% - var(--c-br)) 100% / calc(50% - var(--c-br)) 50% no-repeat !important;
+      /* Painted from the border edge: the scroller's clear left border
+         (scroll-pane's room, equal to the scrollbar's) is part of it. */
+      background-origin: border-box !important;
     }
     .dark [data-paper] {
       --sheet-c: var(--surface);

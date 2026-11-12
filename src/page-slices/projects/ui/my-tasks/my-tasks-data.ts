@@ -97,8 +97,9 @@ export function useMyTasks(viewerId: string | null) {
   return useQuery({
     queryKey: myTasksKey(viewerId),
     enabled: Boolean(viewerId),
-    // Tasks also change on the project pages; refetch whenever it's opened.
-    staleTime: 0,
+    // Kept live by useMyTasksLive (realtime), so reopening within 30s
+    // needn't refetch it all again.
+    staleTime: 30_000,
     queryFn: async (): Promise<MyTasks> => {
       const db = supabase()
       const { data: taskRows, error } = await db
@@ -188,8 +189,9 @@ export function useMyDueTasks(
   return useQuery({
     queryKey: [...myTasksKey(viewerId), "due", from, to],
     enabled: Boolean(viewerId),
-    // Tasks also change on the project pages; refetch whenever it's opened.
-    staleTime: 0,
+    // Kept live by useMyTasksLive (realtime), so reopening within 30s
+    // needn't refetch it all again.
+    staleTime: 30_000,
     placeholderData: keepPreviousData,
     queryFn: async (): Promise<MyDueTask[]> => {
       const { data, error } = await supabase()

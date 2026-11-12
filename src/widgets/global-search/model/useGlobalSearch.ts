@@ -197,6 +197,7 @@ export function useRecordSearch(query: string, options: { people: boolean }) {
   })
 }
 
+// Cleared on sign-out (shared/lib/after-sign-out.ts).
 const RECENT_KEY = "global_search_recent"
 const RECENT_MAX = 5
 

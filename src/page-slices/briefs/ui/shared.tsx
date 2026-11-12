@@ -112,7 +112,7 @@ export function BriefAnswersView({ brief }: { brief: BriefListRow }) {
 
   return (
     <div className="flex min-h-0 flex-1">
-      <nav className="border-border scroll-pane pane-px-3 hidden w-60 shrink-0 flex-col gap-0.5 border-r py-3 md:flex">
+      <nav className="border-border scroll-pane-framed pane-px-3 hidden w-60 shrink-0 border-r py-3 md:block">
         {/* Inside the scroller, so the sliding highlight scrolls along. */}
         <div className="relative flex flex-col gap-0.5">
           <HoverHighlight

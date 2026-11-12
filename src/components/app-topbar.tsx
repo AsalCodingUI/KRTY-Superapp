@@ -1,5 +1,6 @@
 "use client"
 
+import { afterSignOut } from "@/shared/lib/after-sign-out"
 import { siteConfig } from "@/app/siteConfig"
 import { AppIcon } from "@/components/app-icon"
 import { NavUser } from "@/components/nav-user"
@@ -39,6 +40,7 @@ export function AccountMenu({
   const tc = useT("common")
   const handleSignOut = async () => {
     await createClient().auth.signOut()
+    await afterSignOut()
     // Full reload so no client state survives the sign-out.
     window.location.href = "/login"
   }

@@ -26,6 +26,7 @@ fn main() {
             "lead_state",
             "lead_report",
             "lead_snapshot",
+            "leads_reset",
         ]),
     ))
     .expect("failed to run tauri-build");

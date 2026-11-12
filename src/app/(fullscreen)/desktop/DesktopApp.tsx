@@ -1,5 +1,6 @@
 "use client"
 
+import { afterSignOut } from "@/shared/lib/after-sign-out"
 import { appSoundName } from "@/shared/lib/notification-sound"
 import { createClient } from "@/shared/api/supabase/client"
 import {
@@ -380,6 +381,8 @@ export function DesktopApp() {
       signIn: () => openExternal("/desktop/connect"),
       signOut: async () => {
         await createClient().auth.signOut()
+        // The app window's Leads sites close and sign out too (and more).
+        await afterSignOut()
         window.location.reload()
       },
       checkUpdate: async () => {

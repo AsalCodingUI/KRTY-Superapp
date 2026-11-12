@@ -176,17 +176,25 @@ export async function fetchLatestMacRelease(
     }))
     .filter((d): d is { slug: string; version: string } => Boolean(d.version))
     .sort((a, b) => (isNewerVersion(a.version, b.version) ? -1 : 1))
-  for (const post of posts.slice(0, 5)) {
+  // The newest few at once (not one round trip after another); the first
+  // (newest) with its file wins.
+  const has = async (version: string) => {
     const { data: files } = await supabase.storage
       .from(RELEASE_BUCKET)
-      .list(releaseFolder(post.version), { search: fileOf(post.version) })
-    if (files?.some((f: { name: string }) => f.name === fileOf(post.version)))
-      return {
-        ...post,
-        platform,
-        path: `${releaseFolder(post.version)}/${fileOf(post.version)}`,
-      }
+      .list(releaseFolder(version), { search: fileOf(version) })
+    return Boolean(
+      files?.some((f: { name: string }) => f.name === fileOf(version)),
+    )
   }
+  const top = posts.slice(0, 5)
+  const found = await Promise.all(top.map((post) => has(post.version)))
+  const post = top[found.indexOf(true)]
+  if (post)
+    return {
+      ...post,
+      platform,
+      path: `${releaseFolder(post.version)}/${fileOf(post.version)}`,
+    }
   // No post for it (yet): the highest version uploaded to the bucket, so a
   // .dmg put there is downloadable even before its release notes are out.
   const { data: folders } = await supabase.storage
@@ -196,18 +204,16 @@ export async function fetchLatestMacRelease(
     .map((f) => f.name)
     .filter((v) => /^\d+\.\d+\.\d+$/.test(v))
     .sort((a, b) => (isNewerVersion(a, b) ? -1 : 1))
-  for (const version of versions.slice(0, 5)) {
-    const { data: files } = await supabase.storage
-      .from(RELEASE_BUCKET)
-      .list(releaseFolder(version), { search: fileOf(version) })
-    if (files?.some((f: { name: string }) => f.name === fileOf(version)))
-      return {
-        slug: null,
-        version,
-        platform,
-        path: `${releaseFolder(version)}/${fileOf(version)}`,
-      }
-  }
+  const topVersions = versions.slice(0, 5)
+  const uploaded = await Promise.all(topVersions.map(has))
+  const version = topVersions[uploaded.indexOf(true)]
+  if (version)
+    return {
+      slug: null,
+      version,
+      platform,
+      path: `${releaseFolder(version)}/${fileOf(version)}`,
+    }
   return null
 }
 

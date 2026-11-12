@@ -13,6 +13,7 @@ touch targets, breakpoints and safe areas. Live examples: **/ui** → Spacing.
 | A list / table (room inside the rows)  | `list-bleed` (`list-overhang` on a padded box)                | `globals.css`; built into `GroupedList`, `ui/table.tsx`      |
 | A scrolling pane with side padding     | `scroll-pane pane-px-<n>`                                     | `globals.css`                                                |
 | A scrolling pane inside a padded box   | `scroll-pane scroll-pane-bleed-<n>`                           | `globals.css`                                                |
+| A scrolling box with a visible border  | `scroll-pane-framed` (block, not flex / grid)                 | `globals.css`                                                |
 | A header/footer aligned to a bare pane | `scroll-gutter-match`                                         | `globals.css`                                                |
 | Page title block                       | `PageHeader` (32px row, the sheet's pt-3 above, pb-3 under)  | `src/components/page-header.tsx`                             |
 | Dialog padding                         | `DialogHeader` / body / `DialogFooter` (all `p-5`)            | `src/components/ui/dialog-sections.tsx`                      |
@@ -115,12 +116,25 @@ focus rings aren't clipped by its overflow.
 
 A desktop scrollbar takes 12px on one side only. `SCROLLBAR_WIDTH_SCRIPT`
 (`src/shared/lib/scrollbar-width-script.ts`, runs in `<head>`) measures the
-room a `scrollbar-gutter: stable both-edges` box keeps and sets `--sbw` on
-`<html>` (12px on desktop Chromium, 0 on overlay scrollbars, phones and
-WebKit/the Mac app).
+room a `scrollbar-gutter: stable both-edges` box keeps on each side (from
+a scrolling probe's content width) and sets `--sbw` on `<html>`: 12px with
+the styled desktop scrollbars (Chromium, Safari and the Mac app alike), 0
+on overlay scrollbars and phones. Hydration drops `<html>`'s inline style,
+so `ThemeColorSync` measures again right after.
 
 - `scroll-pane` = `overflow-y: auto; scrollbar-gutter: stable both-edges`
-  (room on both sides, so left = right and nothing shifts).
+  (room on both sides, so left = right and nothing shifts). WebKit keeps
+  no gutter until a pane overflows and, in a flex / grid scroller, puts
+  both sides' room on the right (measured 0 / 24px); there `scroll-pane`
+  always shows the (clear) scrollbar track and adds a clear `--sbw` left
+  border instead, so every page, tab and dialog measures 24 / 24 in the
+  Mac app as in Chrome. The painted page sheet starts its fill at the
+  border edge (`background-origin: border-box`).
+- A box with its own visible border uses `scroll-pane-framed` (the clear
+  border would replace it) and must be a block scroller, with one flex
+  wrapper inside if needed.
+- A page that fills the sheet (`data-sheet-fill`: calendar, split panes)
+  has no scrollbar room, so its `--page-gutter` is the full 24px.
 - `pane-px-<n>` = `n × 4px − --sbw`: use it **instead of** `px-<n>` on a
   `scroll-pane`.
 - `scroll-pane-bleed-<n>` for a pane inside a box that already has

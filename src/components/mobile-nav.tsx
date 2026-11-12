@@ -1,5 +1,6 @@
 "use client"
 
+import { afterSignOut } from "@/shared/lib/after-sign-out"
 import { useIsMobile } from "@/hooks/use-mobile"
 import { siteConfig } from "@/app/siteConfig"
 import { FloatingTabBar } from "@/components/floating-tab-bar"
@@ -77,6 +78,7 @@ function MobileNavBar() {
 
   const signOut = async () => {
     await createClient().auth.signOut()
+    await afterSignOut()
     window.location.href = "/login"
   }
 

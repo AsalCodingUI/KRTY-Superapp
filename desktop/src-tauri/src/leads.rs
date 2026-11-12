@@ -184,8 +184,9 @@ fn keep_recent(app: &AppHandle, shown: &str) {
     recent.insert(0, shown.to_string());
     while recent.len() > KEEP {
         if let Some(old) = recent.pop() {
-            if let Some(view) = app.get_webview(&old) {
-                let _ = view.close();
+            // Its wrapper and tracking area go too (lead_close).
+            if app.get_webview(&old).is_some() {
+                lead_close(app.clone(), old[PREFIX.len()..].to_string());
             }
         }
     }
@@ -285,7 +286,68 @@ fn free_path(dir: &std::path::Path, name: &str) -> std::path::PathBuf {
     (1..1000)
         .map(|i| dir.join(format!("{stem} ({i}){ext}")))
         .find(|p| !p.exists())
-        .unwrap_or(first)
+        .unwrap_or_else(|| {
+            let now = std::time::SystemTime::now()
+                .duration_since(std::time::UNIX_EPOCH)
+                .map_or(0, |d| d.as_millis());
+            dir.join(format!("{stem} ({now}){ext}"))
+        })
+}
+
+/// A downloaded file's name, safe to save: no bidi controls (which can
+/// disguise an extension), and none of the types macOS runs or opens as an
+/// app when double-clicked (a site could drop one and then open it).
+fn safe_download_name(name: &str) -> Option<String> {
+    let clean: String = name
+        .chars()
+        .filter(|c| !matches!(c, '\u{202A}'..='\u{202E}' | '\u{2066}'..='\u{2069}' | '\u{200E}' | '\u{200F}'))
+        .collect();
+    let ext = clean.rsplit_once('.').map(|(_, e)| e.to_ascii_lowercase()).unwrap_or_default();
+    const RUNNABLE: &[&str] = &[
+        "app", "command", "terminal", "tool", "pkg", "mpkg", "workflow", "action",
+        "fileloc", "webloc", "inetloc", "scpt", "scptd", "applescript", "jar", "sh",
+        "dmg", "prefpane", "kext", "plugin", "osax", "definition", "shortcut",
+    ];
+    (!RUNNABLE.contains(&ext.as_str())).then_some(clean)
+}
+
+/// Marks a downloaded file as from the internet (Gatekeeper asks before
+/// anything in it runs), as a browser does.
+#[cfg(target_os = "macos")]
+fn quarantine(path: &std::path::Path) {
+    let now = std::time::SystemTime::now()
+        .duration_since(std::time::UNIX_EPOCH)
+        .map_or(0, |d| d.as_secs());
+    let _ = std::process::Command::new("/usr/bin/xattr")
+        .arg("-w")
+        .arg("com.apple.quarantine")
+        .arg(format!("0083;{now:x};Kretya Flow;"))
+        .arg(path)
+        .status();
+}
+
+/// A link a site may hand to the system: web and mail only (never file:,
+/// smb:, another app's scheme or the app's own sign-in link).
+fn openable(link: &url::Url) -> bool {
+    matches!(link.scheme(), "http" | "https" | "mailto")
+}
+
+/// Where a site's own view may go: https pages, never the app's own pages
+/// or this Mac's (their commands are the app's, not a site's).
+fn site_may_load(link: &url::Url) -> bool {
+    match link.scheme() {
+        "about" | "blob" | "data" => true,
+        "https" => {
+            let app = url::Url::parse(crate::app_url()).ok();
+            let host = link.host_str().unwrap_or("");
+            app.map_or(true, |a| a.origin() != link.origin())
+                && host != "localhost"
+                && host != "tauri.localhost"
+                && !host.starts_with("127.")
+                && host != "[::1]"
+        }
+        _ => false,
+    }
 }
 
 /// Shows the site `id` (`url`, https only) at the given rect of the app
@@ -375,9 +437,12 @@ pub fn lead_show(
                 });
                 return NewWindowResponse::Deny;
             }
-            let _ = opener.opener().open_url(link.to_string(), None::<&str>);
+            if openable(&link) {
+                let _ = opener.opener().open_url(link.to_string(), None::<&str>);
+            }
             NewWindowResponse::Deny
-        });
+        })
+        .on_navigation(|link| site_may_load(link));
     // Files a site downloads (Gmail's attachments) land in Downloads, under
     // a name that doesn't overwrite one already there; a notification says
     // when they're in.
@@ -395,10 +460,17 @@ pub fn lead_show(
                                 .filter(|n| !n.is_empty())
                         })
                         .unwrap_or_else(|| "download".to_string());
+                    let Some(name) = safe_download_name(&name) else {
+                        return false;
+                    };
                     *destination = free_path(&dir, &name);
                 }
             }
-            tauri::webview::DownloadEvent::Finished { success, .. } => {
+            tauri::webview::DownloadEvent::Finished { success, path, .. } => {
+                #[cfg(target_os = "macos")]
+                if let Some(path) = path.as_deref() {
+                    quarantine(path);
+                }
                 #[cfg(target_os = "macos")]
                 if success {
                     crate::mac_notify::show("Unduhan selesai", "Tersimpan di folder Downloads.", None, None);
@@ -888,7 +960,8 @@ pub async fn lead_report(
             use std::collections::HashMap;
             use std::sync::Mutex;
             use std::time::Instant;
-            // At most one every 1.5s per site (a burst of messages).
+            // At most one every 1.5s per site (a burst of messages), and
+            // 20 a minute from them all.
             static LAST: Mutex<Option<HashMap<String, Instant>>> = Mutex::new(None);
             if let Ok(mut last) = LAST.lock() {
                 let map = last.get_or_insert_with(HashMap::new);
@@ -896,6 +969,14 @@ pub async fn lead_report(
                     return Ok(());
                 }
                 map.insert(label_.clone(), Instant::now());
+            }
+            static MINUTE: Mutex<Vec<Instant>> = Mutex::new(Vec::new());
+            if let Ok(mut recent) = MINUTE.lock() {
+                recent.retain(|t| t.elapsed().as_secs() < 60);
+                if recent.len() >= 20 {
+                    return Ok(());
+                }
+                recent.push(Instant::now());
             }
             // Looking at that very site in the focused app: no banner.
             let looking = app
@@ -907,7 +988,13 @@ pub async fn lead_report(
                 return Ok(());
             }
             let id = label_.strip_prefix(PREFIX).unwrap_or(&label_).to_string();
-            let title = title.filter(|t| !t.trim().is_empty()).unwrap_or_else(|| "Leads".into());
+            // Short, as a site's own banner would be (no page-long text).
+            let clip = |t: String, n: usize| t.chars().take(n).collect::<String>();
+            let title = title
+                .filter(|t| !t.trim().is_empty())
+                .map(|t| clip(t, 100))
+                .unwrap_or_else(|| "Leads".into());
+            let body = body.map(|b| clip(b, 300));
             #[cfg(target_os = "macos")]
             crate::mac_notify::show(&title, body.as_deref().unwrap_or(""), Some(&format!("/leads/{id}")), None);
             #[cfg(not(target_os = "macos"))]
@@ -961,4 +1048,84 @@ pub fn lead_close(app: AppHandle, id: String) {
         });
         let _ = view.close();
     }
+}
+
+/// Signed out of Kretya: every lead view closes and the sites' own data
+/// (their cookies and storage: the studio's Gmail, Telegram …) goes, so
+/// the next person at this Mac can't open them without signing in again.
+/// The app's own site keeps its data (its sign-in page, preferences).
+#[tauri::command]
+pub fn leads_reset(app: AppHandle) {
+    if let Ok(mut shown) = SHOWN_LEAD.lock() {
+        *shown = None;
+    }
+    let labels: Vec<String> = app
+        .webviews()
+        .into_keys()
+        .filter(|l| l.starts_with(PREFIX))
+        .collect();
+    for l in labels {
+        lead_close(app.clone(), l[PREFIX.len()..].to_string());
+    }
+    #[cfg(target_os = "macos")]
+    {
+        let app_host = url::Url::parse(crate::app_url())
+            .ok()
+            .and_then(|u| u.host_str().map(str::to_string))
+            .unwrap_or_default();
+        let _ = app.run_on_main_thread(move || {
+            focus_page();
+            mark_page(false);
+            unsafe { clear_site_data(app_host) };
+        });
+    }
+}
+
+/// Removes every site's website data except the app's own host (a record's
+/// display name is its registrable domain: google.com, localhost …).
+#[cfg(target_os = "macos")]
+unsafe fn clear_site_data(app_host: String) {
+    use block2::RcBlock;
+    use objc2::msg_send;
+    use objc2::runtime::{AnyClass, AnyObject};
+    use objc2_foundation::NSString;
+    let Some(store_class) = AnyClass::get(c"WKWebsiteDataStore") else {
+        return;
+    };
+    let store: *mut AnyObject = msg_send![store_class, defaultDataStore];
+    let types: *mut AnyObject = msg_send![store_class, allWebsiteDataTypes];
+    if store.is_null() || types.is_null() {
+        return;
+    }
+    let found = RcBlock::new(move |records: *mut AnyObject| {
+        if records.is_null() {
+            return;
+        }
+        let Some(array_class) = AnyClass::get(c"NSMutableArray") else {
+            return;
+        };
+        let doomed: *mut AnyObject = msg_send![array_class, array];
+        let count: usize = msg_send![records, count];
+        for i in 0..count {
+            let record: *mut AnyObject = msg_send![records, objectAtIndex: i];
+            let name: *mut NSString = msg_send![record, displayName];
+            let keep = !name.is_null() && {
+                let name = (*name).to_string();
+                !name.is_empty() && (app_host == name || app_host.ends_with(&format!(".{name}")))
+            };
+            if !keep {
+                let _: () = msg_send![doomed, addObject: record];
+            }
+        }
+        let store: *mut AnyObject = msg_send![store_class, defaultDataStore];
+        let types: *mut AnyObject = msg_send![store_class, allWebsiteDataTypes];
+        let done = RcBlock::new(|| {});
+        let _: () = msg_send![
+            store,
+            removeDataOfTypes: types,
+            forDataRecords: doomed,
+            completionHandler: &*done
+        ];
+    });
+    let _: () = msg_send![store, fetchDataRecordsOfTypes: types, completionHandler: &*found];
 }

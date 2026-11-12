@@ -33,7 +33,7 @@ use tauri_plugin_positioner::{Position, WindowExt};
 
 /// The web app both windows load; a dev build can point at localhost with
 /// `KRTY_APP_URL=http://localhost:3000`.
-fn app_url() -> &'static str {
+pub(crate) fn app_url() -> &'static str {
     option_env!("KRTY_APP_URL").unwrap_or("https://app.kretyastudio.com")
 }
 
@@ -240,6 +240,16 @@ fn web_window<'a>(
     )
     .initialization_script(format!("window.__KRTY_APP_URL__ = {:?};", app_url()))
     .initialization_script(SHELL_SCRIPT)
+    // Signed out (the sign-in page loads, after a sign-out or an expired
+    // session): the Leads sites close and lose their sign-ins.
+    .on_page_load(|view, payload| {
+        if payload.event() == tauri::webview::PageLoadEvent::Started
+            && is_app(payload.url())
+            && payload.url().path().starts_with("/login")
+        {
+            leads::leads_reset(view.app_handle().clone());
+        }
+    })
     .on_navigation(move |url| {
         if is_app(url) || is_embed(url) {
             return true;
@@ -864,7 +874,8 @@ pub fn run() {
             leads::lead_nav,
             leads::lead_state,
             leads::lead_report,
-            leads::lead_snapshot
+            leads::lead_snapshot,
+            leads::leads_reset
         ]);
     #[cfg(target_os = "macos")]
     let builder = builder.menu(app_menu).on_menu_event(on_app_menu);

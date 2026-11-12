@@ -373,7 +373,7 @@ export function LeaveRequestModal({
                     {showRules ? t("hideRules") : t("showFullRules")}
                   </button>
                   {showRules && (
-                    <div className="scroll-pane pane-px-3 rounded-card max-h-64 border py-3">
+                    <div className="scroll-pane-framed pane-px-3 rounded-card max-h-64 border py-3">
                       <LeaveRules />
                     </div>
                   )}

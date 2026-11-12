@@ -164,7 +164,7 @@ export function AnnouncementDialog({
               ]}
             />
             {audience === "people" && (
-              <div className="scroll-pane border-border flex max-h-48 flex-col rounded-lg border p-1">
+              <div className="scroll-pane-framed border-border max-h-48 rounded-lg border p-1">
                 {/* Inside the scroller, so the sliding highlight scrolls
                     with the rows. */}
                 <div className="relative flex flex-col">
