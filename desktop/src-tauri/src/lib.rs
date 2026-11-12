@@ -824,6 +824,8 @@ pub fn run() {
                     None,
                 );
             }
+            // The page fills the window, sized by AppKit (see fit_page).
+            leads::fit_page(app.handle());
             // Closing it keeps KRTY running in the menu bar.
             let keep = main.clone();
             let page = app.handle().clone();

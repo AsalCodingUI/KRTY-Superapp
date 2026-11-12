@@ -47,7 +47,7 @@ type Editing = { site: LeadSite | null } | null
 
 /**
  * Leads → Kelola situs: the studio's one list of sites (every PM and
- * stakeholder sees the same), in the panel's order: add, rename, remove.
+ * stakeholder sees the same), in the panel's order: add, edit, remove.
  */
 export function LeadsPage() {
   const t = useT("leads")
@@ -86,6 +86,11 @@ export function LeadsPage() {
           )
         }
       />
+      {builtIn && (
+        <p className="text-muted-foreground text-meta pb-3">
+          {t("builtInNote")}
+        </p>
+      )}
       {isLoading ? (
         <div className="flex justify-center py-16">
           <Spinner className="size-6" />
@@ -151,7 +156,11 @@ export function LeadsPage() {
         onClose={() => setEditing(null)}
         onSave={async ({ name, url }) => {
           const site = editing?.site
-          if (site) await writer.rename(site.id, name)
+          if (site) {
+            await writer.update(site.id, name, url)
+            // A new address: the open view reloads it next time.
+            if (url !== site.url) void closeLead(site.id)
+          }
           else
             await writer.add(
               name,
@@ -215,7 +224,7 @@ function RowAction({
   )
 }
 
-/** Add a site (name + https address), or rename one. */
+/** Add a site (name + https address), or edit one. */
 function SiteDialog({
   editing,
   onClose,
@@ -259,7 +268,7 @@ function SiteForm({
 
   const submit = async (e: React.FormEvent) => {
     e.preventDefault()
-    const normalized = site ? site.url : normalizeUrl(url)
+    const normalized = normalizeUrl(url)
     if (!normalized) return setUrlError(true)
     setSaving(true)
     try {
@@ -294,28 +303,26 @@ function SiteForm({
             onChange={(e) => setName(e.target.value)}
           />
         </div>
-        {!site && (
-          <div className="gap-field flex flex-col">
-            <Label htmlFor="lead-url">{t("url")}</Label>
-            <Input
-              id="lead-url"
-              required
-              inputMode="url"
-              value={url}
-              aria-invalid={urlError || undefined}
-              placeholder={t("urlPlaceholder")}
-              onChange={(e) => {
-                setUrl(e.target.value)
-                setUrlError(false)
-              }}
-            />
-            {urlError && (
-              <p className="text-destructive-ink text-meta">
-                {t("urlInvalid")}
-              </p>
-            )}
-          </div>
-        )}
+        <div className="gap-field flex flex-col">
+          <Label htmlFor="lead-url">{t("url")}</Label>
+          <Input
+            id="lead-url"
+            required
+            inputMode="url"
+            value={url}
+            aria-invalid={urlError || undefined}
+            placeholder={t("urlPlaceholder")}
+            onChange={(e) => {
+              setUrl(e.target.value)
+              setUrlError(false)
+            }}
+          />
+          {urlError && (
+            <p className="text-destructive-ink text-meta">
+              {t("urlInvalid")}
+            </p>
+          )}
+        </div>
       </form>
       <DialogFooter>
         <Button type="button" variant="outline" onClick={onClose}>

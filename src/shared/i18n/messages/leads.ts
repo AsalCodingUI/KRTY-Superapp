@@ -19,7 +19,9 @@ const id = {
   removeTitle: "Hapus “{name}”?",
   removeDesc:
     "Situs ini hilang dari Leads. Login di situs itu ikut tertutup di app.",
-  rename: "Ubah nama",
+  rename: "Edit situs",
+  builtInNote:
+    "Ini daftar bawaan. Tambah, edit dan hapus situs aktif setelah migrasi lead_sources dijalankan.",
   open: "Buka",
   openInBrowser: "Buka di browser",
   empty: "Belum ada situs",
@@ -54,7 +56,9 @@ const en: Record<keyof typeof id, string> = {
   remove: "Remove",
   removeTitle: "Remove “{name}”?",
   removeDesc: "It leaves Leads. Its sign-in in the app is closed too.",
-  rename: "Rename",
+  rename: "Edit site",
+  builtInNote:
+    "These are the built-in sites. Adding, editing and removing sites turns on once the lead_sources migration has run.",
   open: "Open",
   openInBrowser: "Open in browser",
   empty: "No sites yet",

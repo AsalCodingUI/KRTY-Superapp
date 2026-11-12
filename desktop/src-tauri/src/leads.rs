@@ -32,17 +32,41 @@ fn label(id: &str) -> String {
 }
 
 /// The app's own page, the whole window. With child web views enabled
-/// (Tauri's "unstable" multi-webview) the page no longer follows the window
-/// by itself: after a resize (or macOS restoring the window's last size) it
-/// came out cut off on the right and bottom.
+/// (Tauri's "unstable" multi-webview) the page's web view no longer follows
+/// the window by itself, and sizing it by hand (set_size) left WebKit
+/// painting a stale, smaller part of it (cut off on the right and bottom).
+/// So AppKit sizes it, as without child views: the window's content bounds
+/// and width + height autoresizing.
 pub fn fit_page(app: &AppHandle) {
-    let (Some(window), Some(page)) = (app.get_window(crate::APP), app.get_webview(crate::APP))
-    else {
+    let Some(page) = app.get_webview(crate::APP) else {
         return;
     };
-    if let (Ok(size), Ok(scale)) = (window.inner_size(), window.scale_factor()) {
-        let _ = page.set_position(LogicalPosition::new(0.0, 0.0));
-        let _ = page.set_size(size.to_logical::<f64>(scale));
+    #[cfg(target_os = "macos")]
+    let _ = page.with_webview(|platform| {
+        use objc2::msg_send;
+        use objc2::runtime::AnyObject;
+        use objc2_foundation::NSRect;
+        let web = platform.inner() as *mut AnyObject;
+        if web.is_null() {
+            return;
+        }
+        unsafe {
+            let parent: *mut AnyObject = msg_send![web, superview];
+            if parent.is_null() {
+                return;
+            }
+            let bounds: NSRect = msg_send![parent, bounds];
+            let _: () = msg_send![web, setFrame: bounds];
+            // NSViewWidthSizable | NSViewHeightSizable
+            let _: () = msg_send![web, setAutoresizingMask: 2usize | 16usize];
+        }
+    });
+    #[cfg(not(target_os = "macos"))]
+    if let Some(window) = app.get_window(crate::APP) {
+        if let (Ok(size), Ok(scale)) = (window.inner_size(), window.scale_factor()) {
+            let _ = page.set_position(LogicalPosition::new(0.0, 0.0));
+            let _ = page.set_size(size.to_logical::<f64>(scale));
+        }
     }
 }
 

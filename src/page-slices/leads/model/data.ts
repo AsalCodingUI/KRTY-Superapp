@@ -102,11 +102,11 @@ export function useLeadWriter() {
           .from("lead_sources")
           .insert({ name: name.trim(), url, position }),
       ),
-    rename: (id: string, name: string) =>
+    update: (id: string, name: string, url: string) =>
       run(
         supabase()
           .from("lead_sources")
-          .update({ name: name.trim() })
+          .update({ name: name.trim(), url })
           .eq("id", id),
       ),
     remove: (id: string) =>

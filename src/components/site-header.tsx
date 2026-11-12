@@ -3,6 +3,7 @@
 import { useBreadcrumbTrail, type Crumb } from "@/components/page-breadcrumbs"
 import { matchProjectPath } from "@/shared/config/project-sections"
 import { useProjectSummary } from "@/shared/hooks/useProjectSummary"
+import { useLeadSites } from "@/page-slices/leads/model/data"
 import { globalItems, scopePages, workspaces } from "@/shared/config/workspaces"
 import { PROJECT_SECTION_KEYS } from "@/components/nav-project"
 import { useT } from "@/shared/i18n/client"
@@ -73,6 +74,10 @@ export function SiteHeader() {
   const projectPath = matchProjectPath(pathname)
   const { data: project } = useProjectSummary(projectPath?.ref)
   const extra = useBreadcrumbTrail()
+  // A Leads site (/leads/<id>): its tab shows the site's tile, as its row.
+  const leadId = /^\/leads\/([^/]+)/.exec(pathname)?.[1]
+  const { data: leadSites } = useLeadSites(Boolean(leadId))
+  const lead = leadId ? leadSites?.find((s) => s.id === leadId) : undefined
 
   const sectionLabel = projectPath
     ? PROJECT_SECTION_KEYS[projectPath.section.slug]
@@ -94,10 +99,12 @@ export function SiteHeader() {
     () =>
       projectPath && project
         ? { kind: "project", id: project.id, name: project.name }
-        : section.href
+        : lead
+          ? { kind: "project", id: lead.id, name: lead.name }
+          : section.href
           ? { kind: "nav", href: section.href }
           : undefined,
-    [projectPath, project, section.href],
+    [projectPath, project, lead, section.href],
   )
   useAppTabsSync({ title, icon })
   const navIcon = useCallback(
