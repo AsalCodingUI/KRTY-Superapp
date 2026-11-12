@@ -42,9 +42,7 @@ export function PersonCell({
     <div className="flex min-w-0 items-center gap-3">
       <Avatar size="md">
         <AvatarImage src={avatarUrl || undefined} alt="" />
-        <AvatarFallback className="text-micro">
-          {initials(label)}
-        </AvatarFallback>
+        <AvatarFallback>{initials(label)}</AvatarFallback>
       </Avatar>
       <div className="flex min-w-0 flex-col">
         {children ?? <span className="text-foreground truncate">{label}</span>}

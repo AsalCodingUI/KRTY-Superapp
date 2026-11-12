@@ -234,7 +234,7 @@ export function ProjectTimeline({
                         className={cx(
                           "text-micro tabular-nums",
                           isToday
-                            ? "bg-foreground text-background flex size-5 items-center justify-center rounded-[5px] font-medium"
+                            ? "bg-foreground text-background rounded-tile flex size-5 items-center justify-center font-medium"
                             : "text-muted-foreground",
                         )}
                       >

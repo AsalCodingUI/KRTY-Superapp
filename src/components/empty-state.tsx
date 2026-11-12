@@ -41,7 +41,7 @@ export function EmptyState({
       className={cn(
         "enter-rise flex w-full min-w-0 flex-col items-center justify-center px-6 py-14 text-center",
         placement === "outer" &&
-          "border-border rounded-xl border border-dashed",
+          "border-border rounded-card border border-dashed",
         className,
       )}
     >
@@ -53,7 +53,9 @@ export function EmptyState({
           </div>
         </div>
       )}
-      <p className="text-foreground text-sm font-medium">{title}</p>
+      <p className="text-foreground text-section font-medium text-balance">
+        {title}
+      </p>
       {description && (
         <p className="text-muted-foreground mt-1 max-w-xs text-sm leading-relaxed text-balance">
           {description}

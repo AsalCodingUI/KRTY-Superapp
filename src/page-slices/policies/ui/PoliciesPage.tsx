@@ -5,6 +5,7 @@ import {
   setPolicyArchived,
 } from "@/app/(main)/policies/actions/policy-actions"
 import { ConfirmDialog } from "@/components/confirm-dialog"
+import { SectionTitle } from "@/components/section-title"
 import { EmptyState } from "@/components/empty-state"
 import { ContextTarget, copyText, type CtxItem } from "@/shared/context-menu"
 import { useQueryClient } from "@tanstack/react-query"
@@ -337,17 +338,14 @@ export function PoliciesPage() {
             icon={<RiFileTextLine />}
           />
         ) : view === "grid" ? (
-          <div className="flex flex-col gap-8">
+          <div className="gap-section flex flex-col">
             {categories.map((category) => {
               const items = shown.filter((p) => p.category === category)
               return (
-                <section key={category} className="flex flex-col gap-3">
-                  <h2 className="text-muted-foreground flex items-center gap-2 text-sm">
-                    <span className="text-foreground font-medium">
-                      {categoryLabel(t, category)}
-                    </span>
-                    <span className="tabular-nums">{items.length}</span>
-                  </h2>
+                <section key={category} className="flex flex-col">
+                  <SectionTitle extra={items.length} className="pt-0">
+                    {categoryLabel(t, category)}
+                  </SectionTitle>
                   <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
                     {items.map((p) =>
                       target(
@@ -535,7 +533,7 @@ function PolicyCard({
       {...rest}
       data-slot="policy-card"
       href={href}
-      className="bg-card border-field-border hover:border-field-border focus-visible:border-primary/50 focus-visible:ring-focus-ring flex flex-col gap-1.5 rounded-xl border p-5 transition-[border-color] duration-200 outline-none focus-visible:ring-2"
+      className="bg-card border-field-border hover:border-field-border focus-visible:border-primary/50 focus-visible:ring-focus-ring rounded-card flex flex-col gap-1.5 border p-5 transition-[border-color] duration-200 outline-none focus-visible:ring-2"
     >
       <span className="flex min-w-0 items-center gap-2">
         <span className="text-foreground truncate font-medium">

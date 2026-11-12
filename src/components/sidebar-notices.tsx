@@ -74,7 +74,7 @@ export function SidebarNoticeCard({
       data-slot="sidebar-notice"
       data-tone={tone}
       className={cn(
-        "group/notice relative flex items-center gap-2 rounded-xl py-2.5 pr-2 pl-3 transition-colors group-data-[collapsible=icon]:hidden",
+        "group/notice rounded-card relative flex items-center gap-2 py-2.5 pr-2 pl-3 transition-colors group-data-[collapsible=icon]:hidden",
         // Solid, so the (translucent) sidebar doesn't show through; the
         // accent tone is told apart by its blue button.
         "bg-card hover:bg-muted shadow-control",
@@ -117,7 +117,7 @@ export function SidebarNoticeCard({
           type="button"
           onClick={onDismiss}
           aria-label={t("dismiss")}
-          className="bg-background text-muted-foreground hover:text-foreground border-border shadow-control absolute -top-1.5 -left-1.5 flex size-5 items-center justify-center rounded-full border opacity-0 transition-opacity group-hover/notice:opacity-100 focus-visible:opacity-100 [&_svg]:size-3"
+          className="bg-background text-muted-foreground hover:text-foreground shadow-control absolute -top-1.5 -left-1.5 flex size-5 items-center justify-center rounded-full opacity-0 transition-opacity group-hover/notice:opacity-100 focus-visible:opacity-100 [&_svg]:size-3"
         >
           <X />
         </button>

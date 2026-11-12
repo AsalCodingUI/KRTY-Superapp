@@ -51,7 +51,7 @@ export function EmployeeKpiPage({
           <span className="flex items-center gap-3">
             <Avatar>
               <AvatarImage src={employee.avatar_url || undefined} alt="" />
-              <AvatarFallback className="text-xs">
+              <AvatarFallback>
                 {initials(employee.full_name, "U")}
               </AvatarFallback>
             </Avatar>

@@ -1,6 +1,7 @@
 "use client"
 
 import { EmptyState } from "@/components/empty-state"
+import { SectionTitle } from "@/components/section-title"
 import { PageHeader } from "@/components/page-header"
 import { HoverHighlight } from "@/components/sliding-indicator"
 import { Button } from "@/components/ui/button"
@@ -240,7 +241,7 @@ export function WhatsNewPage() {
         <div
           role="group"
           aria-label={t("kindLabel")}
-          className="mb-6 flex gap-1.5"
+          className="mb-4 flex gap-1.5"
         >
           <KindChip active={!kind} onClick={() => setKind(null)}>
             {t("all")}
@@ -293,25 +294,17 @@ export function WhatsNewPage() {
             }
           />
         ) : (
-          <div className="flex flex-col gap-10">
+          <div className="gap-section flex flex-col">
             {groups.map(({ key, isDay, title, count, items }) => {
               return (
-                <section key={key} className="flex flex-col gap-3">
-                  <h2 className="text-muted-foreground flex items-center gap-2 text-sm">
-                    <span
-                      className={cn(
-                        "text-foreground font-medium",
-                        isDay && "capitalize",
-                      )}
-                    >
-                      {title}
-                    </span>
-                    <span className="tabular-nums">{count}</span>
-                  </h2>
+                <section key={key} className="flex flex-col">
+                  <SectionTitle extra={count} className="pt-0">
+                    <span className={cn(isDay && "capitalize")}>{title}</span>
+                  </SectionTitle>
                   <div
                     className={
                       view === "grid"
-                        ? "grid gap-x-5 gap-y-8 sm:grid-cols-2 xl:grid-cols-3"
+                        ? "grid gap-4 sm:grid-cols-2 xl:grid-cols-3"
                         : "relative flex flex-col gap-1"
                     }
                   >
@@ -319,7 +312,7 @@ export function WhatsNewPage() {
                     {view !== "grid" && (
                       <HoverHighlight
                         itemSelector="[data-slot=list-row]"
-                        className="rounded-xl bg-(--row-hover)"
+                        className="rounded-card bg-(--row-hover)"
                         inset={0}
                       />
                     )}
@@ -397,9 +390,9 @@ function EntryTile({ entry, href, ...rest }: EntryLinkProps) {
     <ParamLink
       {...rest}
       href={href}
-      className="group/entry focus-visible:ring-focus-ring flex flex-col gap-3 rounded-xl outline-none focus-visible:ring-2 focus-visible:ring-offset-4 focus-visible:ring-offset-[var(--background)]"
+      className="group/entry focus-visible:ring-focus-ring rounded-card flex flex-col gap-3 outline-none focus-visible:ring-2 focus-visible:ring-offset-4 focus-visible:ring-offset-[var(--background)]"
     >
-      <div className="border-field-border relative overflow-hidden rounded-xl border">
+      <div className="border-field-border rounded-card relative overflow-hidden border">
         <EntryPicture
           entry={entry}
           className="aspect-video w-full transition-transform duration-300 group-hover/entry:scale-[1.02]"
@@ -429,7 +422,7 @@ function EntryRow({ entry, href, ...rest }: EntryLinkProps) {
       {...rest}
       href={href}
       data-slot="list-row"
-      className="group/entry focus-visible:ring-focus-ring relative -mx-3 flex items-center gap-4 rounded-xl p-3 outline-none focus-visible:ring-2"
+      className="group/entry focus-visible:ring-focus-ring rounded-card relative -mx-3 flex items-center gap-4 p-3 outline-none focus-visible:ring-2"
     >
       <div className="border-field-border relative w-28 shrink-0 overflow-hidden rounded-lg border sm:w-36">
         <EntryPicture entry={entry} className="aspect-video w-full" />

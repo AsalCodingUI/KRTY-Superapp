@@ -1,6 +1,6 @@
 "use client"
 
-import { createClient } from "@/shared/api/supabase/client"
+import { subscribeTable } from "@/shared/realtime/table-channel"
 import { useQueryClient, type QueryKey } from "@tanstack/react-query"
 import { useEffect, useRef } from "react"
 
@@ -60,19 +60,12 @@ function echoedKeys(table: string, row: Row | null) {
   return skip
 }
 
-/** `col=eq.value` → [col, value]; other filter kinds aren't checked here. */
-function parseEqFilter(filter?: string) {
-  const match = filter?.match(/^([^=]+)=eq\.(.*)$/)
-  return match ? ([match[1], match[2]] as const) : null
-}
-
 /**
  * Keeps queries fresh while someone else edits: listens to the tables'
  * changes (Supabase Realtime, RLS applies) and refetches the queries they
- * touch. A burst of changes refetches once. Inserts and updates are
- * filtered by the server. Deletes can't be: they're checked here against
- * the old row when it carries the filter's column (replica identity full);
- * one that carries only the key still refreshes what this view shows.
+ * touch. A burst of changes refetches once. Every view on the same table
+ * (and filter) shares one channel (see subscribeTable), which also checks
+ * filtered deletes against the old row.
  */
 export function useRealtimeRefresh(
   name: string,
@@ -87,7 +80,6 @@ export function useRealtimeRefresh(
 
   useEffect(() => {
     if (!enabled) return
-    const supabase = createClient()
     const pending = new Map<string, QueryKey>()
     let timer: ReturnType<typeof setTimeout> | undefined
     const queue = (keys: QueryKey[], skip?: Set<string>) => {
@@ -107,40 +99,19 @@ export function useRealtimeRefresh(
       }, 250)
     }
 
-    let channel = supabase.channel(
-      `rt:${name}:${Math.random().toString(36).slice(2, 8)}`,
+    const unsubscribes = latest.current.map((watch, i) =>
+      subscribeTable(watch.table, watch.filter, (payload) => {
+        let row: Row | null
+        if (payload.eventType === "DELETE") {
+          const old = payload.old as Row | undefined
+          row = old && Object.keys(old).length ? old : null
+        } else row = payload.new as Row
+        queue(latest.current[i]?.keys(row) ?? [], echoedKeys(watch.table, row))
+      }),
     )
-    latest.current.forEach((watch, i) => {
-      const keysOf = (row: Row | null) => latest.current[i]?.keys(row) ?? []
-      for (const event of ["INSERT", "UPDATE"] as const)
-        channel = channel.on(
-          "postgres_changes",
-          {
-            event,
-            schema: "public",
-            table: watch.table,
-            ...(watch.filter ? { filter: watch.filter } : {}),
-          },
-          (payload: { new: Row }) =>
-            queue(keysOf(payload.new), echoedKeys(watch.table, payload.new)),
-        )
-      const eq = parseEqFilter(watch.filter)
-      channel = channel.on(
-        "postgres_changes",
-        { event: "DELETE", schema: "public", table: watch.table },
-        (payload: { old?: Row }) => {
-          const old =
-            payload.old && Object.keys(payload.old).length ? payload.old : null
-          // Another project's row (the old row says so): not ours to refresh.
-          if (eq && old && eq[0] in old && String(old[eq[0]]) !== eq[1]) return
-          queue(keysOf(old), echoedKeys(watch.table, old))
-        },
-      )
-    })
-    channel.subscribe()
     return () => {
       clearTimeout(timer)
-      void supabase.removeChannel(channel)
+      for (const unsubscribe of unsubscribes) unsubscribe()
     }
     // Resubscribes when the tables or filters change, not the callbacks.
     // eslint-disable-next-line react-hooks/exhaustive-deps

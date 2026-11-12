@@ -97,7 +97,7 @@ export const adminColumns = (
                 src={row.original.profiles?.avatar_url || undefined}
                 alt={name}
               />
-              <AvatarFallback className="text-[10px]">{letters}</AvatarFallback>
+              <AvatarFallback>{letters}</AvatarFallback>
             </Avatar>
             <div className="flex min-w-0 flex-col">
               <span

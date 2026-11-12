@@ -337,7 +337,7 @@ export default function NotificationsPanel({
       className={cn(
         "w-full gap-0 sm:max-w-md",
         isMobile &&
-          "h-[85dvh] rounded-t-3xl border-t-0 pb-[env(safe-area-inset-bottom)]",
+          "h-[85dvh] rounded-t-dialog border-t-0 pb-[env(safe-area-inset-bottom)]",
       )}
     >
       <SheetHeader>

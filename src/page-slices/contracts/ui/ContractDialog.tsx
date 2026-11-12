@@ -101,7 +101,7 @@ export function ContractDialog({
       >
         <header className="border-border flex h-14 shrink-0 items-center gap-2 border-b pr-3 pl-5">
           <RiFileTextLine className="text-muted-foreground size-4 shrink-0" />
-          <DialogTitle className="min-w-0 truncate text-sm font-medium">
+          <DialogTitle size="bar" className="min-w-0 truncate">
             {contract.title}
           </DialogTitle>
           <span className="hidden shrink-0 sm:inline-flex">
@@ -155,7 +155,7 @@ export function ContractDialog({
 
           <aside className="border-border md:scroll-pane md:pane-px-5 flex shrink-0 flex-col gap-5 border-t p-5 md:w-80 md:border-t-0 md:border-l">
             <section className="flex flex-col gap-2">
-              <h3 className="text-muted-foreground text-xs font-medium">
+              <h3 className="text-muted-foreground text-meta font-medium">
                 {t("details")}
               </h3>
               <dl className="text-meta flex flex-col gap-2.5">
@@ -235,7 +235,7 @@ function Acknowledgement({
         className="flex flex-col gap-2"
       >
         {state === "done" ? (
-          <div className="bg-success-subtle text-success-ink text-meta flex items-start gap-2 rounded-2xl px-3.5 py-3">
+          <div className="bg-success-subtle text-success-ink text-meta rounded-popover flex items-start gap-2 px-3.5 py-3">
             <RiCheckboxCircleFill className="mt-0.5 size-4 shrink-0" />
             <span>
               {t("ackBy", {

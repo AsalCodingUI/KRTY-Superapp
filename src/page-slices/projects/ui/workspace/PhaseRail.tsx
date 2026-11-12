@@ -378,7 +378,7 @@ export function PhaseRail({
                     aria-label={phase.name}
                     aria-current={selected ? "step" : undefined}
                     onClick={() => onSelect(phase.id)}
-                    className="focus-visible:ring-focus-ring absolute inset-0 rounded-xl outline-none focus-visible:ring-2"
+                    className="focus-visible:ring-focus-ring rounded-card absolute inset-0 outline-none focus-visible:ring-2"
                   />
                   {/* 1. Marker and name; ⋯ keeps its place on the right. */}
                   <span className="flex min-w-0 items-center gap-2.5">

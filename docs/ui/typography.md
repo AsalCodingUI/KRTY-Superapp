@@ -10,6 +10,7 @@ documents. Live examples: **/ui** → Typography.
 | ------------------------------- | ---------------------------------------------------------- | ---------------------------------------------------------------- |
 | Page title (one per page)       | `PageHeader title`                                         | `src/components/page-header.tsx`                                 |
 | Quiet section heading in a page | `SectionTitle` (with `extra` count)                        | `src/components/section-title.tsx`                               |
+| Group heading inside a list     | `SectionTitle variant="group"`                             | `src/components/section-title.tsx`                               |
 | Bordered block with a title     | `Panel title meta` / `HomeCard title`                      | `src/components/panel.tsx`, `dashboard/components/home-card.tsx` |
 | Dialog / sheet / alert title    | `DialogTitle`, `SheetTitle`, `AlertDialogTitle`            | `src/components/ui/dialog.tsx`, `sheet.tsx`, `alert-dialog.tsx`  |
 | Line under a title              | `DialogDescription`, `CardDescription`, `FieldDescription` | `src/components/ui/*`                                            |
@@ -47,11 +48,12 @@ Tailwind's line-heights come with each size. px = font size / line height.
 | Card screen title (brief, public)             | `text-heading text-2xl font-medium tracking-tight text-balance`              | 24 / 32    |
 | Stat value (`StatStrip`, `StatTiles`)         | `text-xl font-normal tracking-tight tabular-nums`                            | 20 / 28    |
 | Heading in a document (md `#`)                | `text-heading text-xl font-medium tracking-tight`                            | 20 / 28    |
-| Empty state / sub-section title               | `text-lg font-medium tracking-tight`                                         | 18 / 28    |
+| Empty state / sub-section title               | `text-section font-medium` (`EmptyState` owns it)                            | 18 / 26    |
 | Dialog / sheet title                          | `text-heading text-[15px] leading-snug font-medium`                          | 15 / 20.6  |
 | Card title (`HomeCard`)                       | `text-heading text-[15px] font-normal`                                       | 15 / 21.4  |
 | Prose (Markdown, editor)                      | `text-foreground/90 text-[15px] leading-7`                                   | 15 / 28    |
 | Panel title, section title                    | `text-sm font-medium` (Panel) / `text-sm` (SectionTitle)                     | 14 / 20    |
+| List group heading                            | `SectionTitle variant="group"`: `text-meta text-muted-foreground`, `pt-3 pb-1` | 13 / 18    |
 | Body, rows, buttons, inputs (desktop)         | `text-sm`                                                                    | 14 / 20    |
 | Secondary / description                       | `text-muted-foreground text-sm`                                              | 14 / 20    |
 | Meta / caption (under a row title)            | `text-tertiary-foreground text-[13px]`                                       | 13 / ~18.6 |
@@ -102,9 +104,11 @@ Typography.
   (`text-base md:text-sm`, so iOS doesn't zoom), and the `##` heading in
   documents. Not for card or dialog titles (those are 15px).
 - One `h1` per page and it is `PageHeader`. Inner titles are `h2` / `h3`.
-- Avatar initials follow the avatar size (`UserAvatar`, `ProjectAvatar`
-  own it); the 9–10px initials in tiny avatars are the only text under
-  11px, and they come from the component, not the call site.
+- Avatar initials follow the avatar size (`Avatar`/`AvatarFallback` and
+  `ProjectAvatar` own it: size-5 → 9px, size-6 → 10px, size-7/8 →
+  `text-micro`, size-9/10 → `text-xs`, bigger → `text-sm` and up). Pass a
+  size (`size="sm"` or `className="size-6"`), never a text size. The
+  9–10px initials in tiny avatars are the only text under 11px.
 - Print and file previews (`InvoiceDocument`, `office-view.tsx`,
   `FilePreview`) use their own fixed px sizes; they are pictures of paper,
   not app UI.
@@ -207,6 +211,8 @@ Typography.
 - Numbers without `tabular-nums` in a list or stat.
 - A copied `<h2 className="text-foreground pt-6 pb-3 text-sm">`: import
   `SectionTitle`.
+- A hand-made list group heading (`text-meta text-muted-foreground pt-3
+  pb-1`): use `SectionTitle variant="group"`.
 
 ## Not app UI (keep their own type)
 

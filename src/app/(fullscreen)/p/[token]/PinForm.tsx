@@ -11,7 +11,7 @@ import {
 import { Spinner } from "@/components/ui/spinner"
 import { cn } from "@/lib/utils"
 import { useT } from "@/shared/i18n/client"
-import { ARRIVAL, EASE_OUT } from "@/shared/lib/motion"
+import { ARRIVAL, DURATION, EASE_OUT, TRANSITION } from "@/shared/lib/motion"
 import { AnimatePresence, m, useAnimate, useReducedMotion } from "motion/react"
 import { useRouter } from "next/navigation"
 import { useEffect, useRef, useState } from "react"
@@ -174,16 +174,15 @@ export function PinForm({
                             y: 0,
                             scale: 1,
                             filter: "blur(0px)",
-                            transition: {
-                              type: "spring",
-                              stiffness: 500,
-                              damping: 28,
-                            },
+                            transition: TRANSITION,
                           }}
                           exit={{
                             opacity: 0,
                             scale: 0.6,
-                            transition: { duration: 0.12 },
+                            transition: {
+                              duration: DURATION.fast,
+                              ease: EASE_OUT,
+                            },
                           }}
                           className="absolute"
                         >

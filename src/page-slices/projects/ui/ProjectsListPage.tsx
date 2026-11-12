@@ -530,7 +530,7 @@ function ProjectTable({
                     src={a.profiles?.avatar_url || undefined}
                     alt=""
                   />
-                  <AvatarFallback className="text-[10px]">
+                  <AvatarFallback>
                     {initials(a.profiles?.full_name, "U")}
                   </AvatarFallback>
                 </Avatar>

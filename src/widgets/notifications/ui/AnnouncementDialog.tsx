@@ -192,7 +192,7 @@ export function AnnouncementDialog({
                               src={p.avatar_url || undefined}
                               alt=""
                             />
-                            <AvatarFallback className="text-[10px]">
+                            <AvatarFallback>
                               {initials(name)}
                             </AvatarFallback>
                           </Avatar>

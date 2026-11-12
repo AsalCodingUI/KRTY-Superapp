@@ -516,7 +516,7 @@ export function ProjectForm({
                 <div key={m.userId} className="flex items-center gap-2">
                   <Avatar className="size-6">
                     <AvatarImage src={m.avatar_url || undefined} alt="" />
-                    <AvatarFallback className="text-[10px]">
+                    <AvatarFallback>
                       {initials(m.full_name, "U")}
                     </AvatarFallback>
                   </Avatar>

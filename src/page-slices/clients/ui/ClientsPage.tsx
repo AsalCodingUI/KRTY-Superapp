@@ -465,7 +465,7 @@ function ClientCard({
       href={href}
       scroll={false}
       prefetch={false}
-      className="bg-card border-field-border hover:border-field-border focus-visible:border-primary/50 focus-visible:ring-focus-ring flex flex-col overflow-hidden rounded-xl border transition-[border-color] duration-200 outline-none focus-visible:ring-2"
+      className="bg-card border-field-border hover:border-field-border-hover focus-visible:border-primary/50 focus-visible:ring-focus-ring rounded-card flex flex-col overflow-hidden border transition-[border-color] duration-200 outline-none focus-visible:ring-2"
     >
       <div className="flex flex-1 flex-col gap-3 p-5">
         <div className="flex flex-wrap items-center gap-1.5">

@@ -88,7 +88,10 @@ export function AppTopbar() {
         <div
           className={cn(
             "flex shrink-0 items-center gap-1.5 pl-[5.5rem] transition-[width] duration-200 ease-out group-data-[resizing=true]/sidebar-wrapper:transition-none motion-reduce:transition-none",
-            open && "w-[calc(var(--sidebar-width-icon)+var(--sidebar-width))]",
+            open
+              ? "w-[calc(var(--sidebar-width-icon)+var(--sidebar-width))]"
+              : // Folded: the tabs follow 6px on, as the buttons do.
+                "pr-1.5",
           )}
         >
           {/* ChatGPT's order: ← → then the sidebar toggle. */}

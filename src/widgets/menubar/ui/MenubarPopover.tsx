@@ -554,7 +554,7 @@ function Shell({
           WebkitBackdropFilter: `blur(${surface.blur}px) saturate(1.6)`,
         }}
         className={cn(
-          "text-popover-foreground shadow-dialog flex flex-col overflow-hidden rounded-3xl border border-white/8",
+          "text-popover-foreground shadow-dialog flex flex-col overflow-hidden rounded-dialog border border-white/8",
           className,
         )}
       >
@@ -657,7 +657,7 @@ function ClockButtons({
 /** The big attendance card (layouts A and C). */
 function AttendanceCard({ data }: { data: Data }) {
   return (
-    <div className="bg-muted mx-3 mb-3 rounded-2xl p-4">
+    <div className="bg-muted rounded-card mx-3 mb-3 p-4">
       <p className="text-muted-foreground text-meta flex items-center gap-2">
         <StatusDot data={data} />
         {statusText(data)}
@@ -730,7 +730,7 @@ function Group({
 
 function Row({ children }: { children: ReactNode }) {
   return (
-    <div className="hover:bg-muted flex items-center gap-3 rounded-lg px-2 py-2 text-sm transition-colors">
+    <div className="hover:bg-muted rounded-row flex items-center gap-3 px-2 py-2 text-sm transition-colors">
       {children}
     </div>
   )
@@ -906,7 +906,7 @@ function NotificationRows({ data, limit }: { data: Data; limit?: number }) {
               tabIndex={0}
               onClick={() => act.openNotification(n)}
               onKeyDown={(e) => e.key === "Enter" && act.openNotification(n)}
-              className="hover:bg-muted flex cursor-default gap-3 rounded-lg px-2 py-2.5 transition-colors"
+              className="hover:bg-muted rounded-row flex cursor-default gap-3 px-2 py-2.5 transition-colors"
             >
               <DotIcon dot size={32}>
                 <span className="bg-muted text-muted-foreground flex size-full items-center justify-center rounded-lg">
@@ -986,12 +986,12 @@ function ApprovalRows({ data }: { data: Data }) {
               },
             ]}
           >
-            <div className="flex items-start gap-3 rounded-2xl px-2 py-2.5 transition-colors hover:bg-(--row-hover)">
+            <div className="rounded-row flex items-start gap-3 px-2 py-2.5 transition-colors hover:bg-(--row-hover)">
               <Avatar>
                 {req.profiles?.avatar_url && (
                   <AvatarImage src={req.profiles.avatar_url} />
                 )}
-                <AvatarFallback className="text-micro">
+                <AvatarFallback>
                   {initials(req.profiles?.full_name)}
                 </AvatarFallback>
               </Avatar>
@@ -1241,7 +1241,7 @@ export function LayoutTiles({ data, on }: { data: Data; on: On }) {
               type="button"
               onClick={t.onClick}
               className={cn(
-                "flex flex-col items-start gap-1 rounded-2xl px-3 py-2.5 text-left transition-colors",
+                "rounded-card flex flex-col items-start gap-1 px-3 py-2.5 text-left transition-colors",
                 active === t.value
                   ? "bg-accent text-foreground"
                   : "hover:bg-muted text-muted-foreground",
@@ -1529,9 +1529,9 @@ function SettingsPanel({ data }: { data: Data }) {
 
   return (
     <div className="flex flex-col gap-1 pb-2">
-      <div className="flex items-center gap-3 rounded-lg px-2 py-2">
+      <div className="rounded-row flex items-center gap-3 px-2 py-2">
         <Avatar>
-          <AvatarFallback className="text-micro">
+          <AvatarFallback>
             {initials(data.person.full_name)}
           </AvatarFallback>
         </Avatar>
@@ -1635,7 +1635,7 @@ function SettingRow({
   onChange: (value: boolean) => void
 }) {
   return (
-    <label className="hover:bg-muted flex cursor-pointer items-center gap-3 rounded-lg px-2 py-2 text-sm transition-colors">
+    <label className="hover:bg-muted rounded-row flex cursor-pointer items-center gap-3 px-2 py-2 text-sm transition-colors">
       <span className="min-w-0 flex-1">
         <span className="block">{label}</span>
         {hint && (

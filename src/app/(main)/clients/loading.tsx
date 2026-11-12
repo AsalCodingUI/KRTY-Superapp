@@ -20,7 +20,7 @@ export default function ClientsLoading() {
 
       <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
         {[1, 2, 3, 4, 5, 6].map((i) => (
-          <Skeleton key={i} className="h-36 w-full rounded-xl" />
+          <Skeleton key={i} className="rounded-card h-36 w-full" />
         ))}
       </div>
     </div>

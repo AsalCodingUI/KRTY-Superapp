@@ -533,7 +533,7 @@ function TabItem({
         }
       }}
       className={cn(
-        "group/tab text-meta rounded-[8px] relative flex h-8 min-w-0 shrink-0 cursor-default items-center gap-1.5 pl-3 transition-colors select-none",
+        "group/tab text-sm rounded-[8px] relative flex h-8 min-w-0 shrink-0 cursor-default items-center gap-1.5 pl-3 transition-colors select-none",
         // One tab: as wide as its name; several share the room.
         onlyOne ? "max-w-56 pr-3" : "w-44 max-w-44 pr-1",
         main && !onlyOne && "pr-3",

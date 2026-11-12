@@ -36,7 +36,7 @@ export function AppBanner({
     <div
       role="status"
       className={cn(
-        "flex min-h-9 w-full items-center gap-3 rounded-lg px-3 py-1 text-sm",
+        "rounded-row flex min-h-9 w-full items-center gap-3 px-3 py-1 text-sm",
         TONES[tone],
       )}
     >

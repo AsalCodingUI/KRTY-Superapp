@@ -161,9 +161,7 @@ export function ProjectReports({ projectId }: { projectId: string }) {
                   <div className="hidden min-w-0 items-center gap-2 md:flex">
                     <Avatar className="size-6">
                       <AvatarImage src={r.author?.avatar_url || undefined} />
-                      <AvatarFallback className="text-[10px]">
-                        {initials(name)}
-                      </AvatarFallback>
+                      <AvatarFallback>{initials(name)}</AvatarFallback>
                     </Avatar>
                     <span className="text-muted-foreground text-meta truncate">
                       {name}

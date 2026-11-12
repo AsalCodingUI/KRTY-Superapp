@@ -479,6 +479,12 @@
   border-radius: 25%;
 }
 
+/* A dialog made of several surfaces: elev-5 as one filter on the group
+   (--elev-5-drop, light and dark), so the shadow follows their union. */
+@utility drop-shadow-dialog {
+  filter: var(--elev-5-drop);
+}
+
 :root {
   /* Light theme — Stripe dashboard ("sail") structure with untinted grays:
      #2B2B2B ink, #E6E6E6 field lines, #F0F0F0 hairlines, #F7F7F7 offset
@@ -563,6 +569,12 @@
     0 0 0 1px oklch(0.22 var(--elev-ink) var(--tint-h) / 0.05),
     0 10px 24px -4px oklch(0.22 var(--elev-ink) var(--tint-h) / 0.045),
     0 42px 100px -18px oklch(0.22 var(--elev-ink) var(--tint-h) / 0.16);
+  /* elev-5 as a filter (drop-shadow-dialog), for a dialog built from
+     several surfaces (file drop + form, invoice editor): one drop-shadow
+     on the group shadows their union, where box-shadows would overlap. */
+  --elev-5-drop:
+    drop-shadow(0 8px 18px oklch(0 0 0 / 0.06))
+    drop-shadow(0 30px 60px oklch(0 0 0 / 0.16));
   --app-topbar-height: 3.5rem;
   /* Where floating side sheets and the docked side panel start: 8px inside
      the page sheet's top (below the top bar, the tab row and any banner;
@@ -769,6 +781,7 @@
     0 0 0 1px oklch(1 0 0 / 0.07), 0 28px 76px -14px oklch(0 0 0 / 0.27);
   --elev-5:
     0 0 0 1px oklch(1 0 0 / 0.07), 0 42px 104px -18px oklch(0 0 0 / 0.32);
+  --elev-5-drop: drop-shadow(0 30px 60px oklch(0 0 0 / 0.6));
   --sidebar: var(--chrome);
   --surface: oklch(0.25 0 0);
   --sidebar-foreground: oklch(0.935 0 0);
@@ -1269,6 +1282,18 @@
     .dark [data-paper] {
       --sheet-c: var(--surface);
     }
+  }
+}
+
+/* Beside the panel the page's left corners are square (page-sheet.tsx);
+   with the panel folded away they round again (the painted ones in
+   WebKit too: the corner vars fall back to --sheet-r). */
+@media (min-width: 768px) {
+  [data-slot="sidebar"][data-inline][data-state="collapsed"] ~ [data-paper] {
+    --sheet-tl: initial;
+    --sheet-bl: initial;
+    border-top-left-radius: inherit;
+    border-bottom-left-radius: inherit;
   }
 }
 

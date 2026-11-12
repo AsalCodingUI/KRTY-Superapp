@@ -105,8 +105,8 @@ export function SantuyPage({
       <PageHeader title={tn("sharingSantuy")} />
       {isLoading ? (
         <div className="grid gap-4 lg:grid-cols-[minmax(0,1fr)_20rem]">
-          <Skeleton className="h-64 rounded-xl" />
-          <Skeleton className="h-64 rounded-xl" />
+          <Skeleton className="rounded-card h-64" />
+          <Skeleton className="rounded-card h-64" />
         </div>
       ) : isError || !data ? (
         <EmptyState title={t("loadFailed")} icon={<RiCupLine />} />
@@ -803,11 +803,7 @@ function NextUpCard({
       >
         <div className="flex flex-col gap-4 p-5 sm:flex-row sm:items-center">
           <div className="flex min-w-0 flex-1 items-center gap-4">
-            <PersonAvatar
-              person={person}
-              className="size-14"
-              fallbackClassName="text-lg"
-            />
+            <PersonAvatar person={person} className="size-14" />
             <div className="flex min-w-0 flex-col gap-1">
               <div className="flex flex-wrap items-center gap-2">
                 <span className="text-muted-foreground text-meta">

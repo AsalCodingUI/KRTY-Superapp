@@ -6,6 +6,7 @@ import {
   listHeaderClassName,
   listRowClassName,
 } from "@/components/grouped-list"
+import { SectionTitle } from "@/components/section-title"
 import { PanelList, surfaceClassName } from "@/components/panel"
 import {
   asStage,
@@ -379,7 +380,7 @@ export function ProjectDashboard({ projectId }: { projectId: string }) {
             <ProjectAvatar
               id={project.id}
               name={project.name}
-              className="text-micro size-5"
+              className="size-5"
             />
             <span className="min-w-0 truncate">{project.name}</span>
             <ProjectStageButton
@@ -422,7 +423,7 @@ export function ProjectDashboard({ projectId }: { projectId: string }) {
           />
         )}
       />
-      <div className="flex flex-col gap-4 pt-6">
+      <div className="flex flex-col gap-4">
         {phases.length === 0 ? (
           // An ongoing project (side work, a retainer): no rail, and for
           // stakeholders and the project's PMs the way back to phases.
@@ -489,7 +490,7 @@ export function ProjectDashboard({ projectId }: { projectId: string }) {
                 {t("colProject")}
               </h2>
             </header>
-            <div className="flex flex-col gap-5 p-4">
+            <div className="flex flex-col gap-4 px-4">
               <ProjectAbout
                 projectId={projectId}
                 description={project.description}
@@ -548,24 +549,31 @@ export function ProjectDashboard({ projectId }: { projectId: string }) {
               />
               <DesignLinks projectId={projectId} />
               <section className="border-border flex flex-col gap-2 border-t pt-4">
-                <h3 className="text-muted-foreground flex min-h-7 items-center gap-2 [&_svg]:size-4">
-                  <UsersRound aria-hidden="true" />
-                  <span className="flex-1">{t("colTeam")}</span>
-                  {canMove && (
-                    // Straight to the team (the project form), without the
-                    // trip to Pengaturan.
-                    <Button
-                      variant="ghost"
-                      size="icon-sm"
-                      aria-label={t("editProjectAndTeam")}
-                      title={t("editProjectAndTeam")}
-                      className="text-muted-foreground -my-1"
-                      onClick={() => setEditOpen(true)}
-                    >
-                      <Pencil />
-                    </Button>
-                  )}
-                </h3>
+                <SectionTitle
+                  variant="group"
+                  className="min-h-7 py-0"
+                  actions={
+                    canMove && (
+                      // Straight to the team (the project form), without the
+                      // trip to Pengaturan.
+                      <Button
+                        variant="ghost"
+                        size="icon-sm"
+                        aria-label={t("editProjectAndTeam")}
+                        title={t("editProjectAndTeam")}
+                        className="text-muted-foreground -my-1"
+                        onClick={() => setEditOpen(true)}
+                      >
+                        <Pencil />
+                      </Button>
+                    )
+                  }
+                >
+                  <span className="inline-flex items-center gap-2 [&_svg]:size-3.5">
+                    <UsersRound aria-hidden="true" />
+                    {t("colTeam")}
+                  </span>
+                </SectionTitle>
                 {team.length === 0 ? (
                   <p className="text-muted-foreground">{t("noMembersYet")}</p>
                 ) : (
@@ -576,7 +584,7 @@ export function ProjectDashboard({ projectId }: { projectId: string }) {
                     >
                       <Avatar className="size-6">
                         <AvatarImage src={m.avatar_url || undefined} alt="" />
-                        <AvatarFallback className="text-[10px]">
+                        <AvatarFallback>
                           {initials(m.full_name, "U")}
                         </AvatarFallback>
                       </Avatar>

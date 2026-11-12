@@ -14,6 +14,7 @@ import {
 import { cn } from "@/lib/utils"
 import { StatTiles } from "@/components/stat-tiles"
 import { Button } from "@/components/ui/button"
+import { SectionTitle } from "@/components/section-title"
 import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog"
 import {
   DropdownMenu,
@@ -105,7 +106,7 @@ export function ClientDialog({
       >
         <header className="border-border flex h-14 shrink-0 items-center gap-2 border-b pr-3 pl-5">
           <RiBuildingLine className="text-muted-foreground size-4 shrink-0" />
-          <DialogTitle className="min-w-0 truncate text-sm font-medium">
+          <DialogTitle size="bar" className="min-w-0 truncate">
             {client.name}
           </DialogTitle>
           {client.archived_at && (
@@ -189,7 +190,7 @@ export function ClientDialog({
           />
 
           <section className="flex flex-col gap-2">
-            <h3 className="text-heading text-sm font-medium">{t("details")}</h3>
+            <SectionTitle className="py-0">{t("details")}</SectionTitle>
             <dl className="grid gap-x-6 gap-y-2 text-sm sm:grid-cols-2">
               {details.map(([label, value]) => (
                 <div key={label} className="flex justify-between gap-4">
@@ -203,19 +204,16 @@ export function ClientDialog({
               ))}
             </dl>
             {client.notes && (
-              <p className="border-border text-muted-foreground mt-2 rounded-lg border px-3 py-2 text-sm whitespace-pre-line">
+              <p className="border-border text-muted-foreground rounded-card mt-2 border px-3 py-2 text-sm whitespace-pre-line">
                 {client.notes}
               </p>
             )}
           </section>
 
           <section className="flex flex-col gap-2">
-            <h3 className="text-heading text-sm font-medium">
-              {t("projectsTitle")}{" "}
-              <span className="text-tertiary-foreground font-normal tabular-nums">
-                {client.projects.length}
-              </span>
-            </h3>
+            <SectionTitle className="py-0" extra={client.projects.length}>
+              {t("projectsTitle")}
+            </SectionTitle>
             {client.projects.length === 0 ? (
               <p className="text-muted-foreground text-sm">{t("noProjects")}</p>
             ) : (

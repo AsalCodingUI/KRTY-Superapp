@@ -286,6 +286,8 @@ fn inset_traffic_lights(ns_window: tauri::Result<*mut std::ffi::c_void>) {
     use objc2::runtime::AnyObject;
     use objc2_foundation::NSRect;
     const LEFT: f64 = 16.0;
+    // The lights' top, from the title bar's top (centre 21.75pt down).
+    const DOWN: f64 = 14.75;
     let Ok(ptr) = ns_window else { return };
     let w = ptr as *mut AnyObject;
     unsafe {
@@ -300,7 +302,19 @@ fn inset_traffic_lights(ns_window: tauri::Result<*mut std::ffi::c_void>) {
         }
         let first: NSRect = msg_send![close, frame];
         let shift = LEFT - first.origin.x;
-        if shift.abs() < 0.5 {
+        // 2pt lower than the compact toolbar puts them: centred with the
+        // web app's ← →, toggle and tabs (21.75pt down). AppKit's y runs up,
+        // so lower is less; measured from where AppKit left them.
+        let parent: *mut AnyObject = msg_send![close, superview];
+        let height = if parent.is_null() {
+            0.0
+        } else {
+            let pf: NSRect = msg_send![parent, frame];
+            pf.size.height
+        };
+        let target_y = height - DOWN - first.size.height;
+        let drop = target_y - first.origin.y;
+        if shift.abs() < 0.5 && drop.abs() < 0.5 {
             return;
         }
         for button in buttons {
@@ -309,6 +323,7 @@ fn inset_traffic_lights(ns_window: tauri::Result<*mut std::ffi::c_void>) {
             }
             let mut f: NSRect = msg_send![button, frame];
             f.origin.x += shift;
+            f.origin.y += drop;
             let _: () = msg_send![button, setFrameOrigin: f.origin];
         }
     }

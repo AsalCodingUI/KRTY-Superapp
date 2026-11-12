@@ -1,6 +1,7 @@
 "use client"
 
 import { PageHeader } from "@/components/page-header"
+import { SectionTitle } from "@/components/section-title"
 import { listRowClassName } from "@/components/grouped-list"
 import { PanelList, surfaceClassName } from "@/components/panel"
 import { HoverHighlight } from "@/components/sliding-indicator"
@@ -270,10 +271,12 @@ export function PortalOverview({
             </dl>
             {links.length > 0 && (
               <section className="border-border flex flex-col gap-2 border-t pt-4">
-                <h3 className="text-muted-foreground flex items-center gap-2 [&_svg]:size-4">
-                  <Link2 aria-hidden="true" />
-                  {t("designLinks")}
-                </h3>
+                <SectionTitle variant="group" className="py-0">
+                  <span className="inline-flex items-center gap-2 [&_svg]:size-3.5">
+                    <Link2 aria-hidden="true" />
+                    {t("designLinks")}
+                  </span>
+                </SectionTitle>
                 <ul className="relative -mx-2 flex flex-col">
                   <HoverHighlight
                     itemSelector="[data-slot=list-row]"

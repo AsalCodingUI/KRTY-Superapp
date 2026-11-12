@@ -17,7 +17,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog"
 import { ClockControls } from "@/features/attendance-clock"
-import { createClient } from "@/shared/api/supabase/client"
+import { subscribeTable } from "@/shared/realtime/table-channel"
 import { useMinuteClock } from "@/shared/hooks/useMinuteClock"
 import { getLocalDateString } from "@/shared/lib/date"
 import { useDateLocale, useT } from "@/shared/i18n/client"
@@ -87,7 +87,6 @@ export function EmployeeLeavePage({
   const t = useT("leave")
   const tc = useT("common")
   const dateLocale = useDateLocale()
-  const supabase = createClient()
   const router = useRouter()
 
   // Only HH:mm is shown, so tick on the minute rather than every second.
@@ -120,33 +119,20 @@ export function EmployeeLeavePage({
     isShownChange(logs, payload),
   )
   useEffect(() => {
-    const channel = supabase
-      .channel("employee-leave-page")
-      .on(
-        "postgres_changes",
-        {
-          event: "*",
-          schema: "public",
-          table: "leave_requests",
-          filter: `user_id=eq.${profile.id}`,
-        },
-        refreshForRequests,
-      )
-      .on(
-        "postgres_changes",
-        {
-          event: "*",
-          schema: "public",
-          table: "attendance_logs",
-          filter: `user_id=eq.${profile.id}`,
-        },
-        refreshForLogs,
-      )
-      .subscribe()
+    // The app's shared per-table channels (the dashboard widget uses the
+    // same two).
+    const filter = `user_id=eq.${profile.id}`
+    const offRequests = subscribeTable(
+      "leave_requests",
+      filter,
+      refreshForRequests,
+    )
+    const offLogs = subscribeTable("attendance_logs", filter, refreshForLogs)
     return () => {
-      supabase.removeChannel(channel)
+      offRequests()
+      offLogs()
     }
-  }, [supabase, refreshForRequests, refreshForLogs, profile.id])
+  }, [refreshForRequests, refreshForLogs, profile.id])
 
   const requestsForStats = statsRequests.length > 0 ? statsRequests : requests
 

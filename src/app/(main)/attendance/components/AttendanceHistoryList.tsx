@@ -85,7 +85,12 @@ export function AttendanceHistoryList({
 
   return (
     <div className="flex flex-col gap-4">
-      <GroupedList>
+      {/* Rows sit inside AttendanceDay: counted here for the long-list mode. */}
+      <GroupedList
+        rowCount={groups
+          .slice(0, visibleDays)
+          .reduce((n, [, dayLogs]) => n + dayLogs.length, 0)}
+      >
         <div className={cn(ROW_GRID, listHeaderClassName)}>
           <span>{t("colTime")}</span>
           <span className="hidden md:block">{t("colStatus")}</span>

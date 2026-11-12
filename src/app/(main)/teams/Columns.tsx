@@ -89,7 +89,7 @@ export const createTeamColumns = ({
                 src={row.original.avatar_url || undefined}
                 alt={name}
               />
-              <AvatarFallback className="text-[10px]">{letters}</AvatarFallback>
+              <AvatarFallback>{letters}</AvatarFallback>
             </Avatar>
             <span className="text-foreground whitespace-nowrap" title={name}>
               {name}

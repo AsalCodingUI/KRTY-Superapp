@@ -55,6 +55,12 @@ function initial(name: string) {
 const vivid = (color: string) =>
   `oklch(from ${color} calc(l + 0.03) min(calc(c * 1.18), 0.32) h)`
 
+/** The initial follows the tile's size class (size-5 → 9px, size-6 →
+ *  10px, size-7/8 → 11px, size-9/10 → 12px, bigger → 14px), so call sites
+ *  only pass a size, never a text size. */
+const INITIAL_SIZE =
+  "text-[9px] [&.size-6]:text-[10px] [&.size-7]:text-micro [&.size-8]:text-micro [&.size-9]:text-xs [&.size-10]:text-xs [&.size-11]:text-sm [&.size-12]:text-sm [&.size-14]:text-base [&.size-16]:text-base"
+
 export function ProjectAvatar({
   id,
   name,
@@ -69,7 +75,8 @@ export function ProjectAvatar({
       aria-hidden
       style={{ backgroundColor: vivid(projectColorVar(id)) }}
       className={cn(
-        "rounded-tile flex size-5 shrink-0 items-center justify-center text-[10px] font-medium",
+        "rounded-tile flex size-5 shrink-0 items-center justify-center font-medium",
+        INITIAL_SIZE,
         projectColor(id),
         className,
       )}

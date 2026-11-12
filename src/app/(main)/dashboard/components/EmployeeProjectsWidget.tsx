@@ -93,7 +93,7 @@ export function EmployeeProjectsWidget({
                     <ProjectAvatar
                       id={project.id}
                       name={project.name}
-                      className="text-micro size-6"
+                      className="size-6"
                     />
                   }
                   title={<span className="font-medium">{project.name}</span>}

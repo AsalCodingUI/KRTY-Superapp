@@ -281,7 +281,7 @@ export function MyNotesPage() {
 
         {/* The notes: title, a preview, when it was edited and the to-dos;
             the open one filled. */}
-        <SplitPaneScroll className="gap-1.5">
+        <SplitPaneScroll className="gap-1">
           {isLoading ? (
             <div className="flex justify-center py-16">
               <Spinner className="size-6" />
@@ -321,7 +321,7 @@ export function MyNotesPage() {
                     onClick={() => setSelectedId(note.id)}
                     className={cn(
                       splitPaneItemClassName(active),
-                      "flex-col gap-1 px-3 py-3.5",
+                      "flex-col gap-1 px-3 py-3",
                     )}
                   >
                     <span className="flex min-w-0 items-center gap-1.5 text-sm">

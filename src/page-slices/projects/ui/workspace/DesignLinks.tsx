@@ -1,6 +1,7 @@
 "use client"
 
 import { ConfirmDialog } from "@/components/confirm-dialog"
+import { SectionTitle } from "@/components/section-title"
 import { HoverHighlight } from "@/components/sliding-indicator"
 import { Button } from "@/components/ui/button"
 import {
@@ -176,23 +177,28 @@ export function DesignLinks({ projectId }: { projectId: string }) {
 
   return (
     <section className="border-border flex flex-col gap-2 border-t pt-4">
-      <div className="flex items-center justify-between gap-2">
-        <h3 className="text-muted-foreground flex items-center gap-2 [&_svg]:size-4">
+      <SectionTitle
+        variant="group"
+        className="py-0"
+        actions={
+          canManage && (
+            <Button
+              variant="ghost"
+              size="icon-xs"
+              aria-label={t("designLinkAdd")}
+              className="text-muted-foreground"
+              onClick={() => setEditing("new")}
+            >
+              <RiAddLine />
+            </Button>
+          )
+        }
+      >
+        <span className="inline-flex items-center gap-2 [&_svg]:size-3.5">
           <Link2 aria-hidden="true" />
           {t("designLinks")}
-        </h3>
-        {canManage && (
-          <Button
-            variant="ghost"
-            size="icon-xs"
-            aria-label={t("designLinkAdd")}
-            className="text-muted-foreground"
-            onClick={() => setEditing("new")}
-          >
-            <RiAddLine />
-          </Button>
-        )}
-      </div>
+        </span>
+      </SectionTitle>
       {links.length === 0 ? (
         <button
           type="button"

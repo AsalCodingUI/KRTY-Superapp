@@ -89,9 +89,7 @@ function ReviewerStack({
             className={cn("size-6", !r.done && "opacity-50 grayscale")}
           >
             <AvatarImage src={r.avatar_url || undefined} alt="" />
-            <AvatarFallback className="text-[10px]">
-              {initials(r.full_name, "?")}
-            </AvatarFallback>
+            <AvatarFallback>{initials(r.full_name, "?")}</AvatarFallback>
           </Avatar>
         ))}
         {more > 0 && (

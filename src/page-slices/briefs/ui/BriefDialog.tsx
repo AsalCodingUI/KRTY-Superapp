@@ -175,7 +175,7 @@ export function BriefDialog({
             <div className="border-border flex flex-col gap-3 border-b px-5 pt-5 pb-4">
               <div className="flex items-start gap-4 pr-8">
                 <DialogHeader className="min-w-0 flex-1 gap-1.5">
-                  <DialogTitle className="text-section truncate font-normal">
+                  <DialogTitle size="lg" className="truncate">
                     {brief.title}
                   </DialogTitle>
                   <DialogDescription className="text-meta flex flex-wrap items-center gap-x-2 gap-y-1">

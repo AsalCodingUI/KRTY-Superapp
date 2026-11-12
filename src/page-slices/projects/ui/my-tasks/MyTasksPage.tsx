@@ -3,6 +3,7 @@
 import { useIsMobile, useIsWide } from "@/hooks/use-mobile"
 import { linkKey, projectHref } from "@/shared/lib/url-params"
 import { ConfirmDialog } from "@/components/confirm-dialog"
+import { SectionTitle } from "@/components/section-title"
 import { EmptyState } from "@/components/empty-state"
 import { PageHeader } from "@/components/page-header"
 import { ProjectAvatar } from "@/components/project-avatar"
@@ -480,15 +481,16 @@ export function MyTasksPage() {
             />
           ) : (
             groups.map((group) => (
-              <div key={group.key} className="flex flex-col gap-0.5">
+              <div key={group.key} className="flex flex-col gap-1">
                 {/* The group: a quiet label and its count, on the rows'
                     text edge. */}
-                <h2 className="text-muted-foreground text-meta flex items-center gap-1.5 px-3 pt-3 pb-1 first:pt-1">
+                <SectionTitle
+                  variant="group"
+                  extra={group.tasks.length}
+                  className="px-3 first:pt-1"
+                >
                   {t(GROUP_LABEL[group.key])}
-                  <span className="text-tertiary-foreground tabular-nums">
-                    {group.tasks.length}
-                  </span>
-                </h2>
+                </SectionTitle>
                 {group.tasks.map((task) => (
                   <TaskContextTarget key={task.id} menu={menuFor(task)}>
                     <SplitTaskRow
@@ -630,7 +632,7 @@ function SplitTaskRow({
       className={cn(
         splitPaneItemClassName(active),
         // The ring for the keyboard only (focus-within lit it on a click).
-        "has-[:focus-visible]:ring-focus-ring relative items-start gap-2.5 px-3 py-2.5 has-[:focus-visible]:ring-2 has-[:focus-visible]:ring-inset",
+        "has-[:focus-visible]:ring-focus-ring relative items-start gap-2.5 px-3 py-3 has-[:focus-visible]:ring-2 has-[:focus-visible]:ring-inset",
       )}
     >
       <Checkbox
@@ -646,7 +648,7 @@ function SplitTaskRow({
           aria-current={active || undefined}
           onClick={onOpen}
           className={cn(
-            "min-w-0 truncate text-left text-sm outline-none after:absolute after:inset-0 after:rounded-lg",
+            "after:rounded-row min-w-0 truncate text-left text-sm outline-none after:absolute after:inset-0",
             task.done
               ? "text-muted-foreground line-through"
               : "text-foreground",

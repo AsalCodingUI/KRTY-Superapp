@@ -118,7 +118,7 @@ export function SelectionMenu({ editor }: { editor: Editor }) {
       }
       className={cn(
         "bg-popover text-popover-foreground shadow-popover z-40 flex items-center gap-0.5 p-1",
-        ai ? "rounded-2xl" : "rounded-full",
+        ai ? "rounded-popover" : "rounded-full",
       )}
     >
       {ai ? (

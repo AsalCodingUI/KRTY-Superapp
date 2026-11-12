@@ -720,7 +720,7 @@ function PersonAvatar({
   return (
     <Avatar className={cn("size-5", className)}>
       <AvatarImage src={person.avatar_url || undefined} alt="" />
-      <AvatarFallback className="bg-muted text-muted-foreground text-[9px] font-medium">
+      <AvatarFallback className="bg-muted text-muted-foreground font-medium">
         {initials(person.full_name)}
       </AvatarFallback>
     </Avatar>
@@ -906,8 +906,7 @@ function TypingLine({ names }: { names: string[] }) {
             {[0, 1, 2].map((i) => (
               <span
                 key={i}
-                className="bg-muted-foreground size-1 animate-bounce rounded-full motion-reduce:animate-none"
-                style={{ animationDelay: `${i * 120}ms` }}
+                className="bg-muted-foreground size-1 rounded-full"
               />
             ))}
           </span>

@@ -86,11 +86,6 @@ export function LeadsPage() {
           )
         }
       />
-      {builtIn && (
-        <p className="text-muted-foreground text-meta pb-3">
-          {t("builtInNote")}
-        </p>
-      )}
       {isLoading ? (
         <div className="flex justify-center py-16">
           <Spinner className="size-6" />
@@ -107,48 +102,55 @@ export function LeadsPage() {
           description={t("emptyDesc")}
         />
       ) : (
-        <GroupedList className="text-sm">
-          {sites.map((site) => (
-            <ListRow
-              key={site.id}
-              className="group/site flex min-h-14 items-center gap-3 py-2"
-            >
-              <ProjectAvatar
-                id={site.id}
-                name={site.name}
-                className="size-6 rounded-md text-xs"
-              />
-              <PrefetchLink
-                href={leadHref(site.id)}
-                className="flex min-w-0 flex-1 flex-col"
+        <>
+          {builtIn && (
+            <p className="text-muted-foreground text-meta pb-3">
+              {t("builtInNote")}
+            </p>
+          )}
+          <GroupedList className="text-sm">
+            {sites.map((site) => (
+              <ListRow
+                key={site.id}
+                className="group/site flex min-h-14 items-center gap-3 py-2"
               >
-                <span className="truncate">{site.name}</span>
-                <span className="text-muted-foreground text-meta truncate">
-                  {hostOf(site.url)}
-                </span>
-              </PrefetchLink>
-              <div className="flex shrink-0 items-center gap-0.5">
-                {canEdit(site) && (
-                  <>
-                    <RowAction
-                      label={t("rename")}
-                      onClick={() => setEditing({ site })}
-                    >
-                      <RiPencilLine />
-                    </RowAction>
-                    <RowAction
-                      label={t("remove")}
-                      destructive
-                      onClick={() => setRemoving(site)}
-                    >
-                      <RiDeleteBinLine />
-                    </RowAction>
-                  </>
-                )}
-              </div>
-            </ListRow>
-          ))}
-        </GroupedList>
+                <ProjectAvatar
+                  id={site.id}
+                  name={site.name}
+                  className="size-6"
+                />
+                <PrefetchLink
+                  href={leadHref(site.id)}
+                  className="flex min-w-0 flex-1 flex-col"
+                >
+                  <span className="truncate">{site.name}</span>
+                  <span className="text-muted-foreground text-meta truncate">
+                    {hostOf(site.url)}
+                  </span>
+                </PrefetchLink>
+                <div className="flex shrink-0 items-center gap-0.5">
+                  {canEdit(site) && (
+                    <>
+                      <RowAction
+                        label={t("rename")}
+                        onClick={() => setEditing({ site })}
+                      >
+                        <RiPencilLine />
+                      </RowAction>
+                      <RowAction
+                        label={t("remove")}
+                        destructive
+                        onClick={() => setRemoving(site)}
+                      >
+                        <RiDeleteBinLine />
+                      </RowAction>
+                    </>
+                  )}
+                </div>
+              </ListRow>
+            ))}
+          </GroupedList>
+        </>
       )}
 
       <SiteDialog
@@ -160,8 +162,7 @@ export function LeadsPage() {
             await writer.update(site.id, name, url)
             // A new address: the open view reloads it next time.
             if (url !== site.url) void closeLead(site.id)
-          }
-          else
+          } else
             await writer.add(
               name,
               url,
@@ -318,9 +319,7 @@ function SiteForm({
             }}
           />
           {urlError && (
-            <p className="text-destructive-ink text-meta">
-              {t("urlInvalid")}
-            </p>
+            <p className="text-destructive-ink text-meta">{t("urlInvalid")}</p>
           )}
         </div>
       </form>

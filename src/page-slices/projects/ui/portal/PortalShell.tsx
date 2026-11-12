@@ -162,7 +162,7 @@ export function PortalShell({
           <ProjectAvatar
             id={project.id}
             name={project.name}
-            className="size-8 shrink-0 text-sm"
+            className="size-8 shrink-0"
           />
           <span className="truncate" translate="no">
             {project.name}
@@ -200,7 +200,7 @@ export function PortalShell({
               <ProjectAvatar
                 id={project.id}
                 name={project.name}
-                className="size-5 shrink-0 text-[10px]"
+                className="size-5 shrink-0"
               />
               <span
                 className="truncate text-sm font-medium group-data-[collapsible=icon]:hidden"

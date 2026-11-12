@@ -61,12 +61,12 @@ Phones have no rail: the sidebar is one sheet (the mark and "Kretya's
 Workspace", + Baru, the top pages, Kantor | Project as a segmented pill
 (`WorkspaceTabs`), the list, the footer with the theme).
 Blocks (the top rows, the list, "Project aktif") sit 16px
-apart, as on Obvious; + Baru sits 12px above Cari. Rows are pills (`rounded-full`), 30px tall, 2px
+apart, as on Obvious; + Baru sits 12px above Cari. Rows are pills (`rounded-full`), 32px tall (`h-8`, on the 4px grid), 2px
 apart, 12px from the panel's edge; icons (14px, `size-3.5`) start 22px from the edge,
 labels at 46px. In Project, "⌃ Project aktif" (a muted label with the
 chevron before it, folding for the visit, open on every load) lists the projects.
 The panel's bottom: notices, then one row: the account, What's new (dot
-when unseen) and Settings as 30px icons with tooltips. Theme and chrome
+when unseen) and Settings as 32px icons (`size-8`) with tooltips. Theme and chrome
 color are also in Settings → Tampilan, like the language. Above the page
 sheet, on the chrome: ‹ › (the active tab's history), then the tabs,
 level with the rail's mark.
@@ -86,7 +86,8 @@ level with the rail's mark.
   and a scroll offset (restored on return). Saved per user in localStorage.
 - The tab title is the page's last step: `useBreadcrumbs` if the page sets
   it, else the project (+ section) or the sidebar section.
-- **Look**: pills on the chrome (`h-8 rounded-control text-meta`, icon
+- **Look**: pills on the chrome (`h-8 rounded-control text-sm`, the sidebar rows'
+  size, as in ChatGPT's shell; icon
   `size-3.5`; row `py-1.5`: 6px above and below, 44px). The active one
   is a raised white pill (`bg-chrome-active shadow-raised`) and has its ×; the
   others are plain text, `bg-chrome-hover` and × on hover. The row stays
@@ -125,8 +126,11 @@ measured on /ui → Navigasi ("Diukur dari CSS yang jalan").
   one sliding `bg-primary` underline. Sits right under `PageHeader`,
   before the content; `mb-4` (or the page's flex gap) below.
 - `SegmentedControl`: a switch inside content or a toolbar (scope,
-  period, Bulan / Minggu, form choices). Pill, `h-8`, sliding thumb.
-  `fitContent` unless it should fill its row. Not for page sections.
+  period, Bulan / Minggu, form choices). Pill, `h-8`, 2px tray
+  (`p-0.5`), items `px-2` (the same as `TabsTrigger`), sliding thumb.
+  `shape="row"`: a `rounded-row` tray with the thumb nested inside
+  (`rounded-nested`). `fitContent` unless it should fill its row. Not
+  for page sections.
 - `ViewToggle`: only list / grid / table / kanban, icons only; the choice
   is remembered per page with `useViewMode("<page>")`. Right side of the
   page toolbar.

@@ -156,7 +156,7 @@ export const NavMain = memo(function NavMain({
                         : t("navExpand", { name: item.title })
                     }
                     aria-expanded={open}
-                    className="text-muted-foreground top-[5px]! right-1.5"
+                    className="text-muted-foreground top-1.5! right-1.5"
                     onClick={() => {
                       // The current group remembers being closed; others
                       // just toggle for this visit.

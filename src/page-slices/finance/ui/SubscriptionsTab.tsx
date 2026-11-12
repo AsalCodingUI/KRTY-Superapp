@@ -513,7 +513,7 @@ function MonthGrid({
             >
               <span
                 className={cn(
-                  "text-meta mb-1 flex size-6 items-center justify-center rounded-[5px] tabular-nums",
+                  "text-meta rounded-tile mb-1 flex size-6 items-center justify-center tabular-nums",
                   isToday(d)
                     ? "bg-foreground text-background font-medium"
                     : inMonth
@@ -523,7 +523,7 @@ function MonthGrid({
               >
                 {format(d, "d")}
               </span>
-              <div className="space-y-px">
+              <div className="flex flex-col gap-px">
                 {items.map(({ s }) =>
                   wrap(
                     s,

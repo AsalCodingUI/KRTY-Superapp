@@ -95,7 +95,7 @@ const ProjectCard = memo(function ProjectCard({
               title={a.profiles?.full_name ?? ""}
             >
               <AvatarImage src={a.profiles?.avatar_url || undefined} alt="" />
-              <AvatarFallback className="bg-muted text-muted-foreground text-[9px] font-medium">
+              <AvatarFallback className="bg-muted text-muted-foreground font-medium">
                 {initials(a.profiles?.full_name)}
               </AvatarFallback>
             </Avatar>
@@ -184,7 +184,7 @@ const Column = memo(function Column({
       ref={setNodeRef}
       className={cn(
         // Border sits inside the box so the scroll container never clips it.
-        "nest-rounded-2xl nest-p-2 flex min-h-64 min-w-60 flex-1 flex-col gap-2 border border-dashed border-transparent transition-colors",
+        "nest-rounded-popover nest-p-2 flex min-h-64 min-w-60 flex-1 flex-col gap-2 border border-dashed border-transparent transition-colors",
         isOver && "border-field-border bg-foreground/[0.02]",
       )}
     >

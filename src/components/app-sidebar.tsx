@@ -54,7 +54,7 @@ import { ChevronDown, Settings, Sparkles } from "@/components/icons"
 import { usePathname } from "next/navigation"
 import { replaceUrl } from "@/shared/lib/url-params"
 
-/** A 30px icon button in the sidebar's bottom row, named on hover. */
+/** A 32px icon button in the sidebar's bottom row, named on hover. */
 function BottomIcon({
   label,
   active,
@@ -82,7 +82,7 @@ function BottomIcon({
             render={render}
             onClick={onClick}
             // Square, the icon centred.
-            className="not-data-active:blend-ink relative size-[30px]! shrink-0 justify-center p-0!"
+            className="not-data-active:blend-ink relative size-8! shrink-0 justify-center p-0!"
           />
         }
       >
@@ -303,7 +303,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
           <AccountMenu row side="top" />
         </div>
         {/* Theme and the chrome's color: on the rail from md up. */}
-        {isMobile && <AppearancePopover className="size-[30px]" />}
+        {isMobile && <AppearancePopover className="size-8" />}
         <BottomIcon
           label={t("whatsNew")}
           active={matchesRoute(pathname, siteConfig.baseLinks.whatsNew)}
@@ -342,7 +342,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
           <AppIcon
             variant="badge"
             size={96}
-            className="size-5 shrink-0 rounded-[5px]"
+            className="rounded-tile size-5 shrink-0"
           />
           <span className="text-foreground truncate text-sm font-medium">
             Kretya&apos;s Workspace

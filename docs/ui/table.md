@@ -58,7 +58,8 @@ sits inside `GroupedList` and gets `data-slot="list-row"`, `relative`,
 **Column labels and groups**
 
 - Column labels sit on a pill: `bg-muted dark:bg-muted/40`, `h-10`,
-  `rounded-lg`, `text-[13px]` muted (`listHeaderClassName`).
+  `rounded-lg`, `text-meta` muted, normal weight (`listHeaderClassName`;
+  `TableHead` matches: `h-10 font-normal`).
 - Group headers use the same pill (`ListGroup`, `listGroupHeaderClassName`).
 - Vertical spacing is 4px everywhere: header → first row, row → row,
   last row → next group, collapsed header → header.
@@ -141,3 +142,11 @@ const ROW_GRID =
   ))}
 </GroupedList>
 ```
+
+
+## Long lists
+
+Above 50 rows `GroupedList` drops per-row motion and gives each row
+`content-visibility: auto; contain-intrinsic-size: auto 56px` (the browser
+skips rows off screen). Pass `rowCount` when rows sit inside nested
+components the list can't count through (AttendanceHistoryList).

@@ -334,7 +334,7 @@ function MethodForm({
     >
       <InvoiceBottom
         data={paymentDocData(agency ?? DEFAULT_AGENCY, draft, localQr ?? qrUrl)}
-        className="ring-border/60 rounded-xl ring-1 lg:sticky lg:top-0"
+        className="ring-border/60 rounded-card ring-1 lg:sticky lg:top-0"
         paperClassName="px-[5%] pt-[8%] pb-[5%]"
         visible={560}
       />
@@ -399,7 +399,7 @@ function MethodForm({
         )}
 
         {draft.type === "crypto" && (
-          <div className="border-border nest-rounded-xl nest-p-3 flex flex-col gap-3 border">
+          <div className="border-border nest-rounded-card nest-p-3 flex flex-col gap-3 border">
             <div className="flex items-start gap-3">
               <div className="bg-muted rounded-nested grid size-20 shrink-0 place-items-center overflow-hidden">
                 {(localQr || qrUrl) && (

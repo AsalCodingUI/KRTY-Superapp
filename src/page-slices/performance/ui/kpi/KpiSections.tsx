@@ -6,6 +6,7 @@ import type {
   KpiProject,
 } from "@/app/(main)/performance/actions/kpi-actions"
 import { GroupedList, ListRow } from "@/components/grouped-list"
+import { SectionTitle } from "@/components/section-title"
 import { cn } from "@/lib/utils"
 import { useT } from "@/shared/i18n/client"
 import {
@@ -17,25 +18,6 @@ import {
 import Link from "next/link"
 
 type T = ReturnType<typeof useT<"performance">>
-
-export function SectionTitle({
-  children,
-  extra,
-}: {
-  children: React.ReactNode
-  extra?: React.ReactNode
-}) {
-  return (
-    <div className="flex items-baseline gap-2 pt-6 pb-3">
-      <h2 className="text-foreground text-sm">{children}</h2>
-      {extra && (
-        <span className="text-tertiary-foreground text-meta tabular-nums">
-          {extra}
-        </span>
-      )}
-    </div>
-  )
-}
 
 // --- Perlu tindakan (stakeholders) -----------------------------------------
 

@@ -53,7 +53,12 @@ function AvatarFallback({
       data-slot="avatar-fallback"
       className={cn(
         // Muted is translucent; layer it on the page colour so it stays solid.
-        "bg-background dark:bg-surface text-muted-foreground flex size-full items-center justify-center rounded-full bg-[linear-gradient(var(--muted),var(--muted))] text-sm font-medium group-data-[size=sm]/avatar:text-xs",
+        "bg-background dark:bg-surface text-muted-foreground flex size-full items-center justify-center rounded-full bg-[linear-gradient(var(--muted),var(--muted))] font-medium",
+        // Initials follow the avatar's size (data-size, or a size-* class
+        // on the Avatar): 20px → 9px, 24 → 10, 28/32 → 11, 36/40 → 12,
+        // bigger → 14+. Call sites never pass a text size.
+        "text-micro group-data-[size=xs]/avatar:text-[9px] group-data-[size=sm]/avatar:text-[10px] group-data-[size=lg]/avatar:text-xs",
+        "group-[.size-5]/avatar:text-[9px] group-[.size-6]/avatar:text-[10px] group-[.size-7]/avatar:text-micro group-[.size-8]/avatar:text-micro group-[.size-9]/avatar:text-xs group-[.size-10]/avatar:text-xs group-[.size-12]/avatar:text-sm group-[.size-14]/avatar:text-base group-[.size-16]/avatar:text-lg group-[.size-20]/avatar:text-2xl",
         className,
       )}
       {...props}

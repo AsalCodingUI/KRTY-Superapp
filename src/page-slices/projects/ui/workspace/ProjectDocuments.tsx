@@ -393,7 +393,7 @@ export function ProjectDocuments({ projectId }: { projectId: string }) {
           )
         }
       />
-      <div className="flex flex-col gap-8">
+      <div className="gap-section flex flex-col">
         <ProjectBriefs
           projectId={projectId}
           createOpen={briefOpen}
@@ -412,7 +412,7 @@ export function ProjectDocuments({ projectId }: { projectId: string }) {
         ) : (
           // Grid like the library: a preview card per document, grouped by
           // kind; status chip on the card, actions in ⋯.
-          <div className="flex flex-col gap-8">
+          <div className="gap-section flex flex-col">
             {(Object.keys(KINDS) as Kind[]).map((kindKey) => {
               const items = documents.filter((d) =>
                 kindKey === "other"
@@ -422,7 +422,7 @@ export function ProjectDocuments({ projectId }: { projectId: string }) {
               if (!items.length) return null
               return (
                 <Section key={kindKey} title={t(KINDS[kindKey].labelKey)}>
-                  <div className="grid grid-cols-1 gap-x-4 gap-y-6 pb-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+                  <div className="grid grid-cols-1 gap-4 pb-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
                     {items.map((doc) => {
                       const status =
                         STATUSES[doc.status as Status] ?? STATUSES.draft
@@ -541,7 +541,7 @@ export function ProjectDocuments({ projectId }: { projectId: string }) {
 
                 <aside className={twoPanePanelClassName}>
                   <div className="shrink-0 px-5 pt-5 pb-3">
-                    <DialogTitle className="text-heading text-section font-normal">
+                    <DialogTitle size="lg" className="text-heading">
                       {draft.id ? t("editDocument") : t("newDocument")}
                     </DialogTitle>
                   </div>

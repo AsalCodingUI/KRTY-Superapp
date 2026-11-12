@@ -329,7 +329,7 @@ function Verbatim({
             {verbatim[key].map((text, j) => (
               <li
                 key={j}
-                className="text-foreground bg-muted text-title rounded-xl px-4 py-3 leading-[1.65] whitespace-pre-line"
+                className="text-foreground bg-muted text-title rounded-card px-4 py-3 leading-[1.65] whitespace-pre-line"
               >
                 {text}
               </li>

@@ -143,7 +143,7 @@ export function ProjectSettings({ projectId }: { projectId: string }) {
           <ProjectAvatar
             id={project.id}
             name={project.name}
-            className="size-9 text-sm"
+            className="size-9"
           />
           <div className="flex min-w-0 flex-col">
             <h2 className="truncate text-sm font-medium">{project.name}</h2>
@@ -384,7 +384,7 @@ export function ProjectSettings({ projectId }: { projectId: string }) {
                   <ListRow key={m.assignmentId} desc>
                     <Avatar size="md">
                       <AvatarImage src={m.avatar_url || undefined} alt="" />
-                      <AvatarFallback className="text-[10px]">
+                      <AvatarFallback>
                         {initials(m.full_name, "U")}
                       </AvatarFallback>
                     </Avatar>

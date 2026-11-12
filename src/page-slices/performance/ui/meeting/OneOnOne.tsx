@@ -1,6 +1,7 @@
 "use client"
 
 import { DateField } from "@/components/date-field"
+import { SectionTitle } from "@/components/section-title"
 import { ConfirmDialog } from "@/components/confirm-dialog"
 import { EmptyState } from "@/components/empty-state"
 import { GroupedList, ListRow, ListRowActions } from "@/components/grouped-list"
@@ -737,9 +738,7 @@ export function OneOnOne({ period }: { period: string }) {
       />
 
       <section className="flex flex-col">
-        <h2 className="text-foreground pt-4 pb-3 text-sm">
-          {t("yourSchedule")}
-        </h2>
+        <SectionTitle>{t("yourSchedule")}</SectionTitle>
         {myUpcoming.length === 0 ? (
           <p className="text-muted-foreground border-t py-6 text-sm">
             {open.length ? t("noOneOnOneYetPick") : t("noOneOnOneYet")}
@@ -833,9 +832,7 @@ export function OneOnOne({ period }: { period: string }) {
       </section>
 
       <section className="flex flex-col">
-        <h2 className="text-foreground pt-6 pb-3 text-sm">
-          {t("availableSlots")}
-        </h2>
+        <SectionTitle>{t("availableSlots")}</SectionTitle>
         {open.length === 0 ? (
           <EmptyState
             title={t("noAvailableSlots")}

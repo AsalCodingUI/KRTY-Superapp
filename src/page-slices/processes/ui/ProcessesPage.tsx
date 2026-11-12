@@ -200,7 +200,7 @@ function ProcessCard({
       data-slot="process-card"
       href={`/processes/${linkKey(process.name, process.id)}`}
       prefetch={false}
-      className="bg-card border-field-border hover:border-field-border focus-visible:border-primary/50 focus-visible:ring-focus-ring flex flex-col overflow-hidden rounded-xl border transition-[border-color] duration-200 outline-none focus-visible:ring-2"
+      className="bg-card border-field-border hover:border-field-border focus-visible:border-primary/50 focus-visible:ring-focus-ring rounded-card flex flex-col border transition-[border-color] duration-200 outline-none focus-visible:ring-2"
     >
       <div className="flex flex-1 flex-col gap-3 p-5">
         <div className="flex items-center gap-2">
@@ -223,7 +223,7 @@ function ProcessCard({
           ))}
         </div>
       </div>
-      <div className="bg-muted dark:bg-muted/40 border-border text-muted-foreground text-meta flex items-center justify-between gap-3 border-t px-5 py-3">
+      <div className="bg-muted dark:bg-muted/40 border-border text-muted-foreground text-meta rounded-b-card flex items-center justify-between gap-3 border-t px-5 py-3">
         <span className="truncate">{t("counts", n)}</span>
         <span className="shrink-0">
           {n.projects ? t("usedBy", { n: n.projects }) : t("notUsed")}

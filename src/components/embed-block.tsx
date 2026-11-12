@@ -85,7 +85,7 @@ export function EmbedBlock({
         )}
       >
         <div
-          className="border-border bg-muted relative w-full overflow-hidden rounded-lg border"
+          className="border-border bg-muted rounded-card relative w-full overflow-hidden border"
           style={{ aspectRatio: String(info.aspect) }}
         >
           <iframe

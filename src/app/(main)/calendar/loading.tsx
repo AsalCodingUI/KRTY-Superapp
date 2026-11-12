@@ -7,7 +7,7 @@ import { CALENDAR_HEIGHT } from "./calendar-height"
 export default function CalendarLoading() {
   return (
     <div
-      className={cx(CALENDAR_HEIGHT, "flex min-h-[520px] flex-col gap-4 pt-6")}
+      className={cx(CALENDAR_HEIGHT, "flex min-h-[520px] flex-col gap-4 pt-3")}
     >
       <div className="flex items-center justify-between">
         <Skeleton className="h-8 w-56 rounded-lg" />
@@ -19,7 +19,7 @@ export default function CalendarLoading() {
           <Skeleton className="h-8 w-24" />
         </div>
       </div>
-      <div className="bg-background dark:bg-surface flex min-h-0 flex-1 overflow-hidden rounded-xl border">
+      <div className="bg-background dark:bg-surface rounded-card flex min-h-0 flex-1 border">
         <CalendarSkeleton />
       </div>
     </div>

@@ -255,12 +255,27 @@ function DialogFooter({
   )
 }
 
-function DialogTitle({ className, ...props }: DialogPrimitive.Title.Props) {
+/** Title sizes: `default` 15px medium (forms, confirms); `lg` 18px normal
+ *  (editor dialogs: invoice, brief, contract); `bar` 14px medium (the bar
+ *  of a full-screen dialog). docs/ui/overlay.md. */
+const dialogTitleSizes = {
+  default: "text-title font-medium",
+  lg: "text-section font-normal",
+  bar: "text-sm font-medium",
+} as const
+
+function DialogTitle({
+  className,
+  size = "default",
+  ...props
+}: DialogPrimitive.Title.Props & { size?: keyof typeof dialogTitleSizes }) {
   return (
     <DialogPrimitive.Title
       data-slot="dialog-title"
+      data-size={size}
       className={cn(
-        "font-heading text-heading text-title font-medium",
+        "font-heading text-heading",
+        dialogTitleSizes[size],
         className,
       )}
       {...props}

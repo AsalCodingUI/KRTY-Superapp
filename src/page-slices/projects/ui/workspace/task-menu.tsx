@@ -88,7 +88,7 @@ const personIcon = (person: TeamMember) =>
     return (
       <Avatar className={cn("size-4", className)}>
         <AvatarImage src={person.avatar_url || undefined} alt="" />
-        <AvatarFallback className="bg-muted text-muted-foreground text-[8px] font-medium">
+        <AvatarFallback className="bg-muted text-muted-foreground font-medium">
           {initials(person.full_name)}
         </AvatarFallback>
       </Avatar>

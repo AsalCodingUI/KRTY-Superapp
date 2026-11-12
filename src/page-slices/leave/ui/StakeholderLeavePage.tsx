@@ -8,6 +8,7 @@ import { PageHeader } from "@/components/page-header"
 import { StatStrip } from "@/components/stat-strip"
 import { AdminAttendanceHistoryList } from "@/app/(main)/attendance/components/AdminAttendanceHistoryList"
 import { createClient } from "@/shared/api/supabase/client"
+import { subscribeTable } from "@/shared/realtime/table-channel"
 import { useDateLocale, useT } from "@/shared/i18n/client"
 import { useMountedTabs } from "@/shared/hooks/useMountedTabs"
 import { useTabRoute } from "@/shared/hooks/useTabRoute"
@@ -221,49 +222,30 @@ export function StakeholderLeavePage({
       }, 300)
     }
 
-    const channel = supabase
-      .channel("admin-realtime-dashboard")
-      .on(
-        "postgres_changes",
-        { event: "INSERT", schema: "public", table: "leave_requests" },
-        scheduleRefresh,
-      )
-      .on(
-        "postgres_changes",
-        { event: "UPDATE", schema: "public", table: "leave_requests" },
-        scheduleRefresh,
-      )
-      .on(
-        "postgres_changes",
-        { event: "DELETE", schema: "public", table: "leave_requests" },
-        scheduleRefresh,
-      )
+    // The app's shared per-table channels.
+    const unsubscribes = [
+      subscribeTable("leave_requests", undefined, scheduleRefresh),
       // Any profile edit fires this (presence, settings…): refresh only when
       // a field this page shows (name, photo, title, join date, type) moved.
-      .on(
-        "postgres_changes",
-        { event: "UPDATE", schema: "public", table: "profiles" },
-        refreshForProfiles,
-      )
-      .on(
-        "postgres_changes",
-        {
-          event: "UPDATE",
-          schema: "public",
-          table: "attendance_logs",
-          filter: "notes=eq.DELETE_REQUESTED",
+      subscribeTable("profiles", undefined, (payload) => {
+        if (payload.eventType === "UPDATE") refreshForProfiles(payload)
+      }),
+      subscribeTable(
+        "attendance_logs",
+        "notes=eq.DELETE_REQUESTED",
+        (payload) => {
+          if (payload.eventType === "UPDATE") scheduleRefresh()
         },
-        scheduleRefresh,
-      )
-      .subscribe()
+      ),
+    ]
 
     return () => {
       if (refreshTimerRef.current) {
         clearTimeout(refreshTimerRef.current)
       }
-      supabase.removeChannel(channel)
+      for (const unsubscribe of unsubscribes) unsubscribe()
     }
-  }, [supabase, router, refreshForProfiles])
+  }, [router, refreshForProfiles])
 
   const handlePageChange = (newPage: number) => {
     const params = new URLSearchParams(searchParams)
@@ -800,7 +782,7 @@ export function StakeholderLeavePage({
             <DialogTitle>{t("manualTitle")}</DialogTitle>
           </DialogHeader>
           <div className="scroll-pane scroll-pane-bleed flex min-h-0 flex-col gap-4">
-            <div>
+            <div className="gap-field flex flex-col">
               <Label htmlFor="manual-user">{t("colEmployee")}</Label>
               <Select
                 value={manualForm.user_id}
@@ -809,7 +791,7 @@ export function StakeholderLeavePage({
                   setManualForm((prev) => ({ ...prev, user_id: value }))
                 }
               >
-                <SelectTrigger id="manual-user" className="mt-2 w-full">
+                <SelectTrigger id="manual-user" className="w-full">
                   <SelectValue placeholder={t("pickEmployee")} />
                 </SelectTrigger>
                 <SelectContent>
@@ -823,10 +805,10 @@ export function StakeholderLeavePage({
             </div>
 
             <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-              <div>
+              <div className="gap-field flex flex-col">
                 <Label>{t("startDate")}</Label>
                 <DatePicker
-                  className="mt-2 w-full"
+                  className="w-full"
                   value={parseDateOnly(manualForm.start_date)}
                   onChange={(date) =>
                     setManualForm((prev) => ({
@@ -837,10 +819,10 @@ export function StakeholderLeavePage({
                   placeholder={t("selectStartDate")}
                 />
               </div>
-              <div>
+              <div className="gap-field flex flex-col">
                 <Label>{t("endDate")}</Label>
                 <DatePicker
-                  className="mt-2 w-full"
+                  className="w-full"
                   value={parseDateOnly(manualForm.end_date)}
                   onChange={(date) =>
                     setManualForm((prev) => ({
@@ -854,7 +836,7 @@ export function StakeholderLeavePage({
             </div>
 
             <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-              <div>
+              <div className="gap-field flex flex-col">
                 <Label htmlFor="manual-leave-type">{t("colType")}</Label>
                 <Select
                   value={manualForm.leave_type}
@@ -865,7 +847,7 @@ export function StakeholderLeavePage({
                     }))
                   }
                 >
-                  <SelectTrigger id="manual-leave-type" className="mt-2 w-full">
+                  <SelectTrigger id="manual-leave-type" className="w-full">
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
@@ -877,7 +859,7 @@ export function StakeholderLeavePage({
                   </SelectContent>
                 </Select>
               </div>
-              <div>
+              <div className="gap-field flex flex-col">
                 <Label htmlFor="manual-status">{t("colStatus")}</Label>
                 <Select
                   value={manualForm.status}
@@ -888,7 +870,7 @@ export function StakeholderLeavePage({
                     }))
                   }
                 >
-                  <SelectTrigger id="manual-status" className="mt-2 w-full">
+                  <SelectTrigger id="manual-status" className="w-full">
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
@@ -906,10 +888,10 @@ export function StakeholderLeavePage({
               </div>
             </div>
 
-            <div>
+            <div className="gap-field flex flex-col">
               <Label>{t("submittedDate")}</Label>
               <DatePicker
-                className="mt-2 w-full"
+                className="w-full"
                 showTimePicker
                 value={
                   manualForm.created_at
@@ -926,11 +908,10 @@ export function StakeholderLeavePage({
               />
             </div>
 
-            <div>
+            <div className="gap-field flex flex-col">
               <Label htmlFor="manual-reason">{t("colReason")}</Label>
               <Textarea
                 id="manual-reason"
-                className="mt-2"
                 placeholder={t("reasonOptional")}
                 value={manualForm.reason}
                 onChange={(e) =>
@@ -942,11 +923,10 @@ export function StakeholderLeavePage({
               />
             </div>
 
-            <div>
+            <div className="gap-field flex flex-col">
               <Label htmlFor="manual-proof-url">{t("proofLink")}</Label>
               <Input
                 id="manual-proof-url"
-                className="mt-2"
                 placeholder="https://..."
                 value={manualForm.proof_url}
                 onChange={(e) =>
@@ -1146,7 +1126,7 @@ function AttendanceOverviewPanel({
 
       <div>
         {activeTab === "approval" && (
-          <div className={cn("block space-y-5", tabSwitched && TAB_ENTER)}>
+          <div className={cn("flex flex-col gap-4", tabSwitched && TAB_ENTER)}>
             {approvalContent}
           </div>
         )}
@@ -1154,8 +1134,8 @@ function AttendanceOverviewPanel({
           <div
             className={
               activeTab === "remaining"
-                ? cn("block space-y-5", tabSwitched && TAB_ENTER)
-                : "hidden space-y-5"
+                ? cn("flex flex-col gap-4", tabSwitched && TAB_ENTER)
+                : "hidden"
             }
           >
             {remainingContent}

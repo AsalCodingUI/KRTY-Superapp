@@ -78,7 +78,7 @@ function PersonAvatar({ person }: { person: Person }) {
   return (
     <Avatar size="xs">
       <AvatarImage src={person.avatar_url || undefined} alt="" />
-      <AvatarFallback className="bg-muted text-muted-foreground text-[9px] font-medium">
+      <AvatarFallback className="bg-muted text-muted-foreground font-medium">
         {initials(person.full_name, "U")}
       </AvatarFallback>
     </Avatar>

@@ -117,7 +117,7 @@ export function MyOneOnOneCard({
         <>
           <div className="flex items-center gap-4">
             {/* Calendar-leaf date, like an invite. */}
-            <div className="border-border flex w-14 shrink-0 flex-col items-center overflow-hidden rounded-xl border">
+            <div className="border-border rounded-card flex w-14 shrink-0 flex-col items-center overflow-hidden border">
               <span className="bg-muted text-muted-foreground text-micro w-full py-0.5 text-center">
                 {format(new Date(booked.start_at), "MMM", {
                   locale: dateLocale,

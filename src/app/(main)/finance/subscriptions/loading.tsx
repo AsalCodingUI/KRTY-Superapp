@@ -19,7 +19,7 @@ export default function FinanceSubscriptionsLoading() {
 
       <div className="flex flex-col gap-2">
         {[1, 2, 3, 4, 5, 6].map((i) => (
-          <Skeleton key={i} className="h-12 w-full rounded-lg" />
+          <Skeleton key={i} className="rounded-row h-12 w-full" />
         ))}
       </div>
     </div>

@@ -429,7 +429,7 @@ function HitIcon({
       return (
         <Avatar size="xs">
           <AvatarImage src={hit.avatarUrl || undefined} alt="" />
-          <AvatarFallback className="text-[9px]">
+          <AvatarFallback>
             {initials(hit.title)}
           </AvatarFallback>
         </Avatar>

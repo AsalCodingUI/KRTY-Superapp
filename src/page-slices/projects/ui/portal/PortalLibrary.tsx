@@ -83,7 +83,7 @@ export function PortalLibrary({
           placement="inner"
         />
       ) : (
-        <div className="flex flex-col gap-8 pt-2">
+        <div className="gap-section flex flex-col pt-2">
           {!folder && folders.length > 0 && (
             <Section title={t("libFolders")}>
               <div className="grid grid-cols-1 gap-2 pb-1 sm:grid-cols-2 lg:grid-cols-3">
@@ -131,7 +131,7 @@ export function PortalLibrary({
 
           {shown.length > 0 && (
             <Section title={t("libFiles")}>
-              <div className="grid grid-cols-2 gap-x-3 gap-y-5 pb-1 sm:gap-x-4 sm:gap-y-6 lg:grid-cols-3 xl:grid-cols-4">
+              <div className="grid grid-cols-2 gap-3 pb-1 sm:gap-4 lg:grid-cols-3 xl:grid-cols-4">
                 {shown.map((file, i) => (
                   // Client-safe: preview and download only, no links.
                   <ContextTarget

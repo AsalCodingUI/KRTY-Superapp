@@ -360,7 +360,7 @@ function Row({
       // Keeps the editor's selection while picking.
       onMouseDown={(e) => e.preventDefault()}
       onClick={onPick}
-      className="hover:bg-muted focus-visible:bg-muted flex min-h-8 w-full items-center gap-2 rounded-lg px-2 py-1.5 text-left text-sm outline-none"
+      className="hover:bg-muted focus-visible:bg-muted rounded-row flex min-h-8 w-full items-center gap-2 px-2 py-1.5 text-left text-sm outline-none"
     >
       {Icon ? (
         <Icon className="text-muted-foreground size-4 shrink-0" />
@@ -418,7 +418,7 @@ export function AiActionList({
         onMouseDown={(e) => e.preventDefault()}
         onClick={() => setMore((m) => !m)}
         aria-expanded={more}
-        className="text-muted-foreground hover:bg-muted hover:text-foreground flex min-h-8 w-full items-center gap-2 rounded-lg px-2 py-1.5 text-left text-sm outline-none"
+        className="text-muted-foreground hover:bg-muted hover:text-foreground rounded-row flex min-h-8 w-full items-center gap-2 px-2 py-1.5 text-left text-sm outline-none"
       >
         <span className="size-4 shrink-0" />
         <span className="flex-1">{t("otherLanguages")}</span>
@@ -437,7 +437,7 @@ export function AiActionList({
                 onClick={() =>
                   onPick({ action: "translate", language: l.code })
                 }
-                className="hover:bg-muted truncate rounded-lg px-2 py-1 text-left text-sm"
+                className="hover:bg-muted rounded-row truncate px-2 py-1 text-left text-sm"
               >
                 {l.name}
               </button>

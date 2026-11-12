@@ -136,7 +136,7 @@ export function SplitPaneScroll({
  */
 export function splitPaneItemClassName(active: boolean) {
   return cn(
-    "focus-visible:ring-focus-ring flex w-full min-w-0 rounded-lg text-left transition-colors outline-none focus-visible:ring-2 focus-visible:ring-inset",
+    "focus-visible:ring-focus-ring flex w-full min-w-0 rounded-row text-left transition-colors outline-none focus-visible:ring-2 focus-visible:ring-inset",
     active ? "bg-sidebar-active" : "hover:bg-chrome-hover",
   )
 }

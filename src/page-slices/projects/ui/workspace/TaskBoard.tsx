@@ -404,7 +404,7 @@ const Column = memo(function Column({
         className={cn(
           // Same as the projects board: no fill, a dashed outline while a
           // card hovers it (inside the box so the scroller never clips it).
-          "nest-rounded-2xl nest-p-2 flex min-h-64 min-w-60 flex-1 flex-col gap-2 border border-dashed border-transparent transition-colors",
+          "nest-rounded-popover nest-p-2 flex min-h-64 min-w-60 flex-1 flex-col gap-2 border border-dashed border-transparent transition-colors",
           isOver && "border-field-border bg-foreground/[0.02]",
         )}
       >

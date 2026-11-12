@@ -85,7 +85,6 @@ function ScoreGauge({ score }: { score: number | null }) {
                 "transition-colors duration-300 ease-out motion-reduce:transition-none",
                 lit ? "text-blue-9" : "text-foreground/10",
               )}
-              style={{ transitionDelay: `${i * 12}ms` }}
             />
           )
         })}
@@ -443,7 +442,7 @@ export function MyKpiView({
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
         {isLoading || !kpi
           ? [0, 1, 2].map((i) => (
-              <Skeleton key={i} className="h-[150px] rounded-xl" />
+              <Skeleton key={i} className="rounded-card h-[150px]" />
             ))
           : KPI_PARTS.map(({ key }) => (
               <PartCard
@@ -513,7 +512,7 @@ export function MyKpiView({
                     <ProjectAvatar
                       id={project.projectId}
                       name={project.name}
-                      className="size-8 shrink-0 text-xs"
+                      className="size-8 shrink-0"
                     />
                   }
                   title={

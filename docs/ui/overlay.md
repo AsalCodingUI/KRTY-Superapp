@@ -36,8 +36,11 @@ lightbox and the file viewer. Live examples: **/ui** → Overlay.
 - Header: `px-5 pt-5 pr-12` (room for the ✕). Body: `dialogPanelClassName`
   = `scroll-pane pane-px-5 gap-4 pt-4 pb-1` — the body is the only part that
   scrolls. Footer: `px-5 pt-4 pb-5`. One surface: no bands, no dividers.
-- Title `text-[15px] font-medium text-heading`; description `text-sm`
-  muted. Every dialog has a `DialogTitle` (use `className="sr-only"` when
+- Title `text-title font-medium text-heading` (15px); description
+  `text-sm` muted. Other title sizes come from `DialogTitle size`, never
+  a text class: `size="lg"` (`text-section font-normal`, 18px) for editor
+  dialogs (invoice, brief, contract editors); `size="bar"` (`text-sm
+  font-medium`) for the bar of a full-screen dialog. Every dialog has a `DialogTitle` (use `className="sr-only"` when
   it must not show; `bare` dialogs too).
 - Footer buttons: cancel `variant="outline"` first, the main action last
   (right on desktop; on a phone the footer stacks with the main action on
@@ -112,7 +115,8 @@ own their layout; don't copy them for normal dialogs.
   popup itself, submenus too (the old 92% glass on a `::before` layer
   scrolled away with long menus and, in WebKit, let the page show through
   sharp whenever the blur dropped), group labels
-  `text-meta` muted, rows 2px apart, separators inset (`mx-2 my-1.5`,
+  `text-meta text-muted-foreground font-normal` (`px-2 pt-1.5 pb-1`; the
+  same in `DropdownMenuLabel`, `SelectLabel` and ⌘K's group headings), rows 2px apart, separators inset (`mx-2 my-1.5`,
   `bg-foreground/10`), every plain icon `text-foreground/50` (foreground on focus; icons that set
   their own color, e.g. status glyphs, keep it), the check on the right in
   `text-primary`. Submenus open with a 4px gap beside the menu (`sideOffset` 12: it is

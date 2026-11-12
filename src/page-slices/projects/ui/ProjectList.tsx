@@ -260,7 +260,7 @@ function StatusGroup({
     <div
       ref={setNodeRef}
       className={cn(
-        "mt-0.5 rounded-lg outline outline-1 -outline-offset-1 outline-transparent transition-[outline-color,background-color] first:mt-0",
+        "rounded-row mt-0.5 outline outline-1 -outline-offset-1 outline-transparent transition-[outline-color,background-color] first:mt-0",
         isOver && "bg-foreground/[0.02] outline-foreground/20",
       )}
     >
@@ -272,12 +272,8 @@ function StatusGroup({
 /** What follows the pointer while a row is dragged. */
 function DraggedRow({ project }: { project: ProjectListRow }) {
   return (
-    <div className="bg-card border-border shadow-popover flex h-12 max-w-sm cursor-grabbing items-center gap-3 rounded-lg border px-3 text-sm">
-      <ProjectAvatar
-        id={project.id}
-        name={project.name}
-        className="text-micro size-7"
-      />
+    <div className="bg-card shadow-popover rounded-row flex h-12 max-w-sm cursor-grabbing items-center gap-3 px-3 text-sm">
+      <ProjectAvatar id={project.id} name={project.name} className="size-7" />
       <span className="truncate">{project.name}</span>
     </div>
   )
@@ -341,7 +337,7 @@ function ProjectRow({
             <ProjectAvatar
               id={project.id}
               name={project.name}
-              className="text-micro size-7"
+              className="size-7"
             />
             <div className="flex min-w-0 flex-col">
               <div className="flex min-w-0 items-center gap-2.5">
@@ -374,9 +370,7 @@ function ProjectRow({
                 {team.slice(0, 3).map((m) => (
                   <Avatar key={m.id} className="size-6">
                     <AvatarImage src={m.image} alt={m.name} />
-                    <AvatarFallback className="text-[10px]">
-                      {initials(m.name)}
-                    </AvatarFallback>
+                    <AvatarFallback>{initials(m.name)}</AvatarFallback>
                   </Avatar>
                 ))}
                 {team.length > 3 && (

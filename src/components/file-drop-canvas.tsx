@@ -90,7 +90,7 @@ export function FileDropCanvas({
   return (
     <div
       className={cn(
-        "dark:bg-popover relative flex min-h-0 flex-col overflow-hidden rounded-3xl bg-white ring-1 ring-black/5 dark:ring-white/8",
+        "dark:bg-popover relative flex min-h-0 flex-col overflow-hidden rounded-dialog bg-white ring-1 ring-black/5 dark:ring-white/8",
         className,
       )}
       onDragOver={(e) => {
@@ -186,11 +186,11 @@ export function FileDropCanvas({
         <button
           type="button"
           onClick={browse}
-          className="group/drop m-3 flex flex-1 cursor-pointer flex-col items-center justify-center gap-3 rounded-2xl outline-none"
+          className="group/drop m-3 flex flex-1 cursor-pointer flex-col items-center justify-center gap-3 rounded-row outline-none"
         >
           <span
             className={cn(
-              "border-field-border group-focus-visible/drop:border-primary/60 pointer-events-none absolute inset-3 rounded-2xl border-[1.5px] border-dashed transition-colors duration-200",
+              "border-field-border group-focus-visible/drop:border-primary/60 pointer-events-none absolute inset-3 rounded-row border-[1.5px] border-dashed transition-colors duration-200",
               dragging
                 ? "border-primary bg-primary/5"
                 : "group-hover/drop:border-field-border group-hover/drop:bg-foreground/[0.02]",
@@ -220,8 +220,8 @@ export function FileDropCanvas({
  * so neither pane's shadow falls on the other.
  */
 export const twoPaneDialogClassName =
-  "max-sm:before:hidden max-sm:pt-0 grid h-[min(92svh,52rem)] w-[min(94vw,72rem)] max-w-none grid-cols-1 grid-rows-[minmax(14rem,0.8fr)_minmax(0,1.2fr)] gap-2 overflow-visible rounded-none bg-transparent p-0 shadow-none! [filter:drop-shadow(0_8px_18px_oklch(0_0_0/0.06))_drop-shadow(0_30px_60px_oklch(0_0_0/0.16))] sm:max-w-none lg:grid-cols-[minmax(0,1fr)_26rem] lg:grid-rows-1 dark:[filter:drop-shadow(0_30px_60px_oklch(0_0_0/0.6))]"
+  "max-sm:before:hidden max-sm:pt-0 grid h-[min(92svh,52rem)] w-[min(94vw,72rem)] max-w-none grid-cols-1 grid-rows-[minmax(14rem,0.8fr)_minmax(0,1.2fr)] gap-2 overflow-visible rounded-none bg-transparent p-0 shadow-none! drop-shadow-dialog sm:max-w-none lg:grid-cols-[minmax(0,1fr)_26rem] lg:grid-rows-1"
 
 /** The right (form) pane of the two-pane upload layout. */
 export const twoPanePanelClassName =
-  "bg-popover text-popover-foreground flex min-h-0 flex-col overflow-hidden rounded-3xl ring-1 ring-black/5 dark:ring-white/8"
+  "bg-popover text-popover-foreground flex min-h-0 flex-col overflow-hidden rounded-dialog ring-1 ring-black/5 dark:ring-white/8"

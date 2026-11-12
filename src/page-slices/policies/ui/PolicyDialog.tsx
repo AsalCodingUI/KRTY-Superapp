@@ -148,7 +148,10 @@ function PolicyView({
     <>
       <header className="border-border flex h-14 shrink-0 items-center gap-2 border-b pr-3 pl-5">
         <RiBookOpenLine className="text-muted-foreground size-4 shrink-0" />
-        <DialogTitle className="text-muted-foreground min-w-0 truncate text-sm font-normal">
+        <DialogTitle
+          size="bar"
+          className="text-muted-foreground min-w-0 truncate"
+        >
           {policy
             ? `${categoryLabel(t, policy.category)} / ${title}`
             : t("title")}

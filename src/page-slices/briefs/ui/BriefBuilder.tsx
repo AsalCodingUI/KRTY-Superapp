@@ -562,7 +562,7 @@ export function BriefBuilder({
               ))}
               <DragOverlay dropAnimation={null}>
                 {dragged ? (
-                  <div className="bg-popover border-border rounded-popover shadow-popover flex items-center gap-2 border px-3 py-2 text-sm">
+                  <div className="bg-popover rounded-popover shadow-popover flex items-center gap-2 px-3 py-2 text-sm">
                     <GripVertical className="text-muted-foreground size-4" />
                     {dragged.label || t("questionLabel")}
                   </div>
@@ -618,12 +618,12 @@ function BlockMenu({
   return (
     <div
       role="listbox"
-      className="bg-popover border-border nest-rounded-popover nest-p-2 shadow-popover absolute top-full left-0 z-30 mt-1 max-h-80 w-60 overflow-y-auto border"
+      className="bg-popover nest-rounded-popover nest-p-2 shadow-popover absolute top-full left-0 z-30 mt-1 max-h-80 w-60 overflow-y-auto"
     >
       {items.map((b, i) => (
         <Fragment key={b.kind}>
           {(i === 0 || items[i - 1].group !== b.group) && (
-            <p className="text-muted-foreground px-2 pt-1.5 pb-1 text-xs">
+            <p className="text-muted-foreground text-meta px-2 pt-1.5 pb-1">
               {t(GROUP_KEYS[b.group])}
             </p>
           )}
@@ -1202,7 +1202,7 @@ function QuestionBlock({
         />
       )}
       {q.type === "files" && (
-        <div className="border-field-border text-muted-foreground flex flex-col items-center gap-1 rounded-2xl border border-dashed px-4 py-6 text-center text-sm">
+        <div className="border-field-border text-muted-foreground rounded-popover flex flex-col items-center gap-1 border border-dashed px-4 py-6 text-center text-sm">
           <CloudUpload className="size-5" />
           {t("filesPreview")}
         </div>

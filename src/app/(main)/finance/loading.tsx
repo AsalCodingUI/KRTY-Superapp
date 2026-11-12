@@ -19,10 +19,10 @@ export default function FinanceLoading() {
 
       <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
         {[1, 2, 3, 4].map((i) => (
-          <Skeleton key={i} className="h-24 w-full rounded-xl" />
+          <Skeleton key={i} className="rounded-card h-24 w-full" />
         ))}
       </div>
-      <Skeleton className="h-72 w-full rounded-xl" />
+      <Skeleton className="rounded-card h-72 w-full" />
     </div>
   )
 }

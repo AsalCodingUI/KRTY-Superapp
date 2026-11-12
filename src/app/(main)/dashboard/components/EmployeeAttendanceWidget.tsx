@@ -3,7 +3,7 @@
 import { leaveTypeLabel } from "@/shared/lib/leave"
 import { WeekHours } from "./week-hours"
 import { ClockControls } from "@/features/attendance-clock"
-import { createClient } from "@/shared/api/supabase/client"
+import { subscribeTable } from "@/shared/realtime/table-channel"
 import { useMinuteClock } from "@/shared/hooks/useMinuteClock"
 import {
   getAttendanceLogLocalDate,
@@ -82,7 +82,6 @@ export function EmployeeAttendanceWidget({
   isLeaveModalOpen,
   onLeaveModalChange,
 }: EmployeeAttendanceWidgetProps) {
-  const supabase = createClient()
   const t = useT("dashboard")
   const tl = useT("leave")
   const dateLocale = useDateLocale()
@@ -117,39 +116,19 @@ export function EmployeeAttendanceWidget({
   const refreshForLeave = useRealtimeRefresh(1_000)
 
   useEffect(() => {
-    const attendanceChannel = supabase
-      .channel("dashboard-attendance-sync")
-      .on(
-        "postgres_changes",
-        {
-          event: "*",
-          schema: "public",
-          table: "attendance_logs",
-          filter: `user_id=eq.${userId}`,
-        },
-        refreshForAttendance,
-      )
-      .subscribe()
-
-    const leaveChannel = supabase
-      .channel("dashboard-leave-sync")
-      .on(
-        "postgres_changes",
-        {
-          event: "*",
-          schema: "public",
-          table: "leave_requests",
-          filter: `user_id=eq.${userId}`,
-        },
-        refreshForLeave,
-      )
-      .subscribe()
-
+    // The app's shared per-table channels (the leave page uses the same).
+    const filter = `user_id=eq.${userId}`
+    const offAttendance = subscribeTable(
+      "attendance_logs",
+      filter,
+      refreshForAttendance,
+    )
+    const offLeave = subscribeTable("leave_requests", filter, refreshForLeave)
     return () => {
-      supabase.removeChannel(attendanceChannel)
-      supabase.removeChannel(leaveChannel)
+      offAttendance()
+      offLeave()
     }
-  }, [refreshForAttendance, refreshForLeave, supabase, userId])
+  }, [refreshForAttendance, refreshForLeave, userId])
 
   const today = getLocalDateString()
   const { staleSession, activeSession } = getAttendanceSessionState(

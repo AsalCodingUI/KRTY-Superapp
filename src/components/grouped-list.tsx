@@ -19,7 +19,15 @@ const ListMounted = React.createContext(false)
 const ListAnimated = React.createContext(true)
 
 /** Above this many rows, rows render without per-row motion. */
-const ANIMATED_ROW_LIMIT = 50
+export const ANIMATED_ROW_LIMIT = 50
+
+/**
+ * Rows of a long list (past ANIMATED_ROW_LIMIT): the browser skips laying
+ * out and painting the ones off screen, keeping a 56px placeholder (then
+ * their last measured size). Cheap virtualization, no dependency.
+ */
+export const listRowLongClassName =
+  "[content-visibility:auto] [contain-intrinsic-size:auto_3.5rem]"
 
 /**
  * Rough row count: descends through groups, fragments and AnimatePresence;
@@ -47,11 +55,15 @@ export function GroupedList({
   className,
   children,
   hover = true,
+  rowCount,
   ...props
 }: React.ComponentProps<"div"> & {
   /** The highlight that follows the pointer; off for read-only lists where
    *  rows don't do anything. */
   hover?: boolean
+  /** How many rows the list holds, when its rows sit inside components of
+   *  their own (counted from the children otherwise). */
+  rowCount?: number
 }) {
   const [mounted, setMounted] = React.useState(false)
   React.useEffect(() => setMounted(true), [])
@@ -68,7 +80,9 @@ export function GroupedList({
           className="bg-(--row-hover)"
         />
       )}
-      <ListAnimated.Provider value={countRows(children) <= ANIMATED_ROW_LIMIT}>
+      <ListAnimated.Provider
+        value={(rowCount ?? countRows(children)) <= ANIMATED_ROW_LIMIT}
+      >
         <ListMounted.Provider value={mounted}>{children}</ListMounted.Provider>
       </ListAnimated.Provider>
     </div>
@@ -203,7 +217,8 @@ export function ListHeader({
 /**
  * A list row. Rows added after the list mounted fade and settle in; inside
  * an `AnimatePresence`, a removed row fades and its height folds away, so
- * the rows below close the gap instead of jumping.
+ * the rows below close the gap instead of jumping. In a long list rows are
+ * plain divs the browser skips while off screen (listRowLongClassName).
  */
 export function ListRow({
   className: extra,
@@ -220,7 +235,7 @@ export function ListRow({
     return (
       <div
         data-slot="list-row"
-        className={cn(listRowClassName, className)}
+        className={cn(listRowClassName, listRowLongClassName, className)}
         {...props}
       />
     )

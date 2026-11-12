@@ -192,7 +192,7 @@ export function InvoiceEditorDialog({
       <DialogContent
         bare
         showCloseButton={false}
-        className="grid h-[min(92svh,60rem)] w-[min(94vw,78rem)] max-w-none grid-cols-1 gap-2 overflow-visible rounded-none bg-transparent p-0 shadow-none! [filter:drop-shadow(0_8px_18px_oklch(0_0_0/0.06))_drop-shadow(0_30px_60px_oklch(0_0_0/0.16))] sm:max-w-none lg:grid-cols-[minmax(0,1fr)_28rem] dark:[filter:drop-shadow(0_30px_60px_oklch(0_0_0/0.6))]"
+        className="drop-shadow-dialog grid h-[min(92svh,60rem)] w-[min(94vw,78rem)] max-w-none grid-cols-1 gap-2 overflow-visible rounded-none bg-transparent p-0 shadow-none! sm:max-w-none lg:grid-cols-[minmax(0,1fr)_28rem]"
       >
         {open && (
           <Editor
@@ -225,7 +225,7 @@ function Section({
   children: React.ReactNode
 }) {
   return (
-    <section className="rounded-xl border">
+    <section className="rounded-card border">
       <div className="flex items-center gap-2 pr-2">
         <button
           type="button"
@@ -709,7 +709,7 @@ function Editor({
   return (
     <>
       {/* Canvas ------------------------------------------------------------------ */}
-      <div className="dark:bg-popover relative hidden min-h-0 flex-col overflow-hidden rounded-3xl bg-white ring-1 ring-black/5 lg:flex dark:ring-white/8">
+      <div className="dark:bg-popover rounded-dialog relative hidden min-h-0 flex-col overflow-hidden bg-white ring-1 ring-black/5 lg:flex dark:ring-white/8">
         <div
           ref={previewRef}
           className="min-h-0 flex-1 overflow-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
@@ -782,10 +782,10 @@ function Editor({
       </div>
 
       {/* Edit panel ---------------------------------------------------------------- */}
-      <aside className="bg-popover text-popover-foreground flex min-h-0 flex-col overflow-hidden rounded-3xl ring-1 ring-black/5 dark:ring-white/8">
+      <aside className="bg-popover text-popover-foreground rounded-dialog flex min-h-0 flex-col overflow-hidden ring-1 ring-black/5 dark:ring-white/8">
         <div className="flex shrink-0 flex-col gap-4 px-5 pt-5 pb-4">
           <div className="flex items-baseline justify-between gap-3">
-            <DialogTitle className="text-heading text-section truncate font-normal">
+            <DialogTitle size="lg" className="text-heading truncate">
               {invoice ? t("editInvoice") : t("newInvoice")}
             </DialogTitle>
             <span className="text-muted-foreground shrink-0 text-sm tabular-nums">

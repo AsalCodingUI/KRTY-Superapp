@@ -143,9 +143,7 @@ export function TeamKpiCard({ data }: { data: AdminDashboardData }) {
               leading={
                 <Avatar size="md">
                   <AvatarImage src={e.employee_avatar || undefined} />
-                  <AvatarFallback className="text-[10px]">
-                    {e.employee_name?.[0] || "?"}
-                  </AvatarFallback>
+                  <AvatarFallback>{e.employee_name?.[0] || "?"}</AvatarFallback>
                 </Avatar>
               }
               title={e.employee_name}

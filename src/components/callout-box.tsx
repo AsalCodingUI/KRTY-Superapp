@@ -67,7 +67,7 @@ export function CalloutBox({
     <div
       data-callout={tone}
       className={cn(
-        "my-4 flex gap-3 rounded-xl py-3 pr-4 pl-3.5",
+        "rounded-card my-4 flex gap-3 py-3 pr-4 pl-3.5",
         style.box,
         className,
       )}

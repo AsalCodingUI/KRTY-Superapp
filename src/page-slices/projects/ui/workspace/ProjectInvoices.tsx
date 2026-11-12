@@ -468,7 +468,7 @@ export function ProjectInvoices({ projectId }: { projectId: string }) {
           { key: "paid", label: t("statusPaid"), value: counts.Paid },
         ]}
       />
-      <div className="flex flex-col gap-6">
+      <div className="gap-section flex flex-col">
         <TabNavigation>
           {FILTERS.map(({ key, label }) => (
             <TabNavigationLink
@@ -502,7 +502,7 @@ export function ProjectInvoices({ projectId }: { projectId: string }) {
         ) : view === "grid" ? (
           // Grid like the documents page: the invoice's first page on a card,
           // status chip on it, actions in ⋯.
-          <div className="grid grid-cols-1 gap-x-4 gap-y-6 pb-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+          <div className="grid grid-cols-1 gap-4 pb-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
             {visible.map((inv) => {
               const status = STATUS[inv.status] ?? STATUS.Draft
               const cur = inv.currency ?? "IDR"

@@ -118,7 +118,7 @@ export function GalleryStrip({
       <div
         ref={scroller}
         onScroll={measure}
-        className="flex h-[200px] snap-x snap-mandatory gap-2 overflow-x-auto overscroll-x-contain rounded-xl [scrollbar-width:none] sm:h-[280px] [&::-webkit-scrollbar]:hidden"
+        className="flex h-[200px] snap-x snap-mandatory gap-2 overflow-x-auto overscroll-x-contain rounded-card [scrollbar-width:none] sm:h-[280px] [&::-webkit-scrollbar]:hidden"
       >
         {images.map((img, i) => {
           const sized = Boolean(img.w && img.h)
@@ -182,7 +182,7 @@ export function GalleryStrip({
               title={editing && onMove ? t("galleryDrag") : undefined}
               style={sized ? { aspectRatio: `${img.w} / ${img.h}` } : undefined}
               className={cn(
-                "border-border bg-muted relative m-0 h-full max-w-[85%] shrink-0 snap-start overflow-hidden rounded-lg border",
+                "border-border bg-muted relative m-0 h-full max-w-[85%] shrink-0 snap-start overflow-hidden rounded-card border",
                 !sized && !shown && "w-40",
                 dragFrom === i && "opacity-40",
                 dragOver === i && dragFrom !== i && "ring-primary ring-2",
@@ -236,7 +236,7 @@ export function GalleryStrip({
             data-gallery-control
             onMouseDown={(e) => e.preventDefault()}
             onClick={onAdd}
-            className="border-field-border text-muted-foreground hover:text-foreground hover:bg-muted flex h-full w-32 shrink-0 snap-start flex-col items-center justify-center gap-1.5 rounded-lg border border-dashed text-xs transition-colors"
+            className="border-field-border text-muted-foreground hover:text-foreground hover:bg-muted flex h-full w-32 shrink-0 snap-start flex-col items-center justify-center gap-1.5 rounded-card border border-dashed text-xs transition-colors"
           >
             <ImagePlus className="size-5" />
             {t("galleryAdd")}

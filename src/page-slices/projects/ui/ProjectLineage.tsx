@@ -101,7 +101,7 @@ export function NameTwinNotice({
   )
   if (!twins.length) return null
   return (
-    <div className="bg-amber-3 dark:bg-amber-9/10 text-meta flex flex-col gap-2 rounded-xl px-3 py-2.5">
+    <div className="bg-amber-3 dark:bg-amber-9/10 text-meta rounded-card flex flex-col gap-2 px-3 py-2.5">
       <p className="text-foreground flex items-center gap-2">
         <TriangleAlert className="text-warning-ink size-3.5 shrink-0" />
         {t("twinTitle", { name: twins[0].name })}
@@ -167,7 +167,7 @@ export function PreviousProjectField({
 
   if (value)
     return (
-      <div className="bg-muted text-meta flex items-center gap-2 rounded-xl px-3 py-2">
+      <div className="bg-muted text-meta rounded-card flex items-center gap-2 px-3 py-2">
         <CornerDownRight className="text-muted-foreground size-3.5 shrink-0" />
         <span className="text-muted-foreground shrink-0">
           {t("previousLabel")}

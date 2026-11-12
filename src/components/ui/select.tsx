@@ -176,7 +176,11 @@ function SelectLabel({
   return (
     <SelectPrimitive.GroupLabel
       data-slot="select-label"
-      className={cn("text-muted-foreground px-2 py-1 text-xs", className)}
+      className={cn(
+        // One group label for menus, selects and ⌘K (dropdown-menu.tsx).
+        "text-muted-foreground text-meta px-2 pt-1.5 pb-1 font-normal",
+        className,
+      )}
       {...props}
     />
   )

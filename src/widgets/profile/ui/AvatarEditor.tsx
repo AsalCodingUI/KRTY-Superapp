@@ -90,7 +90,7 @@ export function AvatarEditor({
       {!compact && (
         <Avatar className="size-20 shrink-0">
           <AvatarImage src={avatarUrl || undefined} alt={name} />
-          <AvatarFallback className="text-2xl">{name || "?"}</AvatarFallback>
+          <AvatarFallback>{name || "?"}</AvatarFallback>
         </Avatar>
       )}
       <div className="flex min-w-0 flex-1 flex-col gap-2">

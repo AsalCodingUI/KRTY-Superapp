@@ -539,7 +539,7 @@ export function BriefForm({
               >
                 <div className="flex flex-col gap-1">
                   {accepted.includes(current.set) && (
-                    <div className="dark:bg-field mb-4 flex h-12 items-center gap-3 rounded-xl bg-white/35 pr-1.5 pl-4 text-sm">
+                    <div className="dark:bg-field rounded-card mb-4 flex h-12 items-center gap-3 bg-white/35 pr-1.5 pl-4 text-sm">
                       <ProjectStageIcon
                         stage={current.set as BriefSet}
                         className="size-4 shrink-0"
@@ -610,7 +610,7 @@ export function BriefForm({
                         <button
                           type="button"
                           onClick={() => goTo(i)}
-                          className="hover:bg-muted -mx-3 flex w-[calc(100%+1.5rem)] items-center gap-3 rounded-xl px-3 py-2.5 text-left text-sm transition-colors"
+                          className="hover:bg-muted rounded-row -mx-3 flex w-[calc(100%+1.5rem)] items-center gap-3 px-3 py-2.5 text-left text-sm transition-colors"
                         >
                           <span
                             className={cn(
@@ -922,7 +922,7 @@ function Question({
             item.kind === "file" ? (
               <div
                 key={item.f.id}
-                className="bg-muted flex items-center gap-3 rounded-xl px-3 py-2 text-sm"
+                className="bg-muted rounded-card flex items-center gap-3 px-3 py-2 text-sm"
                 data-no-translate
               >
                 <FileIcon className="text-muted-foreground size-4 shrink-0" />
@@ -943,7 +943,7 @@ function Question({
             ) : (
               <div
                 key={item.u.key}
-                className="bg-muted relative flex items-center gap-3 overflow-hidden rounded-xl px-3 py-2 text-sm"
+                className="bg-muted rounded-card relative flex items-center gap-3 overflow-hidden px-3 py-2 text-sm"
                 data-no-translate
               >
                 {!item.u.error && (
@@ -1012,7 +1012,7 @@ function FileDrop({
   return (
     <label
       className={cn(
-        "flex cursor-pointer flex-col items-center gap-1.5 rounded-2xl border-[1.5px] border-dashed px-4 py-8 text-center transition-[border-color,background-color,transform] duration-200",
+        "rounded-popover flex cursor-pointer flex-col items-center gap-1.5 border-[1.5px] border-dashed px-4 py-8 text-center transition-[border-color,background-color,transform] duration-200",
         over
           ? "border-foreground/70 bg-foreground/10 ring-foreground/10 scale-[1.01] ring-4"
           : "border-field-border hover:border-foreground/30 hover:bg-field-hover",

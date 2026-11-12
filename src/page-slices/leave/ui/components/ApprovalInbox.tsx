@@ -1,6 +1,10 @@
 "use client"
 
 import { EmptyState } from "@/components/empty-state"
+import {
+  ANIMATED_ROW_LIMIT,
+  listRowLongClassName,
+} from "@/components/grouped-list"
 import { SegmentedControl } from "@/components/segmented-control"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { HoverHighlight } from "@/components/sliding-indicator"
@@ -239,6 +243,10 @@ export function ApprovalInbox({
   }
 
   const loading = leaves === null || deletes === null
+  // Long lists skip per-row motion (and skip off-screen rows' layout).
+  const animated =
+    (tab === "leave" ? (leaves?.length ?? 0) : (deletes?.length ?? 0)) <=
+    ANIMATED_ROW_LIMIT
 
   /** Right-click "Buka profil": leaves the inbox for their KPI page. */
   const profileItem = (userId: string, person: Person): CtxItem => ({
@@ -340,6 +348,7 @@ export function ApprovalInbox({
                         return (
                           <InboxRow
                             key={key}
+                            animated={animated}
                             highlighted={linked && String(req.id) === linkedId}
                             person={req.profiles}
                             title={leaveTypeLabel(req.leave_type, t)}
@@ -405,6 +414,7 @@ export function ApprovalInbox({
                         return (
                           <InboxRow
                             key={key}
+                            animated={animated}
                             highlighted={linked && String(log.id) === linkedId}
                             person={log.profiles}
                             title={t("inboxDeleteAsked", { date: day })}
@@ -464,6 +474,7 @@ export function InboxCount({ count }: { count: number }) {
 }
 
 function InboxRow({
+  animated = true,
   highlighted = false,
   person,
   title,
@@ -484,6 +495,8 @@ function InboxRow({
   cancelLabel,
   menu,
 }: {
+  /** Off in long lists: no per-row motion (see InboxRowShell). */
+  animated?: boolean
   /** The request a notification linked to: marked and scrolled to. */
   highlighted?: boolean
   person: Person
@@ -512,16 +525,7 @@ function InboxRow({
       label={`${person?.full_name ?? "—"} · ${title}`}
       items={menu}
     >
-      <m.div
-        ref={(el) => {
-          if (el && highlighted) el.scrollIntoView({ block: "nearest" })
-        }}
-        initial={{ opacity: 0, y: 4 }}
-        animate={{ opacity: 1, y: 0 }}
-        exit={ROW_EXIT}
-        transition={TRANSITION}
-        className="overflow-hidden"
-      >
+      <InboxRowShell animated={animated} highlighted={highlighted}>
         <div
           data-slot="list-row"
           className={cn(
@@ -608,7 +612,50 @@ function InboxRow({
             </m.div>
           )}
         </AnimatePresence>
-      </m.div>
+      </InboxRowShell>
     </ContextTarget>
+  )
+}
+
+/**
+ * A row's outer box: fades in and folds away when it leaves; in a long
+ * list (past ANIMATED_ROW_LIMIT) a plain div the browser skips while off
+ * screen. Takes the props ContextTarget adds.
+ */
+function InboxRowShell({
+  animated,
+  highlighted,
+  children,
+  ...props
+}: {
+  animated: boolean
+  highlighted: boolean
+  children: ReactNode
+}) {
+  const ref = (el: HTMLDivElement | null) => {
+    if (el && highlighted) el.scrollIntoView({ block: "nearest" })
+  }
+  if (!animated)
+    return (
+      <div
+        ref={ref}
+        className={cn("overflow-hidden", listRowLongClassName)}
+        {...props}
+      >
+        {children}
+      </div>
+    )
+  return (
+    <m.div
+      ref={ref}
+      initial={{ opacity: 0, y: 4 }}
+      animate={{ opacity: 1, y: 0 }}
+      exit={ROW_EXIT}
+      transition={TRANSITION}
+      className="overflow-hidden"
+      {...props}
+    >
+      {children}
+    </m.div>
   )
 }

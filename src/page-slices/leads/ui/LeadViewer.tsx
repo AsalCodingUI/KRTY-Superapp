@@ -21,8 +21,6 @@ const OVERLAYS = [
   '[data-slot="popover-content"]',
   '[data-slot="dropdown-menu-content"]',
   '[data-slot="select-content"]',
-  '[data-slot="sheet-content"]',
-  '[data-slot="side-panel"]',
   "[data-ctxmenu-popup]",
   '[role="menu"]',
   "[data-sonner-toast]",
@@ -35,7 +33,19 @@ const MODALS = [
   '[role="dialog"][aria-modal="true"]',
   '[data-slot="dialog-content"]',
   '[role="alertdialog"]',
-  '[data-slot$="-overlay"]',
+  '[data-slot="dialog-overlay"]',
+  '[data-slot="alert-dialog-overlay"]',
+  '[data-slot="sheet-content"][data-side="bottom"]',
+  '[data-slot="sheet-content"][data-side="top"]',
+].join(",")
+
+/** Side panels (notifications, right sheets, the docked panel): the site
+ *  makes room beside them instead of stepping aside, still live (as a
+ *  browser pane sits beside the chat in Claude's or ChatGPT's app). */
+const SIDES = [
+  '[data-slot="sheet-content"][data-side="left"]',
+  '[data-slot="sheet-content"][data-side="right"]',
+  '[data-slot="side-panel"]',
 ].join(",")
 
 /**
@@ -68,11 +78,19 @@ export function LeadViewer({ id }: { id: string }) {
     if (!el) return
     let frame = 0
     let covered: false | "small" | "modal" = false
+    // The room side panels take from the site's left and right (px).
+    let carve = { left: 0, right: 0 }
     const place = () => {
       cancelAnimationFrame(frame)
       frame = requestAnimationFrame(async () => {
         if (covered) return
-        const r = el.getBoundingClientRect()
+        const area = el.getBoundingClientRect()
+        const r = {
+          left: area.left + carve.left,
+          top: area.top,
+          width: Math.max(1, area.width - carve.left - carve.right),
+          height: area.height,
+        }
         // The sheet's corner: its wrapper's radius (a squircle there, so a
         // touch less on macOS's continuous curve). The left corners round
         // too when the panel is folded (the view starts at the sheet's
@@ -91,7 +109,9 @@ export function LeadViewer({ id }: { id: string }) {
             width: r.width,
             height: r.height,
             radius: squircle ? css / 1.53 : css,
-            roundLeft: sheetBox ? Math.abs(r.left - sheetBox.left) < 2 : false,
+            roundLeft:
+              carve.left > 0 ||
+              (sheetBox ? Math.abs(r.left - sheetBox.left) < 2 : false),
           }),
         )
       })
@@ -115,12 +135,32 @@ export function LeadViewer({ id }: { id: string }) {
         // Only what lies over the site (a tooltip by the rail, a menu in
         // the sidebar don't).
         const box = el.getBoundingClientRect()
+        // Side panels over it: the site makes room beside them (a gap of
+        // 8px), unless that leaves it too narrow to use.
+        const room = { left: 0, right: 0 }
+        for (const node of document.querySelectorAll(SIDES)) {
+          const o = node.getBoundingClientRect()
+          if (o.width === 0 || o.right <= box.left || o.left >= box.right) continue
+          if (o.left - box.left < box.right - o.right)
+            room.left = Math.max(room.left, o.right + 8 - box.left)
+          else room.right = Math.max(room.right, box.right - o.left + 8)
+        }
+        if (box.width - room.left - room.right < 240) {
+          room.left = 0
+          room.right = 0
+        }
+        if (room.left !== carve.left || room.right !== carve.right) {
+          carve = room
+          place()
+        }
+        const left = box.left + carve.left
+        const right = box.right - carve.right
         const over = [...document.querySelectorAll(OVERLAYS)].some((node) => {
           const o = node.getBoundingClientRect()
           return (
             o.width > 0 &&
-            o.right > box.left &&
-            o.left < box.right &&
+            o.right > left &&
+            o.left < right &&
             o.bottom > box.top &&
             o.top < box.bottom
           )
@@ -209,13 +249,9 @@ export function LeadViewer({ id }: { id: string }) {
       {native === false ? (
         // A browser: the site opens in a tab of its own.
         <div className="m-auto flex max-w-sm flex-col items-center gap-4 p-6 text-center">
-          <ProjectAvatar
-            id={site.id}
-            name={site.name}
-            className="size-12 rounded-xl text-base"
-          />
+          <ProjectAvatar id={site.id} name={site.name} className="size-12" />
           <div className="flex flex-col gap-1">
-            <h1 className="text-sm font-medium">{t("webTitle")}</h1>
+            <h2 className="text-sm font-medium">{t("webTitle")}</h2>
             <p className="text-muted-foreground text-meta">
               {t("webDesc", { name: site.name })}
             </p>

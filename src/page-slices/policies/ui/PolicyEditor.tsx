@@ -518,10 +518,10 @@ function DocumentEditor({
     <>
       <header className="border-border flex h-14 shrink-0 items-center gap-2 border-b pr-3 pl-5">
         <RiBookOpenLine className="text-muted-foreground size-4 shrink-0" />
-        <DialogTitle className="flex min-w-0 items-center gap-1.5 text-sm font-normal">
+        <DialogTitle size="bar" className="flex min-w-0 items-center gap-1.5">
           <span className="text-muted-foreground shrink-0">{t("title")}</span>
           <span className="text-tertiary-foreground">/</span>
-          <span className="truncate font-medium">{title}</span>
+          <span className="truncate">{title}</span>
         </DialogTitle>
         <ListChip className="ml-1 shrink-0">
           {hasPublished ? t("changeDraft") : t("draft")}
@@ -601,9 +601,7 @@ function DocumentEditor({
             <span className="flex items-center gap-2">
               {t("by")}
               <Avatar size="xs">
-                <AvatarFallback className="text-[9px]">
-                  {initials(shownAuthor)}
-                </AvatarFallback>
+                <AvatarFallback>{initials(shownAuthor)}</AvatarFallback>
               </Avatar>
               <span className="text-foreground">{shownAuthor}</span>
             </span>

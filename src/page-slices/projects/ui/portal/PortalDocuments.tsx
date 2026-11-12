@@ -79,13 +79,13 @@ export function PortalDocuments({
           placement="inner"
         />
       ) : (
-        <div className="flex flex-col gap-8 pt-2">
+        <div className="gap-section flex flex-col pt-2">
           {(Object.keys(KINDS) as Kind[]).map((kindKey) => {
             const items = ordered.filter((d) => kindOf(d) === kindKey)
             if (!items.length) return null
             return (
               <Section key={kindKey} title={t(KINDS[kindKey].labelKey)}>
-                <div className="grid grid-cols-2 gap-x-3 gap-y-5 pb-1 sm:gap-x-4 sm:gap-y-6 lg:grid-cols-3 xl:grid-cols-4">
+                <div className="grid grid-cols-2 gap-3 pb-1 sm:gap-4 lg:grid-cols-3 xl:grid-cols-4">
                   {items.map((doc) => {
                     const status =
                       STATUSES[doc.status as Status] ?? STATUSES.sent

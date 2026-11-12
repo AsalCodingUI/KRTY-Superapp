@@ -163,18 +163,32 @@ export function DesktopApp() {
 
   // New notifications as macOS notifications (not the ones already there
   // when the app opened).
-  // And every 30 seconds anyway (hidden windows don't always get the
-  // realtime events, and the hook's own poll pauses while hidden).
+  // And every 30 seconds while the popover is hidden (hidden windows don't
+  // always get the realtime events, and the hook's own poll pauses while
+  // hidden). While it shows, realtime and the hook's poll keep it fresh.
   useEffect(() => {
-    const id = setInterval(() => {
-      for (const queryKey of [
-        NOTIFICATIONS_QUERY_KEY,
-        ["menubar-pending-leave"],
-        ["menubar-attendance"],
-      ])
-        void queryClient.invalidateQueries({ queryKey })
-    }, 30_000)
-    return () => clearInterval(id)
+    let id: ReturnType<typeof setInterval> | undefined
+    const sync = () => {
+      if (document.hidden && id === undefined)
+        id = setInterval(() => {
+          for (const queryKey of [
+            NOTIFICATIONS_QUERY_KEY,
+            ["menubar-pending-leave"],
+            ["menubar-attendance"],
+          ])
+            void queryClient.invalidateQueries({ queryKey })
+        }, 30_000)
+      else if (!document.hidden && id !== undefined) {
+        clearInterval(id)
+        id = undefined
+      }
+    }
+    sync()
+    document.addEventListener("visibilitychange", sync)
+    return () => {
+      document.removeEventListener("visibilitychange", sync)
+      if (id !== undefined) clearInterval(id)
+    }
   }, [queryClient])
 
   const seen = useRef<Set<string> | null>(null)

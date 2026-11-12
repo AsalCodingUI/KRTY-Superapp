@@ -91,7 +91,10 @@ function EntryView({
     <>
       <header className="border-border flex h-14 shrink-0 items-center gap-2 border-b pr-3 pl-5">
         <Sparkles className="text-muted-foreground size-4 shrink-0" />
-        <DialogTitle className="text-muted-foreground min-w-0 truncate text-sm font-normal">
+        <DialogTitle
+          size="bar"
+          className="text-muted-foreground min-w-0 truncate"
+        >
           {entry ? `${t(AREA_LABEL[entry.area])} / ${entry.title}` : t("title")}
         </DialogTitle>
         <div className="ml-auto flex shrink-0 items-center gap-1">
@@ -258,7 +261,7 @@ function Neighbour({
       type="button"
       onClick={() => onOpen(entry.id)}
       className={cn(
-        "border-field-border hover:border-field-border flex flex-col gap-0.5 rounded-xl border px-4 py-3 text-left transition-colors",
+        "border-field-border hover:border-field-border rounded-card flex flex-col gap-0.5 border px-4 py-3 text-left transition-colors",
         side === "next" && "sm:items-end sm:text-right",
       )}
     >

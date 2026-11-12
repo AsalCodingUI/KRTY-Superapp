@@ -105,7 +105,7 @@ export function SettingsDialog({
                 aria-current={tab === value ? "page" : undefined}
                 onClick={() => onTabChange(value)}
                 className={cn(
-                  "flex h-9 items-center gap-2.5 rounded-lg px-2.5 text-sm transition-colors outline-none focus-visible:ring-2 focus-visible:ring-[var(--ring)] [&_svg]:size-4",
+                  "rounded-row flex h-9 items-center gap-2.5 px-2.5 text-sm transition-colors outline-none focus-visible:ring-2 focus-visible:ring-[var(--ring)] [&_svg]:size-4",
                   tab === value
                     ? "bg-foreground/[0.07] text-foreground font-medium"
                     : "text-muted-foreground hover:text-foreground hover:bg-foreground/[0.04]",

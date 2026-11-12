@@ -147,7 +147,7 @@ const components: Components = {
       <table
         className={[
           "w-full border-separate border-spacing-0 text-left text-sm tabular-nums",
-          "[&_th]:bg-muted dark:[&_th]:bg-muted/40 [&_th:first-child]:rounded-l-lg [&_th:last-child]:rounded-r-lg",
+          "[&_th]:bg-muted dark:[&_th]:bg-muted/40 [&_th:first-child]:rounded-l-row [&_th:last-child]:rounded-r-row",
           "[&_tbody_tr]:relative",
           // A 2px spacer row under the labels + the highlight's 2px inset =
           // the 4px between rows, as in the lists.

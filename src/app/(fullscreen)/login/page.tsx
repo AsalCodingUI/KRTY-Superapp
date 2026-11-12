@@ -123,7 +123,7 @@ export default function LoginPage() {
             {error && (
               <p
                 role="alert"
-                className="bg-destructive-subtle text-red-11 text-meta rounded-xl px-4 py-3"
+                className="bg-destructive-subtle text-red-11 text-meta rounded-card px-4 py-3"
               >
                 {error}
               </p>

@@ -11,6 +11,7 @@ import {
 } from "@/app/(main)/performance/actions/project-scoring-actions"
 import { EmptyState } from "@/components/empty-state"
 import { GroupedList, ListRow } from "@/components/grouped-list"
+import { SectionTitle } from "@/components/section-title"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Spinner } from "@/components/ui/spinner"
@@ -456,32 +457,33 @@ function SectionHead({
   extra?: string
 }) {
   return (
-    <div className="flex items-center justify-between gap-x-4 pt-6 pb-3">
-      <div className="flex min-w-0 items-center gap-1.5">
-        <h2 className="text-foreground truncate text-sm">{title}</h2>
-        {hint && (
-          <Tooltip>
-            <TooltipTrigger
-              render={
-                <button
-                  type="button"
-                  aria-label={hint}
-                  className="text-tertiary-foreground hover:text-muted-foreground -m-1 p-1 outline-none"
-                />
-              }
-            >
-              <RiInformationLine className="size-3.5" />
-            </TooltipTrigger>
-            <TooltipContent className="max-w-64">{hint}</TooltipContent>
-          </Tooltip>
-        )}
-      </div>
-      {extra && (
-        <p className="text-muted-foreground text-meta shrink-0 tabular-nums">
-          {extra}
-        </p>
+    <SectionTitle
+      actions={
+        extra && (
+          <p className="text-muted-foreground text-meta shrink-0 tabular-nums">
+            {extra}
+          </p>
+        )
+      }
+    >
+      {title}
+      {hint && (
+        <Tooltip>
+          <TooltipTrigger
+            render={
+              <button
+                type="button"
+                aria-label={hint}
+                className="text-tertiary-foreground hover:text-muted-foreground -m-1 ml-0.5 p-1 align-middle outline-none"
+              />
+            }
+          >
+            <RiInformationLine className="size-3.5" />
+          </TooltipTrigger>
+          <TooltipContent className="max-w-64">{hint}</TooltipContent>
+        </Tooltip>
       )}
-    </div>
+    </SectionTitle>
   )
 }
 

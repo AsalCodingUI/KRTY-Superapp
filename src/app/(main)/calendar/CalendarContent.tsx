@@ -206,13 +206,13 @@ function CalendarContent({
         className={cx(
           CALENDAR_HEIGHT,
           sheetFillClassName,
-          "flex min-h-[520px] flex-col gap-4 pt-6 lg:gap-0 lg:pt-0",
+          "flex min-h-[520px] flex-col gap-4 pt-3 lg:gap-0 lg:pt-0",
         )}
       >
         {/* The bar: 44px (the tabs' height) 6px from the top, so its
             controls centre on the sidebar panel's "Kantor"; the active
             tab's underline sits on the hairline under it. */}
-        <div className="border-border flex flex-col gap-4 lg:flex-row lg:items-center lg:gap-x-6 lg:border-b lg:px-6 lg:pt-1.5">
+        <div className="border-border lg:gutter-x flex flex-col gap-4 lg:flex-row lg:items-center lg:gap-x-6 lg:border-b lg:pt-1.5">
           {header && <div className="shrink-0 lg:self-end">{header}</div>}
           {/* The pages (tabs) apart from the view switch beside them, the
               toolbar's own divider. */}
@@ -230,7 +230,7 @@ function CalendarContent({
           </div>
         </div>
 
-        <div className="bg-background dark:bg-surface flex min-h-0 flex-1 overflow-hidden max-lg:rounded-xl max-lg:border">
+        <div className="bg-background dark:bg-surface max-lg:rounded-card flex min-h-0 flex-1 max-lg:border lg:overflow-hidden">
           {waiting ? (
             <CalendarSkeleton />
           ) : (

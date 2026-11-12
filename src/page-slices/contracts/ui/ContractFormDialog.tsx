@@ -197,7 +197,7 @@ function ContractForm({
 
       <aside className={twoPanePanelClassName}>
         <div className="shrink-0 px-5 pt-5 pb-3">
-          <DialogTitle className="text-heading text-section font-normal">
+          <DialogTitle size="lg">
             {contract ? t("editTitle") : t("newTitle")}
           </DialogTitle>
         </div>

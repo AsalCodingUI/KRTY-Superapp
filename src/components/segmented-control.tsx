@@ -26,8 +26,9 @@ export interface SegmentedControlProps<T extends string> {
   /** Replaces the sliding thumb's shadow (e.g. the chrome's active shadow). */
   indicatorClassName?: string
   fitContent?: boolean
-  /** "row": square-ish corners (10px tray, 8px thumb) to match the sidebar's
-      rows; default is the pill every control uses. */
+  /** "row": square-ish corners (`rounded-row` tray, the thumb nested 2px
+      inside it) to match the sidebar's rows; default is the pill every
+      control uses. */
   shape?: "pill" | "row"
 }
 
@@ -41,9 +42,10 @@ export function SegmentedControl<T extends string>({
   fitContent = false,
   shape = "pill",
 }: SegmentedControlProps<T>) {
-  const outer = shape === "row" ? "rounded-lg" : "rounded-control"
+  const outer =
+    shape === "row" ? "nest-rounded-row [--nest-p:2px]" : "rounded-control"
   // Inner corner = outer − the tray's 2px padding (concentric).
-  const inner = shape === "row" ? "rounded-[8px]" : "rounded-control"
+  const inner = shape === "row" ? "rounded-nested" : "rounded-control"
   return (
     <ToggleGroup
       spacing={0}
@@ -54,7 +56,7 @@ export function SegmentedControl<T extends string>({
         if (next[0]) onChange(next[0] as T)
       }}
       className={cn(
-        // Same metrics as shadcn TabsList (h-8, p-[3px]).
+        // Same metrics as TabsList (h-8, p-0.5: a 2px tray).
         "bg-accent dark:bg-muted text-muted-foreground relative h-8 items-center p-0.5",
         outer,
         fitContent ? "inline-flex w-auto" : "flex w-full",
@@ -87,7 +89,7 @@ export function SegmentedControl<T extends string>({
               "relative h-full min-w-0 gap-1.5 border border-transparent text-sm font-medium whitespace-nowrap shadow-none",
               "group-data-[spacing=0]/toggle-group:rounded-[inherit] group-data-horizontal/toggle-group:data-[spacing=0]:first:rounded-[inherit] group-data-horizontal/toggle-group:data-[spacing=0]:last:rounded-[inherit]",
               shape === "row"
-                ? "rounded-[8px]! px-2! py-0.5"
+                ? "rounded-nested! px-2! py-0.5"
                 : "rounded-control! px-2! py-0.5",
               fitContent ? "flex-none" : "flex-1",
               "text-muted-foreground hover:text-foreground hover:bg-transparent",

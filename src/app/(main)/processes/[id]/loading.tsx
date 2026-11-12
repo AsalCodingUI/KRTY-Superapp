@@ -14,10 +14,10 @@ export default function ProcessLoading() {
       <div className="grid items-start gap-4 lg:grid-cols-[18rem_minmax(0,1fr)]">
         <div className="flex flex-col gap-3">
           {[1, 2, 3, 4].map((i) => (
-            <Skeleton key={i} className="h-14 w-full rounded-xl" />
+            <Skeleton key={i} className="rounded-card h-14 w-full" />
           ))}
         </div>
-        <Skeleton className="h-96 w-full rounded-xl" />
+        <Skeleton className="rounded-card h-96 w-full" />
       </div>
     </div>
   )

@@ -16,7 +16,9 @@ type Notification = Database["public"]["Tables"]["notifications"]["Row"]
 /** Every consumer shares this cache entry, so there is a single poller. */
 export const NOTIFICATIONS_QUERY_KEY = ["notifications"] as const
 
-const POLL_INTERVAL_MS = 60_000
+// Without realtime (dropped, or viewing as someone) the list polls every
+// two minutes.
+const POLL_INTERVAL_MS = 120_000
 // While realtime is connected new rows arrive on their own; the poll only
 // catches reads and removals made elsewhere.
 const LIVE_POLL_INTERVAL_MS = 5 * 60_000
@@ -331,7 +333,7 @@ export function useNotificationsRealtime() {
   const queryClient = useQueryClient()
   const { profile, isImpersonating } = useUserProfile()
   // Viewing as someone: their rows aren't readable over realtime with the
-  // admin's session (RLS), so the minute poll covers it.
+  // admin's session (RLS), so the two-minute poll covers it.
   const userId = isImpersonating ? undefined : profile?.id
 
   useEffect(() => {
@@ -375,7 +377,7 @@ export function useNotificationsRealtime() {
         },
       )
       .subscribe((status: string) => {
-        // Back to the minute poll whenever the channel drops.
+        // Back to the two-minute poll whenever the channel drops.
         setLiveUserId(status === "SUBSCRIBED" ? userId : null)
       })
     return () => {

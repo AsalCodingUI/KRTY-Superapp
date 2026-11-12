@@ -142,7 +142,7 @@ function PersonPill({ attrs }: { attrs: MentionAttrs }) {
       {attrs.id && (
         <Avatar className="size-4 self-center">
           <AvatarImage src={person?.avatar_url || undefined} alt="" />
-          <AvatarFallback className="text-[9px]">{name}</AvatarFallback>
+          <AvatarFallback>{name}</AvatarFallback>
         </Avatar>
       )}
       <span className="min-w-0 truncate">{attrs.id ? name : `@${name}`}</span>
