@@ -55,16 +55,3 @@ export function CalendarScopes() {
     />
   )
 }
-
-/** Tugas saya: your tasks and your notes. */
-export function MyWorkScopes() {
-  const t = useT("nav")
-  return (
-    <RouteScopes
-      items={[
-        { href: `${links.projects}/my-tasks`, label: t("myTasksShort") },
-        { href: `${links.projects}/my-notes`, label: t("myNotesShort") },
-      ]}
-    />
-  )
-}

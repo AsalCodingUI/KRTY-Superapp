@@ -1,17 +1,12 @@
 "use client"
 
 import { useNewParam } from "@/shared/hooks/useNewParam"
-import { MyWorkScopes } from "@/components/route-scopes"
 import { ConfirmDialog } from "@/components/confirm-dialog"
 import { EmptyValue } from "@/components/empty-value"
 import { RichTextField } from "@/components/rich-text-field"
 import { EmptyState } from "@/components/empty-state"
-import {
-  GroupedList,
-  listHeaderClassName,
-  ListRow,
-} from "@/components/grouped-list"
-import { PageHeader } from "@/components/page-header"
+import { pageFillHeightClassName } from "@/components/page-sheet"
+import { surfaceClassName } from "@/components/panel"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Checkbox } from "@/components/ui/checkbox"
@@ -50,8 +45,6 @@ import {
   type NotePatch,
   type NoteTodo,
 } from "./notes-data"
-
-const ROW_GRID = "grid grid-cols-[minmax(0,1fr)_4rem_5rem] items-center gap-x-4"
 
 // Borderless fields, as in the task dialog (the base styles give inputs a
 // border and padding, so both are cleared).
@@ -228,43 +221,59 @@ export function MyNotesPage() {
     )
   }
   return (
-    // From lg up the whole page makes room for the docked sheet on the
-    // right, leaving the same gap before it as the page gutter on the left.
-    <div className="flex flex-col lg:pr-[27.75rem]">
-      <PageHeader
-        title={<MyWorkScopes />}
-        actions={
-          readOnly ? (
+    // Two panes filling the sheet (Gumloop-style): the list on the left,
+    // a hairline between, the open note in a bordered card on the right.
+    // Each pane scrolls on its own; the page doesn't. Below lg they stack.
+    <div
+      className={cn(
+        "flex min-h-[520px] gap-6 pt-6 max-lg:h-auto max-lg:flex-col",
+        pageFillHeightClassName,
+      )}
+    >
+      <div className="border-border flex min-h-0 w-full shrink-0 flex-col gap-3 lg:w-72 lg:border-r lg:pr-6">
+        {/* The title row: the page's name, + Catatan baru (or read-only). */}
+        <div className="flex min-h-8 items-center justify-between gap-2">
+          <h1 className="text-heading text-title truncate font-medium">
+            {t("myNotesTitle")}
+          </h1>
+          {readOnly ? (
             <Badge variant="secondary">
               <RiEyeLine data-icon="inline-start" />
               {t("notesReadOnly")}
             </Badge>
           ) : (
-            <Button onClick={createNote} disabled={writer.create.isPending}>
-              <RiAddLine data-icon="inline-start" />
-              {t("notesNew")}
-            </Button>
-          )
-        }
-      />
+            <Tooltip>
+              <TooltipTrigger
+                render={
+                  <Button
+                    variant="outline"
+                    size="icon-sm"
+                    aria-label={t("notesNew")}
+                    onClick={createNote}
+                    disabled={writer.create.isPending}
+                  />
+                }
+              >
+                <RiAddLine />
+              </TooltipTrigger>
+              <TooltipContent>{t("notesNew")}</TooltipContent>
+            </Tooltip>
+          )}
+        </div>
+        <InputGroup className="w-full">
+          <InputGroupAddon>
+            <RiSearchLine />
+          </InputGroupAddon>
+          <InputGroupInput
+            type="search"
+            placeholder={t("notesSearch")}
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
+          />
+        </InputGroup>
 
-      <div className="flex flex-col gap-6">
-        {/* List: same toolbar and rows as Tugas saya. */}
-        <div className="flex min-w-0 flex-col">
-          <div className="pb-3">
-            <InputGroup className="w-full sm:w-[260px]">
-              <InputGroupAddon>
-                <RiSearchLine />
-              </InputGroupAddon>
-              <InputGroupInput
-                type="search"
-                placeholder={t("notesSearch")}
-                value={query}
-                onChange={(e) => setQuery(e.target.value)}
-              />
-            </InputGroup>
-          </div>
-
+        {/* The notes: title, then a preview and when it was edited. */}
+        <div className="scroll-fade -mx-1 flex min-h-0 flex-1 flex-col gap-0.5 overflow-y-auto px-1 pb-1">
           {isLoading ? (
             <div className="flex justify-center py-16">
               <Spinner className="size-6" />
@@ -283,126 +292,98 @@ export function MyNotesPage() {
               icon={<RiSearchLine className="size-5" />}
             />
           ) : (
-            <GroupedList>
-              <div className={cn(ROW_GRID, listHeaderClassName)}>
-                <span>{t("notesColNote")}</span>
-                <span>{t("notesTodo")}</span>
-                <span className="text-right">{t("notesColEdited")}</span>
-              </div>
-              {filtered.map((note) => {
-                const done = progress(note.todos)
-                const preview =
-                  note.body.split("\n").find((l) => l.trim()) ??
-                  note.todos.find((td) => td.text.trim())?.text ??
-                  ""
-                const active = note.id === selected?.id
-                return (
-                  <ContextTarget
-                    key={note.id}
-                    type="personal-note"
-                    id={note.id}
-                    label={note.title || t("notesUntitled")}
-                    items={() => noteItems(note)}
+            filtered.map((note) => {
+              const done = progress(note.todos)
+              const preview =
+                note.body.split("\n").find((l) => l.trim()) ??
+                note.todos.find((td) => td.text.trim())?.text ??
+                ""
+              const active = note.id === selected?.id
+              return (
+                <ContextTarget
+                  key={note.id}
+                  type="personal-note"
+                  id={note.id}
+                  label={note.title || t("notesUntitled")}
+                  items={() => noteItems(note)}
+                >
+                  <button
+                    type="button"
+                    aria-current={active || undefined}
+                    onClick={() => setSelectedId(note.id)}
+                    className={cn(
+                      "focus-visible:ring-focus-ring flex w-full min-w-0 flex-col gap-0.5 rounded-lg px-3 py-2 text-left outline-none focus-visible:ring-2",
+                      active ? "bg-muted" : "hover:bg-muted/60",
+                    )}
                   >
-                    <ListRow
-                      role="button"
-                      tabIndex={0}
-                      aria-current={active || undefined}
-                      onClick={() => setSelectedId(note.id)}
-                      onKeyDown={(e) => {
-                        if (e.key === "Enter" || e.key === " ") {
-                          e.preventDefault()
-                          setSelectedId(note.id)
-                        }
-                      }}
-                      className={cn(
-                        ROW_GRID,
-                        "min-h-14 cursor-pointer py-2 outline-none",
-                        // Selected: the hover highlight's shape (rounded,
-                        // 2px off the dividers), kept on.
-                        active &&
-                          "*:relative before:pointer-events-none before:absolute before:inset-x-0 before:inset-y-0.5 before:rounded-lg before:bg-(--row-selected)",
+                    <span className="flex min-w-0 items-center gap-1.5 text-sm">
+                      {note.pinned && (
+                        <RiPushpinLine
+                          aria-label={t("notesPinned")}
+                          className="text-muted-foreground size-3.5 shrink-0"
+                        />
                       )}
-                    >
-                      <div className="flex min-w-0 flex-col">
-                        <span className="flex min-w-0 items-center gap-1.5">
-                          {note.pinned && (
-                            <RiPushpinLine
-                              aria-label={t("notesPinned")}
-                              className="text-muted-foreground size-3.5 shrink-0"
-                            />
-                          )}
-                          <span
-                            className={cn(
-                              "truncate",
-                              note.title
-                                ? "text-foreground"
-                                : "text-muted-foreground",
-                            )}
-                          >
-                            {note.title || t("notesUntitled")}
-                          </span>
-                        </span>
-                        {preview && (
-                          <span className="text-tertiary-foreground text-meta truncate">
-                            {preview}
-                          </span>
+                      <span
+                        className={cn(
+                          "truncate",
+                          active && "font-medium",
+                          note.title
+                            ? "text-foreground"
+                            : "text-muted-foreground",
                         )}
-                      </div>
-                      <span className="text-muted-foreground text-meta tabular-nums">
-                        {done ?? <EmptyValue />}
+                      >
+                        {note.title || t("notesUntitled")}
                       </span>
-                      <span className="text-muted-foreground text-meta text-right tabular-nums">
-                        {when(note.updated_at)}
-                      </span>
-                    </ListRow>
-                  </ContextTarget>
-                )
-              })}
-            </GroupedList>
+                    </span>
+                    <span className="text-tertiary-foreground text-meta flex min-w-0 items-center gap-1.5 tabular-nums">
+                      <span className="shrink-0">{when(note.updated_at)}</span>
+                      {done && <span className="shrink-0">· {done}</span>}
+                      {preview && <span className="truncate">· {preview}</span>}
+                    </span>
+                  </button>
+                </ContextTarget>
+              )
+            })
           )}
         </div>
-
-        {/* The open note in a sheet that's always there: the same panel as
-            the right-hand sheets (notifications, project scores), docked
-            instead of modal and without a close button. Below lg it sits
-            under the list as a card. */}
-        <aside
-          data-slot="side-panel"
-          aria-label={t("myNotesTitle")}
-          className="bg-popover text-popover-foreground border-field-border dark:border-border lg:rounded-nested lg:shadow-dialog flex min-h-96 flex-col overflow-hidden rounded-3xl border bg-clip-padding text-sm lg:fixed lg:top-(--app-sheet-top) lg:right-[14px] lg:bottom-[14px] lg:z-30 lg:w-md lg:border-0 lg:[--nest-p:0.5rem] lg:[--nest-r:calc(var(--radius-lg)+0.5rem*var(--corner-k,1))]"
-        >
-          {selected ? (
-            <NoteEditor
-              key={selected.id}
-              note={selected}
-              autoFocus={selected.id === freshId}
-              readOnly={readOnly}
-              onPatch={(patch) =>
-                writer.update.mutate({ id: selected.id, patch })
-              }
-              onDelete={() => setDeleting(selected)}
-            />
-          ) : (
-            <>
-              <SheetBar title={t("notesSheetTitle")} />
-              <div className="flex flex-1 flex-col items-center justify-center gap-4 p-4">
-                <EmptyState
-                  placement="inner"
-                  title={t("notesPickTitle")}
-                  icon={<RiStickyNoteLine className="size-5" />}
-                />
-                {!readOnly && (
-                  <Button variant="outline" onClick={createNote}>
-                    <RiAddLine data-icon="inline-start" />
-                    {t("notesNew")}
-                  </Button>
-                )}
-              </div>
-            </>
-          )}
-        </aside>
       </div>
+
+      {/* The open note: a bordered card with its own bar (saved state,
+          the note's name, pin and delete) over the editor. */}
+      <section
+        aria-label={t("myNotesTitle")}
+        className={cn(
+          surfaceClassName,
+          "flex min-h-96 min-w-0 flex-1 flex-col overflow-hidden text-sm",
+        )}
+      >
+        {selected ? (
+          <NoteEditor
+            key={selected.id}
+            note={selected}
+            autoFocus={selected.id === freshId}
+            readOnly={readOnly}
+            onPatch={(patch) =>
+              writer.update.mutate({ id: selected.id, patch })
+            }
+            onDelete={() => setDeleting(selected)}
+          />
+        ) : (
+          <div className="flex flex-1 flex-col items-center justify-center gap-4 p-4">
+            <EmptyState
+              placement="inner"
+              title={t("notesPickTitle")}
+              icon={<RiStickyNoteLine className="size-5" />}
+            />
+            {!readOnly && (
+              <Button variant="outline" onClick={createNote}>
+                <RiAddLine data-icon="inline-start" />
+                {t("notesNew")}
+              </Button>
+            )}
+          </div>
+        )}
+      </section>
 
       <ConfirmDialog
         open={deleting !== null}
@@ -500,13 +481,13 @@ function NoteEditor({
 
   return (
     <>
-      <SheetBar title={t("notesSheetTitle")}>
-        {/* Read-only is already badged in the page header. */}
+      <SheetBar
+        title={title || t("notesUntitled")}
+        status={readOnly ? null : pending ? t("notesSaving") : t("notesSaved")}
+      >
+        {/* Read-only is already badged over the list. */}
         {readOnly ? null : (
           <>
-            <span className="text-tertiary-foreground mr-1 text-xs">
-              {pending ? t("notesSaving") : t("notesSaved")}
-            </span>
             <Tooltip>
               <TooltipTrigger
                 render={
@@ -552,7 +533,8 @@ function NoteEditor({
 
       {/* Same fields as the task dialog: title, free text, then the
           checklist like its subtasks. */}
-      <div className="scroll-pane pane-px-5 flex min-h-0 flex-1 flex-col gap-6 pt-5 pb-6">
+      {/* A readable measure, centred in the card (a document view). */}
+      <div className="scroll-pane pane-px-5 flex min-h-0 flex-1 flex-col gap-6 pt-6 pb-8 *:mx-auto *:w-full *:max-w-2xl">
         <div className="flex flex-col gap-1.5">
           <textarea
             rows={1}
@@ -690,21 +672,26 @@ function NoteEditor({
   )
 }
 
-/** The sheet's top bar: a title on the left, actions on the right (same
- *  bar as SheetHeader, outside a modal sheet). */
+/** The card's top bar (Gumloop's file bar): the save state on the left,
+ *  the note's name centred and quiet, the actions on the right. */
 function SheetBar({
   title,
+  status,
   children,
 }: {
   title: string
+  status?: string | null
   children?: React.ReactNode
 }) {
   return (
-    <div className="border-border flex min-h-[3.25rem] shrink-0 items-center gap-1 border-b pr-3 pl-5">
-      <h2 className="font-heading text-heading text-title font-medium">
+    <div className="border-border grid h-11 shrink-0 grid-cols-[1fr_minmax(0,2fr)_1fr] items-center gap-2 border-b px-3">
+      <span className="text-tertiary-foreground truncate text-xs">
+        {status}
+      </span>
+      <h2 className="text-muted-foreground text-meta truncate text-center">
         {title}
       </h2>
-      <div className="ml-auto flex items-center gap-0.5">{children}</div>
+      <div className="flex items-center justify-end gap-0.5">{children}</div>
     </div>
   )
 }

@@ -19,6 +19,15 @@ const MAC_SHEET_RADIUS = "md:rounded-[10px]"
 export const pageSheetClassName =
   "dark:bg-surface scroll-pane overscroll-contain max-md:rounded-t-dialog [--bleed:0.75rem] [--list-overhang:0px] [--page-gutter:max(var(--bleed),calc(1.25rem-var(--sbw,0px)))] md:z-20 md:[--page-gutter:calc(2rem-var(--sbw,0px))] xl:[--page-gutter:calc(3rem-var(--sbw,0px))]"
 
+/**
+ * Exactly the room left in the page sheet: viewport minus the top bar, the
+ * tab row above the sheet (md up, web), any banner, the sheet's top and
+ * bottom padding and, from md, its bottom margin. A page this tall never
+ * scrolls itself; its panes scroll inside (calendar, notes).
+ */
+export const pageFillHeightClassName =
+  "h-[calc(100svh-var(--app-topbar-height)-var(--app-banner-height,0px)-4.5rem)] md:h-[calc(100svh-var(--app-topbar-height)-var(--app-tabs-height,0px)-var(--app-banner-height,0px)-3.5rem)]"
+
 /** The wrapper around the page inside the sheet (each shell adds its own
  *  bottom room for its tab bar). */
 export const pageSheetContentClassName =

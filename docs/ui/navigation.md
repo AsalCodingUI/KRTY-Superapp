@@ -54,7 +54,7 @@ The shell has no top bar from `md` up. The sidebar is two parts
   start — cuti, event, catatan, project for PMs up — each opening its
   page's own form via `?new=1` / `useNewParam`) with the bell (icon only)
   beside it; then Cari (⌘K) as a plain row and the pages that are always
-  there (`globalItems`: Beranda, Kalender, Tugas saya); then the
+  there (`globalItems`: Beranda, Kalender, Tugas saya, Catatan saya); then the
   workspace's pages.
 
 Phones have no rail: the sidebar is one sheet (the mark and "Kretya's
@@ -185,8 +185,8 @@ tabular-nums`, hidden at 0; badge.md).
   flat pill (no outline or shadow) is the active app tab; the tab row's
   icons (‹ ›, tabs, +) are all 14px.
 - Sibling pages behind one row switch with `RouteScopes` as the page
-  title: Kalender (Saya / Project / Sharing Santuy), Tugas saya (Tugas /
-  Catatan). They are pages, so `TabNavigation plain` (links), never a
+  title: Kalender (Saya / Project / Sharing Santuy). Tugas saya and
+  Catatan saya are rows of their own (the top block). Scopes are pages, so `TabNavigation plain` (links), never a
   SegmentedControl: the pill is kept for the view switch under them
   (Minggu / Bulan), so the two levels never look alike.
 - Row extras: count `badge` (`NavBadge`, 99+), `dot` for "new" without a

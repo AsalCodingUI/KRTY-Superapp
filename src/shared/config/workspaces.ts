@@ -88,12 +88,17 @@ export const globalItems = (): WorkspaceItem[] => [
     icon: RiCalendarLine,
     match: [links.calendar],
   },
-  // Your tasks across projects, with your notes as the page's other scope.
+  // Your tasks across projects.
   {
     name: "myTasks",
     href: `${links.projects}/my-tasks`,
     icon: RiCheckboxCircleLine,
-    match: [`${links.projects}/my-notes`],
+  },
+  // Your own notes and to-do lists: a page of their own (list + editor).
+  {
+    name: "myNotes",
+    href: `${links.projects}/my-notes`,
+    icon: RiStickyNoteLine,
   },
 ]
 
@@ -104,11 +109,6 @@ export const globalItems = (): WorkspaceItem[] => [
 export const scopePages = (): WorkspaceItem[] => [
   { name: "sharingSantuy", href: `${links.calendar}/santuy`, icon: RiCupLine },
   { name: "calendarProject", href: links.calendar, icon: RiCalendarLine },
-  {
-    name: "myNotes",
-    href: `${links.projects}/my-notes`,
-    icon: RiStickyNoteLine,
-  },
 ]
 
 export const workspaces: Workspace[] = [
