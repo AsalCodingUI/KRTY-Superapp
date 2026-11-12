@@ -28,14 +28,15 @@ import { useT } from "@/shared/i18n/client"
 
 const SIDEBAR_COOKIE_NAME = "sidebar_state"
 const SIDEBAR_COOKIE_MAX_AGE = 60 * 60 * 24 * 7
-// Fits the workspace tabs + bell with their optical padding.
-const SIDEBAR_WIDTH = "18rem"
-/** Drag-to-resize bounds (px); the chosen width is kept per browser. The
- * minimum keeps the footer (theme · language · color) on one row. */
-// Below this the workspace tabs + bell no longer fit (app-topbar.tsx).
-const SIDEBAR_MIN_WIDTH = 248
+// The panel inside the page sheet (the rail beside it is
+// --sidebar-width-icon): the footer row keeps a name like "Ahmad Fauzi" whole.
+const SIDEBAR_WIDTH = "16.25rem"
+/** Drag-to-resize bounds (px); the chosen width is kept per browser. Below
+ * the minimum + Baru and the bell no longer fit. */
+const SIDEBAR_MIN_WIDTH = 220
 const SIDEBAR_MAX_WIDTH = 420
-const SIDEBAR_WIDTH_STORAGE_KEY = "sidebar_width"
+// v3: the panel alone now (inside the sheet); old saved widths are dropped.
+const SIDEBAR_WIDTH_STORAGE_KEY = "sidebar_width_v3"
 const SIDEBAR_WIDTH_MOBILE = "18rem"
 // Icons stay centered under the 28px top-bar logo (center at 30px).
 const SIDEBAR_WIDTH_ICON = "3.75rem"
@@ -216,6 +217,7 @@ function Sidebar({
   side = "left",
   variant = "sidebar",
   collapsible = "offcanvas",
+  inline = false,
   className,
   children,
   dir,
@@ -224,6 +226,9 @@ function Sidebar({
   side?: "left" | "right"
   variant?: "sidebar" | "floating" | "inset"
   collapsible?: "offcanvas" | "icon" | "none"
+  /** In the flow (inside the page sheet), not fixed to the window: it
+   * folds to nothing (its width animates; the contents keep theirs). */
+  inline?: boolean
 }) {
   const { isMobile, state, openMobile, setOpenMobile } = useSidebar()
   const t = useT("shell")
@@ -269,6 +274,37 @@ function Sidebar({
     )
   }
 
+  if (inline)
+    return (
+      <div
+        className="group peer text-sidebar-foreground relative hidden h-full shrink-0 md:block"
+        data-state={state}
+        data-collapsible={state === "collapsed" ? "offcanvas" : ""}
+        data-variant={variant}
+        data-side={side}
+        data-slot="sidebar"
+      >
+        <div
+          data-slot="sidebar-container"
+          data-side={side}
+          className={cn(
+            "relative h-full w-(--sidebar-width) overflow-hidden transition-[width] duration-200 ease-out group-data-[collapsible=offcanvas]:w-0 group-data-[resizing=true]/sidebar-wrapper:transition-none motion-reduce:transition-none",
+            className,
+          )}
+          {...props}
+        >
+          <div
+            data-sidebar="sidebar"
+            data-slot="sidebar-inner"
+            // A hairline between it and the page, as between list and detail.
+            className="border-border flex h-full w-(--sidebar-width) flex-col border-r"
+          >
+            {children}
+          </div>
+        </div>
+      </div>
+    )
+
   return (
     <div
       className="group peer text-sidebar-foreground hidden md:block"
@@ -312,6 +348,30 @@ function Sidebar({
         </div>
       </div>
     </div>
+  )
+}
+
+/**
+ * Its children draw as the collapsed (icon) sidebar whatever the state:
+ * the icon rail beside the panel. Tooltips, menus opening to the right and
+ * every `group-data-[collapsible=icon]` style apply inside it.
+ */
+function SidebarCompact({ className, ...props }: React.ComponentProps<"div">) {
+  const context = useSidebar()
+  const value = React.useMemo<SidebarContextProps>(
+    () => ({ ...context, state: "collapsed" }),
+    [context],
+  )
+  return (
+    <SidebarContext.Provider value={value}>
+      <div
+        data-slot="sidebar-compact"
+        data-state="collapsed"
+        data-collapsible="icon"
+        className={cn("group", className)}
+        {...props}
+      />
+    </SidebarContext.Provider>
   )
 }
 
@@ -795,6 +855,7 @@ function SidebarMenuSubButton({
 
 export {
   Sidebar,
+  SidebarCompact,
   SidebarContent,
   SidebarFooter,
   SidebarGroup,

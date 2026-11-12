@@ -33,13 +33,25 @@ export const pageSheetContentClassName =
  */
 export function PageSheet({
   mac = false,
+  aside,
   className,
   ...props
 }: React.ComponentProps<typeof SidebarInset> & {
   /** Kretya Flow for Mac: the corner follows the window's. */
   mac?: boolean
+  /** A column inside the sheet, before the page (the sidebar's panel,
+   *  Obvious-style): it shares the sheet's fill and corners; the page
+   *  scrolls on its own beside it. */
+  aside?: React.ReactNode
 }) {
   const radius = mac ? MAC_SHEET_RADIUS : SHEET_RADIUS
+  const page = (
+    <SidebarInset
+      data-paper=""
+      className={cn(pageSheetClassName, radius, aside && "md:rounded-none", className)}
+      {...props}
+    />
+  )
   return (
     <div className="relative flex min-h-0 min-w-0 flex-1">
       <div
@@ -50,11 +62,21 @@ export function PageSheet({
           radius,
         )}
       />
-      <SidebarInset
-        data-paper=""
-        className={cn(pageSheetClassName, radius, className)}
-        {...props}
-      />
+      {aside ? (
+        // The sheet's fill and corners on the wrapper, so the column and
+        // the page read as one sheet.
+        <div
+          className={cn(
+            "md:bg-background md:dark:bg-surface flex min-h-0 min-w-0 flex-1 overflow-hidden md:z-20",
+            radius,
+          )}
+        >
+          {aside}
+          {page}
+        </div>
+      ) : (
+        page
+      )}
     </div>
   )
 }

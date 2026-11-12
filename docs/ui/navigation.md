@@ -33,29 +33,40 @@ examples: **/ui** → Navigasi.
 
 ## App tabs
 
-The shell has no top bar from `md` up. The sidebar (Obvious-style, 288px
-/ 18rem): first the workspace row (a 20px avatar: the white mark on the brand
-gradient, `AppIcon variant="badge"`; "Kretya's Workspace" in 14px medium, the sidebar toggle at its end; collapsed, the toggle alone;
-the Mac app keeps its toggle by the traffic lights), 12px above "+ Baru" (
-`NewMenu`: an outline
-button, full width, label centred; a dropdown of what you can start —
-cuti, event, catatan, project for PMs up — each opening its page's own
-form via `?new=1` / `useNewParam`) with the bell (icon only) beside it;
-then Cari (⌘K) as a plain row and the pages that are always there
-(`globalItems`: Beranda, Kalender, Tugas saya);
-then Kantor | Project as a full-width segmented pill (`WorkspaceTabs`).
-Blocks (the top rows, the tabs, the list, "Project aktif") sit 16px
+The shell has no top bar from `md` up. The sidebar is two parts
+(Obvious-style):
+
+- **The rail** (`AppRail`, 60px, on the chrome): the studio's mark
+  (`AppIcon variant="badge"`, a link to Beranda), 12px under it the
+  workspaces only (Kantor, Project; `WorkspaceRail`), the theme
+  (`AppearancePopover`) at the bottom. The workspace shown is filled; a
+  dot on one with something new. Picking another shows its pages; picking
+  the one shown folds the panel; picking one while folded opens it.
+- **The panel** (`AppSidebar`, 260px / 16.25rem, resizable 220–420),
+  *inside the page sheet* (`PageSheet aside`), a hairline between it and
+  the page; it folds to nothing (⌘B, its toggle, the rail). From the top:
+  the workspace's name with the toggle at its end (the Mac app keeps its
+  toggle by the traffic lights), 12px above "+ Baru" (`NewMenu`: an
+  outline button, full width, label centred; a dropdown of what you can
+  start — cuti, event, catatan, project for PMs up — each opening its
+  page's own form via `?new=1` / `useNewParam`) with the bell (icon only)
+  beside it; then Cari (⌘K) as a plain row and the pages that are always
+  there (`globalItems`: Beranda, Kalender, Tugas saya); then the
+  workspace's pages.
+
+Phones have no rail: the sidebar is one sheet (the mark and "Kretya's
+Workspace", + Baru, the top pages, Kantor | Project as a segmented pill
+(`WorkspaceTabs`), the list, the footer with the theme).
+Blocks (the top rows, the list, "Project aktif") sit 16px
 apart, as on Obvious; + Baru sits 12px above Cari. Rows are pills (`rounded-full`), 30px tall, 2px
-apart, 12px from the sidebar's edge; icons (14px, `size-3.5`) start 22px from the edge,
+apart, 12px from the panel's edge; icons (14px, `size-3.5`) start 22px from the edge,
 labels at 46px. In Project, "⌃ Project aktif" (a muted label with the
 chevron before it, folding for the visit, open on every load) lists the projects.
-Its bottom: notices, then one row: the account, then the color / theme
-swatch (`AppearancePopover`), What's new (dot
-when unseen) and Settings as 30px icons with tooltips (stacked when
-collapsed). Theme and chrome color are in Settings → Tampilan, like the
-language. Above the page sheet, on the
-chrome: ‹ › (the active tab's history), then the tabs, level with the
-workspace row (the sidebar toggle lives in that row).
+The panel's bottom: notices, then one row: the account, What's new (dot
+when unseen) and Settings as 30px icons with tooltips. Theme and chrome
+color are also in Settings → Tampilan, like the language. Above the page
+sheet, on the chrome: ‹ › (the active tab's history), then the tabs,
+level with the rail's mark.
 
 - **Main** is the first tab and can't be closed. The sidebar and every
   plain link navigate the active tab, like a browser's.

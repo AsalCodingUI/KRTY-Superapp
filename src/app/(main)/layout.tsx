@@ -1,5 +1,5 @@
 import { WorkspaceTransition } from "@/components/page-transition"
-import { AppSidebar } from "@/components/app-sidebar"
+import { AppRail, AppSidebar } from "@/components/app-sidebar"
 import { AppTopbar } from "@/components/app-topbar"
 import { WorkspaceNavProvider } from "@/components/workspace-nav"
 import { SiteHeader } from "@/components/site-header"
@@ -106,7 +106,9 @@ export default async function Layout({
                 "md:pr-1.5 md:pb-1.5",
               )}
             >
-              <AppSidebar />
+              {/* The rail on the chrome (mark, Kantor / Project, theme); the
+                  panel with the rest is inside the page sheet. */}
+              <AppRail />
               {/* The page sheet (components/page-sheet.tsx), shared with the
               client portal. */}
               {/* min-h-0: the sheet scrolls inside the column instead of
@@ -125,7 +127,12 @@ export default async function Layout({
                   <ImpersonationBanner />
                   <AnnouncementBanner />
                 </AppBannerStack>
-                <PageSheet mac={desktop} className="max-md:pt-2 md:pt-6">
+                <PageSheet
+                  mac={desktop}
+                  // Phones: the sidebar is a sheet of its own (portal).
+                  aside={<AppSidebar />}
+                  className="max-md:pt-2 md:pt-6"
+                >
                   <div
                     className={cn(
                       pageSheetContentClassName,

@@ -32,6 +32,7 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
   SidebarMenuSkeleton,
+  SidebarCompact,
   SidebarRail,
   SidebarTrigger,
   useSidebar,
@@ -154,7 +155,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   const pathname = usePathname()
   const { profile } = useUserProfile()
   const { loading, active, badges } = useWorkspaceNav()
-  const { state: sidebarState } = useSidebar()
+  const { isMobile } = useSidebar()
   const [closed, toggleSection] = useClosedSections()
   const t = useT("nav")
   const tPrefs = useT("prefs")
@@ -223,138 +224,259 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   // Cari first.
   const topSlots = React.useMemo(() => ({ 0: <GlobalSearch /> }), [])
 
-  return (
-    <Sidebar
-      collapsible="icon"
-      // Same tinted chrome as the top bar; the page floats beside it.
-      className="on-chrome overflow-hidden"
-      // Dark in light mode too when Settings → Tampilan says so (globals.css).
-      data-chrome-dark=""
-      {...props}
-    >
-      <SidebarRail />
-      {/* The workspace row (the studio's mark and name, the sidebar
-          toggle), + Baru with the bell, Cari (⌘K), the pages that are
-          always there (Beranda, Kalender, Tugas saya), then the workspaces
-          as tabs. Collapsed: icons only, no tabs. */}
+  const newMenu = (
+    <NewMenu
+      // The bell in an outlined circle, like Obvious's search button.
+      // Collapsed (the rail), no line: plain icons like the rows under them.
+      aside={
+        <Notifications
+          variant="icon"
+          className="border-chrome-border size-8 shrink-0 rounded-full border-[0.5px] group-data-[collapsible=icon]:border-transparent"
+        />
+      }
+    />
+  )
+  // Cari, then the pages that are always there (Beranda, Kalender, Tugas
+  // saya). The group's own padding off: the column sets the edge.
+  const topBlock = (
+    <div className="[&>[data-sidebar=group]]:py-0">
+      <NavMain items={topNav} slots={topSlots} />
+    </div>
+  )
+  // The open workspace's pages; in Project, then the active projects,
+  // each opening in place to its pages (no separate project menu).
+  const workspaceList = loading ? (
+    <SidebarGroup className="pt-0">
+      <SidebarMenu>
+        {Array.from({ length: 5 }).map((_, i) => (
+          <SidebarMenuItem key={i}>
+            <SidebarMenuSkeleton showIcon />
+          </SidebarMenuItem>
+        ))}
+      </SidebarMenu>
+    </SidebarGroup>
+  ) : (
+    <>
+      <div className="[&>[data-sidebar=group]]:py-0">
+        <NavMain items={navItems} />
+      </div>
+      {active?.id === "project" && projectTree.length > 0 && (
+        <NavSection
+          label={t("activeProjects")}
+          open={!closed.includes("projects")}
+          onToggle={() => toggleSection("projects")}
+        >
+          <div className="[&>[data-sidebar=group]]:py-0">
+            <NavMain items={projectTree} />
+          </div>
+        </NavSection>
+      )}
+    </>
+  )
+  // The account, then the theme, Yang baru (a dot while there's something
+  // unseen) and Settings as icons: one row (Mixpanel-style), stacked on
+  // the rail.
+  const footer = (
+    <SidebarGroup className="pt-0 pb-2">
+      <div className="flex items-center gap-0.5 group-data-[collapsible=icon]:flex-col">
+        <div className="min-w-0 flex-1 group-data-[collapsible=icon]:flex-none">
+          <AccountMenu row side="top" />
+        </div>
+        {/* Theme and the chrome's color: on the rail from md up. */}
+        {isMobile && <AppearancePopover className="size-[30px]" />}
+        <BottomIcon
+          label={t("whatsNew")}
+          active={matchesRoute(pathname, siteConfig.baseLinks.whatsNew)}
+          dot={whatsNewUnseen > 0}
+          render={<PrefetchLink href={siteConfig.baseLinks.whatsNew} />}
+        >
+          <Sparkles />
+        </BottomIcon>
+        <BottomIcon
+          label={tPrefs("title")}
+          onClick={() => {
+            // Settings opens over the current page (?settings=…).
+            const url = new URL(window.location.href)
+            url.searchParams.set("settings", "general")
+            replaceUrl(`${url.pathname}${url.search}`)
+          }}
+        >
+          <Settings />
+        </BottomIcon>
+      </div>
+    </SidebarGroup>
+  )
+
+  // The panel's title row: the open workspace (the rail picks it) and the
+  // toggle (the Mac app's sits by its traffic lights instead). On phones
+  // the studio's mark and name, there's no rail there. mb-2: 12px to +
+  // Baru.
+  const titleRow = (
+    <div className="mb-2 flex h-8 min-w-0 items-center gap-2.5">
+      {isMobile ? (
+        <PrefetchLink
+          href={siteConfig.baseLinks.dashboard}
+          // pl-1.5: the avatar centres on the icon column below.
+          className="flex min-w-0 flex-1 items-center gap-2 pl-1.5"
+        >
+          <AppIcon
+            variant="badge"
+            size={96}
+            className="size-5 shrink-0 rounded-[5px]"
+          />
+          <span className="text-foreground truncate text-sm font-medium">
+            Kretya&apos;s Workspace
+          </span>
+        </PrefetchLink>
+      ) : (
+        // pl-2.5: where the rows' icons start.
+        <span className="text-foreground min-w-0 flex-1 truncate pl-2.5 text-sm font-medium">
+          {active ? t(active.name) : null}
+        </span>
+      )}
+      {!desktop && !isMobile && (
+        <SidebarTrigger className="text-muted-foreground shrink-0" />
+      )}
+    </div>
+  )
+  // The panel (and the phone sheet): the title row, + Baru, the top
+  // pages, the open workspace's pages, the cards, the footer.
+  const panel = (
+    <>
       <SidebarHeader
-        // px-3: the same 12px edge as the menu rows below.
-        // pt-1.5: the workspace row (32px) centres on the tab row beside it
-        // (44px, 6px above and below its 32px tabs).
-        className={cn("gap-1 px-3 pb-4", desktop ? "pt-1" : "pt-1.5")}
+        // px-3: the same 12px edge as the menu rows below. In the sheet,
+        // pt-3: 12px from its top edge.
+        className={cn("gap-1 px-3 pb-4", isMobile ? "pt-1.5" : "pt-3")}
       >
-        {/* Obvious-style: a 20px avatar and the name (14px medium, starting
-            at 46px like the labels below), the toggle at the
-            end; mb-2: 12px to + Baru. Collapsed: the toggle alone. (The
-            Mac app's toggle sits by its traffic lights instead.) */}
-        <div className="mb-2 flex h-8 min-w-0 items-center gap-2.5 group-data-[collapsible=icon]:justify-center">
-          <PrefetchLink
-            href={siteConfig.baseLinks.dashboard}
-            // pl-1.5: the avatar centres on the icon column below.
-            className="flex min-w-0 flex-1 items-center gap-2 pl-1.5 group-data-[collapsible=icon]:hidden"
+        {titleRow}
+        <div className="mb-2">{newMenu}</div>
+        <div className="-mx-3">{topBlock}</div>
+        {/* Phones: Kantor | Project as tabs (the rail is md up). */}
+        {isMobile && <WorkspaceTabs className="mt-3" />}
+      </SidebarHeader>
+      <SidebarContent className="gap-3">{workspaceList}</SidebarContent>
+      {/* Cards above the footer: app update, what's new, the Mac app. */}
+      <SidebarNotices />
+      {footer}
+    </>
+  )
+
+  if (isMobile)
+    return (
+      <Sidebar
+        collapsible="icon"
+        className="on-chrome overflow-hidden"
+        data-chrome-dark=""
+        {...props}
+      >
+        {panel}
+      </Sidebar>
+    )
+
+  // From md up the panel sits inside the page sheet (Obvious-style), the
+  // page beside it; the rail (AppRail) stays on the chrome. Collapsing
+  // folds the panel away.
+  return (
+    <Sidebar inline className="on-chrome" {...props}>
+      <SidebarRail />
+      {panel}
+    </Sidebar>
+  )
+}
+
+/**
+ * The slim column on the chrome, md up (Obvious-style): the studio's mark,
+ * the workspaces (Kantor, Project), the theme at the bottom. Everything
+ * else is in the panel inside the sheet.
+ */
+export function AppRail() {
+  const desktop = useMacChrome()
+  return (
+    <SidebarCompact
+      data-chrome-dark=""
+      className={cn(
+        "on-chrome hidden w-(--sidebar-width-icon) shrink-0 flex-col pb-1.5 md:flex",
+        // pt-1.5: the mark's 32px row centres on the tab row beside it
+        // (44px). In the Mac app, the top strip is above it.
+        desktop ? "pt-1" : "pt-1.5",
+      )}
+    >
+      <div className="flex justify-center">
+        <Tooltip>
+          <TooltipTrigger
+            render={
+              <PrefetchLink
+                href={siteConfig.baseLinks.dashboard}
+                aria-label={siteConfig.name}
+                className="flex size-8 items-center justify-center"
+              />
+            }
           >
             <AppIcon
               variant="badge"
               size={96}
               className="size-5 shrink-0 rounded-[5px]"
             />
-            <span className="text-foreground truncate text-sm font-medium">
-              Kretya&apos;s Workspace
-            </span>
-          </PrefetchLink>
-          {!desktop && (
-            <SidebarTrigger className="text-muted-foreground hover:bg-chrome-hover shrink-0" />
-          )}
-        </div>
-        {/* + Baru, the bell (icon only) beside it. Collapsed: stacked. */}
-        <NewMenu
-          // mb-2: 12px to Cari.
-          className="mb-2"
-          // The bell in an outlined circle, like Obvious's search button.
-          // Collapsed, no line: plain icons like the rows under them.
-          aside={
-            <Notifications
-              variant="icon"
-              className="border-chrome-border size-8 shrink-0 rounded-full border-[0.5px] group-data-[collapsible=icon]:border-transparent"
-            />
-          }
-        />
-        {/* The group's own padding off: the header already sets the edge. */}
-        <div className="-mx-3 [&>[data-sidebar=group]]:py-0">
-          <NavMain items={topNav} slots={topSlots} />
-        </div>
-        <WorkspaceTabs className="mt-3 group-data-[collapsible=icon]:hidden" />
-      </SidebarHeader>
-      {/* The open workspace's pages; in Project, then the active projects,
-          each opening in place to its pages (no separate project menu). */}
-      <SidebarContent className="gap-3">
-        {loading ? (
-          <SidebarGroup className="pt-0">
-            <SidebarMenu>
-              {Array.from({ length: 5 }).map((_, i) => (
-                <SidebarMenuItem key={i}>
-                  <SidebarMenuSkeleton showIcon />
-                </SidebarMenuItem>
-              ))}
-            </SidebarMenu>
-          </SidebarGroup>
-        ) : (
-          <>
-            <div className="[&>[data-sidebar=group]]:py-0">
-              <NavMain items={navItems} />
-            </div>
-            {active?.id === "project" && projectTree.length > 0 && (
-              <NavSection
-                label={t("activeProjects")}
-                open={
-                  sidebarState === "collapsed" || !closed.includes("projects")
-                }
-                onToggle={() => toggleSection("projects")}
+          </TooltipTrigger>
+          <TooltipContent side="right">{siteConfig.name}</TooltipContent>
+        </Tooltip>
+      </div>
+      {/* 12px under the mark, the sidebar's block gap. */}
+      <div className="mt-3">
+        <WorkspaceRail />
+      </div>
+      <div className="flex-1" />
+      {/* Theme and the chrome's color (light / dark / system, tint); its
+          bottom on the sheet's. */}
+      <div className="flex justify-center">
+        <AppearancePopover className="blend-ink size-8" />
+      </div>
+    </SidebarCompact>
+  )
+}
+
+/**
+ * The workspaces, alone on the rail: picking one shows its pages in the panel (opening the panel when it's
+ * hidden); the one shown is filled. A dot when one has something new.
+ */
+function WorkspaceRail() {
+  const { loading, visible, active, select, hasBadge } = useWorkspaceNav()
+  const { open, setOpen } = useSidebar()
+  const t = useT("nav")
+  if (loading || visible.length < 2) return null
+  return (
+    <SidebarGroup className="py-0">
+      <SidebarMenu>
+        {visible.map((ws) => {
+          const shown = open && ws.id === active?.id
+          return (
+            <SidebarMenuItem key={ws.id}>
+              <SidebarMenuButton
+                tooltip={t(ws.name)}
+                isActive={shown}
+                aria-pressed={shown}
+                className="not-data-active:blend-ink relative"
+                // The one shown folds the panel away; another shows its
+                // pages (opening the panel when it's folded).
+                onClick={() => {
+                  if (shown) return setOpen(false)
+                  select(ws.id)
+                  if (!open) setOpen(true)
+                }}
               >
-                <div className="[&>[data-sidebar=group]]:py-0">
-                  <NavMain items={projectTree} />
-                </div>
-              </NavSection>
-            )}
-          </>
-        )}
-      </SidebarContent>
-      {/* Cards above the footer: app update, what's new, the Mac app. */}
-      <SidebarNotices />
-      {/* The bottom, one row (Mixpanel-style): the account, then Yang baru
-          (a dot while there's something unseen) and Settings as icons.
-          Collapsed: stacked on the icon column. */}
-      <SidebarGroup className="pt-0 pb-2">
-        <div className="flex items-center gap-0.5 group-data-[collapsible=icon]:flex-col">
-          <div className="min-w-0 flex-1 group-data-[collapsible=icon]:flex-none">
-            <AccountMenu
-              row
-              side={sidebarState === "collapsed" ? "right" : "top"}
-            />
-          </div>
-          {/* Theme and the chrome's color (light / dark / system, tint). */}
-          <AppearancePopover className="size-[30px]" />
-          <BottomIcon
-            label={t("whatsNew")}
-            active={matchesRoute(pathname, siteConfig.baseLinks.whatsNew)}
-            dot={whatsNewUnseen > 0}
-            render={<PrefetchLink href={siteConfig.baseLinks.whatsNew} />}
-          >
-            <Sparkles />
-          </BottomIcon>
-          <BottomIcon
-            label={tPrefs("title")}
-            onClick={() => {
-              // Settings opens over the current page (?settings=…).
-              const url = new URL(window.location.href)
-              url.searchParams.set("settings", "general")
-              replaceUrl(`${url.pathname}${url.search}`)
-            }}
-          >
-            <Settings />
-          </BottomIcon>
-        </div>
-      </SidebarGroup>
-    </Sidebar>
+                <ws.icon />
+                <span>{t(ws.name)}</span>
+                {!shown && hasBadge(ws) && (
+                  <span
+                    aria-hidden
+                    className="bg-primary absolute top-1 right-1 size-1.5 rounded-full"
+                  />
+                )}
+              </SidebarMenuButton>
+            </SidebarMenuItem>
+          )
+        })}
+      </SidebarMenu>
+    </SidebarGroup>
   )
 }

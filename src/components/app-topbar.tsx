@@ -7,7 +7,7 @@ import { useWorkspaceNav } from "@/components/workspace-nav"
 import { SegmentedControl } from "@/components/segmented-control"
 import type { WorkspaceId } from "@/shared/config/workspaces"
 import { useMacChrome } from "@/components/desktop-shell"
-import { SidebarTrigger, useSidebar } from "@/components/ui/sidebar"
+import { SidebarTrigger } from "@/components/ui/sidebar"
 import { cn } from "@/lib/utils"
 import { createClient } from "@/shared/api/supabase/client"
 import { useUserProfile } from "@/shared/hooks/useUserProfile"
@@ -59,7 +59,6 @@ export function AccountMenu({
 
 export function AppTopbar() {
   const desktop = useMacChrome()
-  const { state } = useSidebar()
 
   const account = (
     <div className="flex flex-1 items-center justify-end gap-1">
@@ -82,9 +81,8 @@ export function AppTopbar() {
         <div
           className={cn(
             "flex shrink-0 items-center pl-[5.25rem] transition-[width] duration-200 ease-out motion-reduce:transition-none",
-            state === "collapsed"
-              ? "w-[7.75rem]"
-              : "w-[max(var(--sidebar-width),7.75rem)]",
+            // Past the traffic lights; the tabs start over the sheet.
+            "w-[7.75rem]",
           )}
         >
           <SidebarTrigger className="text-muted-foreground" />
