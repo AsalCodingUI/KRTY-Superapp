@@ -158,6 +158,7 @@ pub fn lead_show(
     if let Some(view) = app.get_webview(&target) {
         place(&view, rect, corners);
         let _ = view.show();
+        focus(&view);
         return Ok(());
     }
 
@@ -181,6 +182,7 @@ pub fn lead_show(
         .add_child(builder, position, size)
         .map_err(|e| e.to_string())?;
     place(&view, rect, corners);
+    focus(&view);
     fit_page(&app);
     Ok(())
 }
@@ -276,6 +278,33 @@ fn place(view: &tauri::Webview, rect: (f64, f64, f64, f64), (radius, left): (f64
 fn place(view: &tauri::Webview, (x, y, w, h): (f64, f64, f64, f64), _corners: (f64, bool)) {
     let _ = view.set_position(LogicalPosition::new(x, y));
     let _ = view.set_size(LogicalSize::new(w, h));
+}
+
+/// The site's view takes the window's focus when it's shown (as a browser
+/// pane does): AppKit sends mouse moves and keys to the first responder,
+/// and with the app's page holding it the site got no hover (rows, menus,
+/// tooltips) until clicked.
+#[cfg(target_os = "macos")]
+fn focus(view: &tauri::Webview) {
+    let _ = view.with_webview(|platform| unsafe {
+        use objc2::msg_send;
+        use objc2::runtime::{AnyObject, Bool};
+        let web = platform.inner() as *mut AnyObject;
+        if web.is_null() {
+            return;
+        }
+        let window: *mut AnyObject = msg_send![web, window];
+        if window.is_null() {
+            return;
+        }
+        let _: () = msg_send![window, setAcceptsMouseMovedEvents: Bool::YES];
+        let _: Bool = msg_send![window, makeFirstResponder: web];
+    });
+}
+
+#[cfg(not(target_os = "macos"))]
+fn focus(view: &tauri::Webview) {
+    let _ = view.set_focus();
 }
 
 /// The wrapper NSView's identifier (see `place`).
@@ -375,6 +404,15 @@ fn snapshot(
     tx: std::sync::mpsc::Sender<Option<Vec<u8>>>,
 ) {
     let _ = tx.send(None);
+}
+
+/// Gives the shown site the window's focus again (the mouse went from the
+/// app's page onto it), so it has hover and keys without a click.
+#[tauri::command]
+pub fn lead_focus(app: AppHandle, id: String) {
+    if let Some(view) = app.get_webview(&label(&id)) {
+        focus(&view);
+    }
 }
 
 /// Hides every lead (the web app left its /leads page, or a dialog opened

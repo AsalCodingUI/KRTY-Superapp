@@ -845,6 +845,7 @@ pub fn run() {
             leads::lead_show,
             leads::lead_hide,
             leads::lead_close,
+            leads::lead_focus,
             leads::lead_snapshot
         ]);
     #[cfg(target_os = "macos")]

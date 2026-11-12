@@ -55,6 +55,14 @@ export async function closeLead(id: string) {
   } catch {}
 }
 
+/** The shown site takes the window's focus (hover and keys without a
+ *  click). */
+export async function focusLead(id: string) {
+  try {
+    await tauri()?.core.invoke("lead_focus", { id })
+  } catch {}
+}
+
 /** A picture of the site as it is now (an object URL to a JPEG), to show
  *  in its place while it's hidden for an overlay; null when unavailable. */
 export async function snapshotLead(id: string): Promise<string | null> {

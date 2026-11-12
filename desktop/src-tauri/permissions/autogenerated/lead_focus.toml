@@ -1,0 +1,11 @@
+# Automatically generated - DO NOT EDIT!
+
+[[permission]]
+identifier = "allow-lead-focus"
+description = "Enables the lead_focus command without any pre-configured scope."
+commands.allow = ["lead_focus"]
+
+[[permission]]
+identifier = "deny-lead-focus"
+description = "Denies the lead_focus command without any pre-configured scope."
+commands.deny = ["lead_focus"]

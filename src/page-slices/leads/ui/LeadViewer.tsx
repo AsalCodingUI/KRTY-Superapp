@@ -10,7 +10,13 @@ import { cn } from "@/lib/utils"
 import { useT } from "@/shared/i18n/client"
 import { RiExternalLinkLine, RiInboxLine } from "@/shared/ui/lucide-icons"
 import { useEffect, useRef, useState } from "react"
-import { hideLeads, inApp, showLead, snapshotLead } from "../lib/desktop"
+import {
+  focusLead,
+  hideLeads,
+  inApp,
+  showLead,
+  snapshotLead,
+} from "../lib/desktop"
 import { hostOf, useLeadSites } from "../model/data"
 
 /** Small overlays the native view would cover (it's always on top of the
@@ -200,6 +206,27 @@ export function LeadViewer({ id }: { id: string }) {
     }
     window.addEventListener("focus", place)
     document.addEventListener("visibilitychange", back)
+    // The page holding the window's focus still gets the mouse moves over
+    // the site (AppKit sends them to the focused view), and the site no
+    // hover: hand the focus over as soon as the mouse is on the site.
+    let handed = 0
+    const onMove = (e: MouseEvent) => {
+      if (covered) return
+      const box = el.getBoundingClientRect()
+      const left = box.left + carve.left
+      const right = box.right - carve.right
+      if (
+        e.clientX >= left &&
+        e.clientX <= right &&
+        e.clientY >= box.top &&
+        e.clientY <= box.bottom &&
+        performance.now() - handed > 300
+      ) {
+        handed = performance.now()
+        void focusLead(site.id)
+      }
+    }
+    document.addEventListener("mousemove", onMove)
     place()
     return () => {
       cancelAnimationFrame(frame)
@@ -209,6 +236,7 @@ export function LeadViewer({ id }: { id: string }) {
       window.removeEventListener("resize", place)
       window.removeEventListener("focus", place)
       document.removeEventListener("visibilitychange", back)
+      document.removeEventListener("mousemove", onMove)
       void hideLeads()
       setShot(null)
     }

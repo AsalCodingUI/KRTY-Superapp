@@ -29,6 +29,7 @@
     "allow-lead-show",
     "allow-lead-hide",
     "allow-lead-close",
+    "allow-lead-focus",
     "allow-lead-snapshot"
   ]
 }
