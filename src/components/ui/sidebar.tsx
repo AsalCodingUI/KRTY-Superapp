@@ -39,7 +39,7 @@ const SIDEBAR_MAX_WIDTH = 420
 const SIDEBAR_WIDTH_STORAGE_KEY = "sidebar_width_v3"
 const SIDEBAR_WIDTH_MOBILE = "18rem"
 // Icons stay centered under the 28px top-bar logo (center at 30px).
-const SIDEBAR_WIDTH_ICON = "3.75rem"
+const SIDEBAR_WIDTH_ICON = "3.25rem"
 const SIDEBAR_KEYBOARD_SHORTCUT = "b"
 
 type SidebarContextProps = {
@@ -300,7 +300,8 @@ function Sidebar({
           <div
             data-sidebar="sidebar"
             data-slot="sidebar-inner"
-            // A hairline between it and the page, as between list and detail.
+            // A hairline between it and the page, as between list and
+            // detail. Its fill is the sheet's (90% white, page-sheet.tsx).
             className="border-border flex h-full w-(--sidebar-width) flex-col border-r"
           >
             {children}

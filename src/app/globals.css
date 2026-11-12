@@ -25,6 +25,7 @@
   --shadow-control: var(--elev-1); /* small controls, toggles */
   --shadow-raised: var(--elev-2); /* cards on the chrome, floating controls */
   --shadow-sheet: var(--elev-3); /* the page sheet, paper */
+  --shadow-paper: var(--elev-paper); /* the app's page sheet: shadow only, no hairline */
   --shadow-popover: var(--elev-4); /* popovers, menus, toasts */
   --shadow-dialog: var(--elev-5); /* dialogs, sheets */
 
@@ -543,6 +544,12 @@
     0 0 0 1px oklch(0.22 var(--elev-ink) var(--tint-h) / 0.04),
     0 1px 2px oklch(0.22 var(--elev-ink) var(--tint-h) / 0.04),
     0 6px 16px -4px oklch(0.22 var(--elev-ink) var(--tint-h) / 0.07);
+  /* The page sheet on the chrome: elev-2's shadows without its hairline
+     (ChatGPT's sheet: no stroke, a soft shadow only). */
+  --elev-paper:
+    0 0 4px oklch(0.22 var(--elev-ink) var(--tint-h) / 0.05),
+    0 1px 2px oklch(0.22 var(--elev-ink) var(--tint-h) / 0.04),
+    0 6px 16px -4px oklch(0.22 var(--elev-ink) var(--tint-h) / 0.07);
   --elev-3:
     0 0 0 1px oklch(0.22 var(--elev-ink) var(--tint-h) / 0.045),
     0 2px 4px -1px oklch(0.22 var(--elev-ink) var(--tint-h) / 0.04),
@@ -752,6 +759,7 @@
   --elev-1: 0 0 0 1px oklch(1 0 0 / 0.06), 0 1px 2px oklch(0 0 0 / 0.2);
   --elev-2: 0 0 0 1px oklch(1 0 0 / 0.06), 0 6px 18px -4px oklch(0 0 0 / 0.24);
   --elev-3: 0 0 0 1px oklch(1 0 0 / 0.06), 0 16px 44px -10px oklch(0 0 0 / 0.3);
+  --elev-paper: 0 0 4px oklch(0 0 0 / 0.2), 0 6px 18px -4px oklch(0 0 0 / 0.24);
   --elev-4:
     0 0 0 1px oklch(1 0 0 / 0.07), 0 24px 60px -14px oklch(0 0 0 / 0.36);
   --elev-5:
@@ -1235,14 +1243,23 @@
     [data-paper] {
       --sheet-r: var(--radius-lg);
       --sheet-c: var(--background);
+      /* Each corner (a page beside the panel squares its left ones). */
+      --c-tl: var(--sheet-tl, var(--sheet-r));
+      --c-tr: var(--sheet-tr, var(--sheet-r));
+      --c-br: var(--sheet-br, var(--sheet-r));
+      --c-bl: var(--sheet-bl, var(--sheet-r));
       border-radius: 0 !important;
       background:
-        radial-gradient(circle at 100% 100%, var(--sheet-c) calc(var(--sheet-r) - 0.5px), transparent var(--sheet-r)) 0 0 / var(--sheet-r) var(--sheet-r) no-repeat,
-        radial-gradient(circle at 0 100%, var(--sheet-c) calc(var(--sheet-r) - 0.5px), transparent var(--sheet-r)) 100% 0 / var(--sheet-r) var(--sheet-r) no-repeat,
-        radial-gradient(circle at 100% 0, var(--sheet-c) calc(var(--sheet-r) - 0.5px), transparent var(--sheet-r)) 0 100% / var(--sheet-r) var(--sheet-r) no-repeat,
-        radial-gradient(circle at 0 0, var(--sheet-c) calc(var(--sheet-r) - 0.5px), transparent var(--sheet-r)) 100% 100% / var(--sheet-r) var(--sheet-r) no-repeat,
-        linear-gradient(var(--sheet-c), var(--sheet-c)) 0 var(--sheet-r) / 100% calc(100% - 2 * var(--sheet-r)) no-repeat,
-        linear-gradient(var(--sheet-c), var(--sheet-c)) var(--sheet-r) 0 / calc(100% - 2 * var(--sheet-r)) 100% no-repeat !important;
+        radial-gradient(circle at 100% 100%, var(--sheet-c) calc(var(--c-tl) - 0.5px), transparent var(--c-tl)) 0 0 / var(--c-tl) var(--c-tl) no-repeat,
+        radial-gradient(circle at 0 100%, var(--sheet-c) calc(var(--c-tr) - 0.5px), transparent var(--c-tr)) 100% 0 / var(--c-tr) var(--c-tr) no-repeat,
+        radial-gradient(circle at 100% 0, var(--sheet-c) calc(var(--c-bl) - 0.5px), transparent var(--c-bl)) 0 100% / var(--c-bl) var(--c-bl) no-repeat,
+        radial-gradient(circle at 0 0, var(--sheet-c) calc(var(--c-br) - 0.5px), transparent var(--c-br)) 100% 100% / var(--c-br) var(--c-br) no-repeat,
+        linear-gradient(var(--sheet-c), var(--sheet-c)) 0 var(--c-tl) / 50% calc(100% - var(--c-tl) - var(--c-bl)) no-repeat,
+        linear-gradient(var(--sheet-c), var(--sheet-c)) 100% var(--c-tr) / 50% calc(100% - var(--c-tr) - var(--c-br)) no-repeat,
+        linear-gradient(var(--sheet-c), var(--sheet-c)) var(--c-tl) 0 / calc(50% - var(--c-tl)) 50% no-repeat,
+        linear-gradient(var(--sheet-c), var(--sheet-c)) var(--c-bl) 100% / calc(50% - var(--c-bl)) 50% no-repeat,
+        linear-gradient(var(--sheet-c), var(--sheet-c)) calc(100% - var(--c-tr)) 0 / calc(50% - var(--c-tr)) 50% no-repeat,
+        linear-gradient(var(--sheet-c), var(--sheet-c)) calc(100% - var(--c-br)) 100% / calc(50% - var(--c-br)) 50% no-repeat !important;
     }
     .dark [data-paper] {
       --sheet-c: var(--surface);

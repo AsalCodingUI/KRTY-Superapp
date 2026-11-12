@@ -436,7 +436,7 @@ export function AppRail() {
           lights instead. */}
       {!desktop && (
         <div className="flex justify-center">
-          <SidebarTrigger className="text-chrome-label hover:bg-chrome-hover blend-ink size-10 rounded-[10px] [&_svg]:size-4" />
+          <SidebarTrigger className="text-foreground/55 hover:bg-chrome-hover size-9 rounded-[8px] [&_svg]:size-4" />
         </div>
       )}
       {/* 12px under the toggle, the sidebar's block gap: the mark, then
@@ -448,7 +448,7 @@ export function AppRail() {
       {/* Theme and the chrome's color (light / dark / system, tint); its
           bottom on the sheet's. */}
       <div className="flex justify-center">
-        <AppearancePopover className="blend-ink size-10 rounded-[10px]" />
+        <AppearancePopover className="blend-ink size-9 rounded-[8px]" />
       </div>
     </SidebarCompact>
   )
@@ -465,16 +465,17 @@ function WorkspaceRail() {
   // It goes to Beranda, so it's named that (not the studio's name).
   const brand = t("home")
   return (
-    // 40px buttons, 10px either side on the 60px rail (16px icons stay).
-    <SidebarGroup className="py-0 group-data-[collapsible=icon]:px-2.5">
-      <SidebarMenu>
+    // ChatGPT's rail (measured): 36px buttons, 8px either side on the
+    // 52px rail, 44px apart; 16px icons.
+    <SidebarGroup className="py-0 group-data-[collapsible=icon]:px-2">
+      <SidebarMenu className="gap-2">
         {/* The studio's mark (the plain PNG: black, white on dark), a
             link to Beranda, in line with the workspaces under it. */}
         <SidebarMenuItem>
           <SidebarMenuButton
             tooltip={brand}
             aria-label={brand}
-            className="blend-ink rounded-[10px] group-data-[collapsible=icon]:size-10! group-data-[collapsible=icon]:p-3!"
+            className="blend-ink rounded-[8px] group-data-[collapsible=icon]:size-9! group-data-[collapsible=icon]:p-2!"
             render={<PrefetchLink href={siteConfig.baseLinks.dashboard} />}
           >
             {/* The PNG's mark fills 2/3 of it: a 20px box draws it ~13px,
@@ -492,11 +493,12 @@ function WorkspaceRail() {
                   tooltip={t(ws.name)}
                   isActive={shown}
                   aria-pressed={shown}
-                  // Square (a fixed 10px corner: the theme's radius can be a pill), the shown one
-                  // filled like the active tab (chrome-active, not blended:
-                  // it's a solid fill); the rest blend into the chrome. 16px
-                  // icons, one size for everything on the rail.
-                  className="not-data-active:blend-ink data-active:bg-chrome-active data-active:text-foreground relative rounded-[10px] group-data-[collapsible=icon]:size-10! group-data-[collapsible=icon]:p-3! [&_svg]:size-4"
+                  // Square (a fixed 8px corner: the theme's radius can be a
+                  // pill). As ChatGPT's rail: the rest the secondary ink of
+                  // the bar's toggle (55%), the shown one a faint ink fill
+                  // (6%) and its icon solid (the line glyph filled, its
+                  // inner shapes cut out). 16px icons.
+                  className="not-data-active:text-foreground/55 data-active:bg-foreground/6 data-active:text-foreground data-active:[&_svg_*]:fill-current data-active:[&_svg_*]:[fill-rule:evenodd] relative rounded-[8px] group-data-[collapsible=icon]:size-9! group-data-[collapsible=icon]:p-2.5! [&_svg]:size-4"
                   // The one shown folds the panel away; another shows its
                   // pages (opening the panel when it's folded).
                   onClick={() => {

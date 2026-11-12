@@ -81,18 +81,19 @@ export function AppTopbar() {
         )}
         data-chrome-dark=""
       >
-        {/* ChatGPT-style: past the traffic lights the toggle and ‹ ›, over
+        {/* ChatGPT-style: past the traffic lights ← → and the toggle, over
             the rail and the panel; the tabs start where the page sheet
             does (the panel folded, right after ‹ ›). One row, centred in
             the 52pt bar like the lights. */}
         <div
           className={cn(
-            "flex shrink-0 items-center gap-1 pl-[5.25rem] transition-[width] duration-200 ease-out group-data-[resizing=true]/sidebar-wrapper:transition-none motion-reduce:transition-none",
+            "flex shrink-0 items-center gap-1.5 pl-[5.5rem] transition-[width] duration-200 ease-out group-data-[resizing=true]/sidebar-wrapper:transition-none motion-reduce:transition-none",
             open && "w-[calc(var(--sidebar-width-icon)+var(--sidebar-width))]",
           )}
         >
-          <SidebarTrigger className="text-muted-foreground" />
+          {/* ChatGPT's order: ← → then the sidebar toggle. */}
           <TabHistoryButtons />
+          <SidebarTrigger className="text-foreground/55" />
         </div>
         <div className="flex min-w-0 flex-1 items-center">
           <Suspense>

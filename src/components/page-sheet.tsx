@@ -6,9 +6,11 @@ import type * as React from "react"
 // 10px squircled (reads ~8px), every corner alike.
 const SHEET_RADIUS = "md:rounded-lg"
 
-/** The page sheet's corner in the Mac app: the window's 16pt corner less
- *  the 6px inset (a native size, so not a radius role). */
-const MAC_SHEET_RADIUS = "md:rounded-[10px]"
+/** The page sheet's corners in the Mac app (ChatGPT's): 14px, the bottom
+ *  right 10px (parallel to the window's 16pt corner, 6px in). A native
+ *  size, so not a radius role. The page scroller itself is painted
+ *  (globals.css, --sheet-*; the Mac shell sets the same values). */
+const MAC_SHEET_RADIUS = "md:rounded-[14px] md:rounded-br-[10px]"
 
 /**
  * The scrolling sheet itself. The scrollbar's room is always kept, on both
@@ -61,7 +63,8 @@ export function PageSheet({
       className={cn(
         pageSheetClassName,
         mac ? "md:rounded-none" : radius,
-        !mac && aside && "md:rounded-l-none",
+        // Beside the panel its left corners are square (painted ones too).
+        aside && "md:rounded-l-none md:[--sheet-tl:0px] md:[--sheet-bl:0px]",
         className,
       )}
       {...props}
@@ -73,7 +76,7 @@ export function PageSheet({
         aria-hidden
         data-slot="page-sheet-shadow"
         className={cn(
-          "blend-shadow shadow-raised pointer-events-none absolute inset-0 z-20 hidden md:block",
+          "blend-shadow shadow-paper pointer-events-none absolute inset-0 z-20 hidden md:block",
           radius,
         )}
       />
@@ -85,7 +88,9 @@ export function PageSheet({
         // bottom off and dropping repaints on hover.
         <div
           className={cn(
-            "md:bg-background md:dark:bg-surface flex min-h-0 min-w-0 flex-1 md:z-20",
+            // 90% white: the panel over it lets the chrome's blur through
+            // a little (ChatGPT's panel); the page paints its own white.
+            "md:bg-background/90 md:dark:bg-surface/90 flex min-h-0 min-w-0 flex-1 md:z-20",
             radius,
           )}
         >

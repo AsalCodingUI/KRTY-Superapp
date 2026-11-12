@@ -1,6 +1,6 @@
 "use client"
 
-import { ChevronLeft, ChevronRight, Plus, X } from "@/components/icons"
+import { ArrowLeft, ArrowRight, Plus, X } from "@/components/icons"
 import { ProjectAvatar } from "@/components/project-avatar"
 import { useDesktopShell } from "@/components/desktop-shell"
 import { ContextTarget } from "@/shared/context-menu"
@@ -333,29 +333,29 @@ export function TabHistoryButtons({
   const tab = tabs.tabs.find((x) => x.id === tabs.active) ?? tabs.tabs[0]
   const mod = useModKey()
   return (
-    <div className="flex items-center">
+    <div className="flex items-center gap-1.5">
       <ShortcutTip label={t("tabBack")} keys={`${mod}[`}>
         <Button
           variant="ghost"
           size={compact ? "icon-xs" : "icon-sm"}
-          className="hover:bg-chrome-hover [&_svg]:size-3.5"
+          className="text-foreground/55 hover:bg-chrome-hover hover:text-foreground [&_svg]:size-4"
           aria-label={t("tabBack")}
           disabled={tab.index <= 0}
           onClick={() => nav.go(-1)}
         >
-          <ChevronLeft />
+          <ArrowLeft />
         </Button>
       </ShortcutTip>
       <ShortcutTip label={t("tabForward")} keys={`${mod}]`}>
         <Button
           variant="ghost"
           size={compact ? "icon-xs" : "icon-sm"}
-          className="hover:bg-chrome-hover [&_svg]:size-3.5"
+          className="text-foreground/55 hover:bg-chrome-hover hover:text-foreground [&_svg]:size-4"
           aria-label={t("tabForward")}
           disabled={tab.index >= tab.stack.length - 1}
           onClick={() => nav.go(1)}
         >
-          <ChevronRight />
+          <ArrowRight />
         </Button>
       </ShortcutTip>
     </div>
@@ -394,7 +394,7 @@ export function TabStrip({
   }, [active])
 
   return (
-    <div className="flex min-w-0 flex-1 items-center gap-1">
+    <div className="flex min-w-0 flex-1 items-center gap-1.5">
       {/* Flush with the sheet's left edge. */}
       <div
         role="tablist"
@@ -402,7 +402,7 @@ export function TabStrip({
         // The scroller would clip the active pill's shadow: room for it on
         // every side, given back with negative margins (the layout doesn't
         // move); the room itself lets clicks through to the ‹ › beside it.
-        className="no-scrollbar pointer-events-none -m-3 flex min-w-0 scroll-px-3 items-center gap-1 overflow-x-auto p-3 *:pointer-events-auto"
+        className="no-scrollbar pointer-events-none -m-3 flex min-w-0 scroll-px-3 items-center gap-1.5 overflow-x-auto p-3 *:pointer-events-auto"
       >
         {tabs.map((tab) => (
           <ContextTarget

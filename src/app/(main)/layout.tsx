@@ -40,7 +40,7 @@ import { Suspense } from "react"
 // own (10px, squircle-scaled): --nest-r is that plus the 8px gap.
 const CORNER = "right:14px;bottom:14px;--nest-r:calc((10px + 0.5rem) * var(--corner-k,1))"
 const DESKTOP_CSS =
-  ":root:root{--app-topbar-height:52px;--app-tabs-height:0px}" +
+  ":root:root{--app-topbar-height:44px;--app-tabs-height:0px}" +
   `@media (min-width:768px){[data-slot="sheet-content"][data-side="right"]{${CORNER}}}` +
   `@media (min-width:1024px){[data-slot="side-panel"]{${CORNER}}}` +
   // The shell never scrolls the document (its panes do): a tooltip or popup
@@ -48,11 +48,12 @@ const DESKTOP_CSS =
   // under the Leads web view.
   "html,body{background:transparent;overflow:hidden}" +
   // The sheet's corner (painted in WebKit, globals.css): the window's.
-  ':root [data-paper]{--sheet-r:10px}' +
+  ':root [data-paper]{--sheet-r:14px;--sheet-br:10px}' +
   // A light wash of the chrome over the window's blur: mostly see-through.
   '[data-slot="sidebar-wrapper"]{background-color:color-mix(in oklab,color-mix(in oklab,#fff 55%,var(--chrome)) 30%,transparent)}' +
   '.dark [data-slot="sidebar-wrapper"]{background-color:color-mix(in oklab,var(--chrome) 25%,transparent)}' +
-  '[data-slot="sidebar-inner"]{background:transparent}'
+  // (Not the panel inside the page sheet: it keeps its own fill.)
+  '[data-slot="sidebar"]:not([data-inline]) [data-slot="sidebar-inner"]{background:transparent}'
 
 function PageFallback() {
   return (
