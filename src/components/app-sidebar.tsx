@@ -426,9 +426,9 @@ export function AppRail() {
       data-chrome-dark=""
       className={cn(
         "on-chrome hidden w-(--sidebar-width-icon) shrink-0 flex-col pb-1.5 md:flex",
-        // pt-0.5: the toggle's 40px row centres on the tab row beside it
-        // (44px). In the Mac app, the top strip is above it.
-        desktop ? "pt-1" : "pt-0.5",
+        // pt-1: the toggle's 36px button centres on the tab row beside it
+        // (44px: 4 + 18 = 22). In the Mac app, the top strip is above it.
+        "pt-1",
       )}
     >
       {/* Where the mark was: the toggle, its 40px row centred on the tab

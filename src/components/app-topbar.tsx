@@ -77,7 +77,9 @@ export function AppTopbar() {
       <header
         data-slot="app-topbar"
         className={cn(
-          "on-chrome text-foreground relative z-40 flex h-(--app-topbar-height) shrink-0 items-center pr-1.5",
+          // cursor-default + select-none: dragging the window by it shows the
+          // arrow, not a text cursor (and selects nothing).
+          "on-chrome text-foreground relative z-40 flex h-(--app-topbar-height) shrink-0 cursor-default items-center pr-1.5 select-none",
         )}
         data-chrome-dark=""
       >

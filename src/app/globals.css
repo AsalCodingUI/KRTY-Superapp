@@ -1285,6 +1285,14 @@
   }
 }
 
+/* The mouse is away on a Leads site (Kretya Flow sets data-pointer-away):
+   the page never sees it leave, so the panel's resize grip it last
+   hovered stays plain. */
+:root[data-pointer-away] [data-slot="sidebar-rail"]::before,
+:root[data-pointer-away] [data-slot="sidebar-rail"]::after {
+  background-color: transparent !important;
+}
+
 /* Beside the panel the page's left corners are square (page-sheet.tsx);
    with the panel folded away they round again (the painted ones in
    WebKit too: the corner vars fall back to --sheet-r). */

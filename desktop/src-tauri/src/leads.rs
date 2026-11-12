@@ -110,6 +110,7 @@ fn fit(app: &AppHandle, nudge: bool) {
         if web.is_null() {
             return;
         }
+        MAIN_WEB.store(web as *mut std::ffi::c_void, std::sync::atomic::Ordering::Relaxed);
         unsafe {
             let parent: *mut AnyObject = msg_send![web, superview];
             if parent.is_null() {
@@ -453,8 +454,15 @@ fn place(view: &tauri::Webview, rect: (f64, f64, f64, f64), (radius, left): (f64
                 // in the window (kept alive across the move).
                 let content = wrap;
                 let _: *mut AnyObject = msg_send![web, retain];
-                let made: *mut AnyObject = msg_send![class!(NSView), alloc];
+                let made: *mut AnyObject = msg_send![wrap_class(), alloc];
                 let made: *mut AnyObject = msg_send![made, initWithFrame: NSRect::ZERO];
+                // The mouse entering / leaving the site moves the window's
+                // focus with it (wrap_class).
+                let options: usize = 0x01 | 0x80 | 0x200; // entered/exited, always, in visible rect
+                let area: *mut AnyObject = msg_send![class!(NSTrackingArea), alloc];
+                let area: *mut AnyObject = msg_send![area, initWithRect: NSRect::ZERO, options: options, owner: made, userInfo: std::ptr::null_mut::<AnyObject>()];
+                let _: () = msg_send![made, addTrackingArea: area];
+                let _: () = msg_send![area, release];
                 let _: () = msg_send![made, setIdentifier: &*id];
                 let _: () = msg_send![made, setWantsLayer: Bool::YES];
                 // Above the app's page, where the web view was.
@@ -558,6 +566,97 @@ fn focus(view: &tauri::Webview) {
 #[cfg(not(target_os = "macos"))]
 fn focus(view: &tauri::Webview) {
     let _ = view.set_focus();
+}
+
+/// The app's own page (its web view), for handing the focus back.
+#[cfg(target_os = "macos")]
+static MAIN_WEB: std::sync::atomic::AtomicPtr<std::ffi::c_void> =
+    std::sync::atomic::AtomicPtr::new(std::ptr::null_mut());
+
+/// The window's focus (where AppKit sends mouse moves and keys, so where
+/// hover works) follows the mouse: onto a site, the site's view; off it,
+/// the app's page (else the sidebar and every page lost their hover, and
+/// the resize grip stayed lit, after visiting a site).
+#[cfg(target_os = "macos")]
+/// Tells the page the mouse is away on a site (`data-pointer-away` on its
+/// root) or back: it never sees the mouse leave, so whatever it last
+/// hovered (the resize grip) would stay lit.
+#[cfg(target_os = "macos")]
+fn mark_page(away: bool) {
+    use objc2::msg_send;
+    use objc2::runtime::AnyObject;
+    use objc2_foundation::NSString;
+    let web = MAIN_WEB.load(std::sync::atomic::Ordering::Relaxed) as *mut AnyObject;
+    if web.is_null() {
+        return;
+    }
+    let script = NSString::from_str(if away {
+        "document.documentElement.setAttribute('data-pointer-away','')"
+    } else {
+        "document.documentElement.removeAttribute('data-pointer-away')"
+    });
+    unsafe {
+        let _: () = msg_send![web, evaluateJavaScript: &*script, completionHandler: std::ptr::null_mut::<AnyObject>()];
+    }
+}
+
+#[cfg(target_os = "macos")]
+fn focus_page() {
+    use objc2::msg_send;
+    use objc2::runtime::{AnyObject, Bool};
+    let web = MAIN_WEB.load(std::sync::atomic::Ordering::Relaxed) as *mut AnyObject;
+    if web.is_null() {
+        return;
+    }
+    unsafe {
+        let window: *mut AnyObject = msg_send![web, window];
+        if !window.is_null() {
+            let _: Bool = msg_send![window, makeFirstResponder: web];
+        }
+    }
+}
+
+/// The wrapper's class: an NSView whose tracking area hands the focus to
+/// its site on entry and back to the page on exit.
+#[cfg(target_os = "macos")]
+fn wrap_class() -> &'static objc2::runtime::AnyClass {
+    use objc2::runtime::{AnyClass, AnyObject, Bool, ClassBuilder, Sel};
+    use objc2::{class, msg_send, sel};
+    use std::sync::OnceLock;
+    static CLASS: OnceLock<&'static AnyClass> = OnceLock::new();
+    CLASS.get_or_init(|| {
+        let mut builder = ClassBuilder::new(c"KrtyLeadWrap", class!(NSView))
+            .expect("KrtyLeadWrap is registered once");
+        unsafe extern "C-unwind" fn entered(this: *mut AnyObject, _cmd: Sel, _event: *mut AnyObject) {
+            let subviews: *mut AnyObject = msg_send![this, subviews];
+            let count: usize = msg_send![subviews, count];
+            if count == 0 {
+                return;
+            }
+            let web: *mut AnyObject = msg_send![subviews, objectAtIndex: 0usize];
+            let hidden: Bool = msg_send![web, isHidden];
+            let window: *mut AnyObject = msg_send![this, window];
+            if !hidden.as_bool() && !window.is_null() {
+                let _: Bool = msg_send![window, makeFirstResponder: web];
+                mark_page(true);
+            }
+        }
+        unsafe extern "C-unwind" fn exited(_this: *mut AnyObject, _cmd: Sel, _event: *mut AnyObject) {
+            focus_page();
+            mark_page(false);
+        }
+        unsafe {
+            builder.add_method(
+                sel!(mouseEntered:),
+                entered as unsafe extern "C-unwind" fn(*mut AnyObject, Sel, *mut AnyObject),
+            );
+            builder.add_method(
+                sel!(mouseExited:),
+                exited as unsafe extern "C-unwind" fn(*mut AnyObject, Sel, *mut AnyObject),
+            );
+        }
+        builder.register()
+    })
 }
 
 /// The wrapper NSView's identifier (see `place`).
@@ -825,6 +924,16 @@ pub async fn lead_report(
 pub fn lead_hide(app: AppHandle) {
     if let Ok(mut shown) = SHOWN_LEAD.lock() {
         *shown = None;
+    }
+    // The hidden site mustn't keep the window's focus (and the page's hover).
+    #[cfg(target_os = "macos")]
+    {
+        let app2 = app.clone();
+        let _ = app.run_on_main_thread(move || {
+            let _ = app2;
+            focus_page();
+            mark_page(false);
+        });
     }
     hide_all_but(&app, None);
 }
