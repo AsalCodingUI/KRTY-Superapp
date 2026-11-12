@@ -338,7 +338,7 @@ export function TabHistoryButtons({
         <Button
           variant="ghost"
           size={compact ? "icon-xs" : "icon-sm"}
-          className="hover:bg-chrome-hover [&_svg]:size-4"
+          className="hover:bg-chrome-hover [&_svg]:size-3.5"
           aria-label={t("tabBack")}
           disabled={tab.index <= 0}
           onClick={() => nav.go(-1)}
@@ -350,7 +350,7 @@ export function TabHistoryButtons({
         <Button
           variant="ghost"
           size={compact ? "icon-xs" : "icon-sm"}
-          className="hover:bg-chrome-hover [&_svg]:size-4"
+          className="hover:bg-chrome-hover [&_svg]:size-3.5"
           aria-label={t("tabForward")}
           disabled={tab.index >= tab.stack.length - 1}
           onClick={() => nav.go(1)}
@@ -459,7 +459,8 @@ export function TabStrip({
           variant="ghost"
           size="icon-sm"
           aria-label={t("tabNew")}
-          className="text-muted-foreground hover:bg-chrome-hover shrink-0"
+          // 14px like the tabs' icons and ‹ ›.
+          className="text-muted-foreground hover:bg-chrome-hover shrink-0 [&_svg]:size-3.5"
           onClick={() => nav.newTab()}
         >
           <Plus />
@@ -536,10 +537,10 @@ function TabItem({
         // One tab: as wide as its name; several share the room.
         onlyOne ? "max-w-56 pr-3" : "w-44 max-w-44 pr-1",
         main && !onlyOne && "pr-3",
-        // The active tab: a raised white pill (the sidebar's selected row
-        // is the flat darker fill); the others plain text on the chrome.
+        // The active tab: a flat pill (no outline or shadow); the others
+        // plain text on the chrome.
         active
-          ? "bg-chrome-active shadow-raised text-foreground"
+          ? "bg-chrome-active text-foreground"
           : "text-chrome-label hover:text-foreground [@media(hover:hover)]:hover:bg-chrome-hover",
       )}
     >

@@ -31,8 +31,11 @@ export const documentDialogClassName =
   "flex h-[min(56rem,92svh)] w-full flex-col overflow-hidden p-0 sm:max-w-5xl"
 
 /** ⌘K search: the one search size, near the top so results grow down. */
+// The same surface as the right-click menu (ContextMenuProvider POPUP):
+// dark in every theme, see-through popover glass, the popover shadow and
+// corner, so the two read as one family.
 export const searchDialogClassName =
-  "top-[14vh] flex max-h-[min(560px,76svh)] translate-y-0 flex-col overflow-hidden p-0 sm:max-w-[600px] sm:rounded-2xl!"
+  "dark [color-scheme:dark] isolate top-[14vh] flex max-h-[min(560px,76svh)] translate-y-0 flex-col overflow-hidden bg-transparent p-0 text-popover-foreground shadow-popover sm:max-w-[600px] sm:rounded-popover! before:pointer-events-none before:absolute before:inset-0 before:-z-10 before:rounded-[inherit] before:bg-popover/92 before:backdrop-blur-xl before:backdrop-saturate-150"
 
 // The body scrolls, so it keeps 4px below its last field (and nested scroll
 // wrappers get 4px all round) so focus rings are not clipped by the overflow.

@@ -1166,3 +1166,52 @@
     --app-tabs-height: 2.75rem;
   }
 }
+
+/* A scroll area whose ends fade (a linear mask) only where there's more
+   to scroll: the top fade grows over the first 24px scrolled, the bottom
+   one goes as you reach the end. Scroll-driven; where that's unsupported
+   (or nothing scrolls) the edges stay sharp. */
+@property --fade-top {
+  syntax: "<length>";
+  inherits: false;
+  initial-value: 0px;
+}
+@property --fade-bottom {
+  syntax: "<length>";
+  inherits: false;
+  initial-value: 0px;
+}
+@keyframes scroll-fade-top {
+  from {
+    --fade-top: 0px;
+  }
+  to {
+    --fade-top: 24px;
+  }
+}
+@keyframes scroll-fade-bottom {
+  from {
+    --fade-bottom: 24px;
+  }
+  to {
+    --fade-bottom: 0px;
+  }
+}
+@utility scroll-fade {
+  mask-image: linear-gradient(
+    to bottom,
+    transparent 0,
+    #000 var(--fade-top),
+    #000 calc(100% - var(--fade-bottom)),
+    transparent 100%
+  );
+  @supports (animation-timeline: scroll()) {
+    animation:
+      scroll-fade-top linear both,
+      scroll-fade-bottom linear both;
+    animation-timeline: scroll(self), scroll(self);
+    animation-range:
+      0 24px,
+      calc(100% - 24px) 100%;
+  }
+}

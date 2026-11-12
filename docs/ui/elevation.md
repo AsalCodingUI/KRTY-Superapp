@@ -35,7 +35,7 @@ workbench where the tokens were tuned.
 
 ## Shadow, border or tint
 
-- **Border** (`border-field-border dark:border-border`): things that rest
+- **Border** (`border-border`, the hairline also used inside them): things that rest
   on the page: cards (`surfaceClassName`, `HomeCard`, `Panel`), fields,
   outline buttons. No shadow.
 - **Tint** (`bg-muted dark:bg-muted/40`, `bg-accent`, `--row-hover`):

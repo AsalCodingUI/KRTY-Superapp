@@ -350,7 +350,10 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         {/* Phones: Kantor | Project as tabs (the rail is md up). */}
         {isMobile && <WorkspaceTabs className="mt-3" />}
       </SidebarHeader>
-      <SidebarContent className="gap-3">{workspaceList}</SidebarContent>
+      {/* The ends fade while there's more to scroll (scroll-fade). */}
+      <SidebarContent className="scroll-fade gap-3">
+        {workspaceList}
+      </SidebarContent>
       {/* Cards above the footer: app update, what's new, the Mac app. */}
       <SidebarNotices />
       {footer}
@@ -402,7 +405,7 @@ export function AppRail() {
           lights instead. */}
       {!desktop && (
         <div className="flex justify-center">
-          <SidebarTrigger className="text-chrome-label hover:bg-chrome-hover blend-ink size-8 rounded-full" />
+          <SidebarTrigger className="text-chrome-label hover:bg-chrome-hover blend-ink size-8 rounded-full [&_svg]:size-4" />
         </div>
       )}
       {/* 12px under the toggle, the sidebar's block gap: the mark, then
@@ -441,7 +444,9 @@ function WorkspaceRail() {
             className="blend-ink"
             render={<PrefetchLink href={siteConfig.baseLinks.dashboard} />}
           >
-            <AppIcon variant="mark" size={96} className="size-4" />
+            {/* The PNG's mark fills 2/3 of it: a 20px box draws it ~13px,
+                the live size of the 16px icons under it. */}
+            <AppIcon variant="mark" size={96} className="-m-0.5 size-5" />
           </SidebarMenuButton>
         </SidebarMenuItem>
         {!loading &&
@@ -455,8 +460,8 @@ function WorkspaceRail() {
                   isActive={shown}
                   aria-pressed={shown}
                   // Ink and fills (hover, the shown one) all blend into the
-                  // chrome.
-                  className="blend-ink relative"
+                  // chrome; 16px icons, one size for everything on the rail.
+                  className="blend-ink relative [&_svg]:size-4"
                   // The one shown folds the panel away; another shows its
                   // pages (opening the panel when it's folded).
                   onClick={() => {

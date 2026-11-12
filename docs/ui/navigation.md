@@ -182,7 +182,8 @@ tabular-nums`, hidden at 0; badge.md).
   list; the page stays; opening a workspace's page selects its tab. One sliding active fill (`bg-sidebar-active`
   = `--chrome-selected`: a darker see-through fill, flat, no shadow)
   across rows. The white
-  raised pill is only for the app tabs.
+  flat pill (no outline or shadow) is the active app tab; the tab row's
+  icons (‹ ›, tabs, +) are all 14px.
 - Sibling pages behind one row switch with `RouteScopes` as the page
   title: Kalender (Saya / Project / Sharing Santuy), Tugas saya (Tugas /
   Catatan). They are pages, so `TabNavigation plain` (links), never a

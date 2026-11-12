@@ -79,7 +79,7 @@ project colors. Live swatches: **/ui** → Color.
 | Token                | For                                                                                                  |
 | -------------------- | ---------------------------------------------------------------------------------------------------- |
 | `border` (default)   | Hairlines: card edges in dark, panel headers, separators. `*` already has `border-border`            |
-| `field-border`       | Edge of fields, outline buttons and light-mode cards (`surfaceClassName`); transparent in dark       |
+| `field-border`       | Edge of fields and outline buttons; transparent in dark                                              |
 | `field-border-hover` | Their hover                                                                                          |
 | `input`              | Fills of tracks (slider, radio, button-group divider)                                                |
 | `focus-ring`         | Focus halo: `focus-visible:ring-2 focus-visible:ring-focus-ring` + `focus-visible:border-primary/50` |
@@ -152,7 +152,8 @@ color everywhere; don't pick one by index or name.
 
 - Hairline: plain `border` (color comes from `*`). Fields and outline
   buttons: `border-field-border` with `hover:border-field-border-hover`.
-  Cards: `surfaceClassName` (`border-field-border dark:border-border`).
+  Cards: `surfaceClassName` (`border-border`: the same hairline as the
+  dividers inside them, so a card's edge never reads heavier).
 - No `border-foreground/10` style borders; they skip the tint and the dark
   variant.
 
