@@ -1,5 +1,6 @@
 "use client"
 
+import { webkitStill } from "@/shared/lib/motion"
 import { projectHref } from "@/shared/lib/url-params"
 import { EASE_OUT_CSS } from "@/shared/lib/motion"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
@@ -312,7 +313,7 @@ export function ProjectKanban({
           {t("kanbanArchived", { n: archived })} · {t("kanbanArchivedHint")}
         </p>
       )}
-      <DragOverlay dropAnimation={DROP_ANIMATION}>
+      <DragOverlay dropAnimation={webkitStill() ? null : DROP_ANIMATION}>
         {active ? <LiftedCard project={active} /> : null}
       </DragOverlay>
     </DndContext>

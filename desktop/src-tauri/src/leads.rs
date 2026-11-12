@@ -110,6 +110,27 @@ fn hide_all_but(app: &AppHandle, keep: Option<&str>) {
     }
 }
 
+/// Site views kept loaded at most (each is a WebKit process; Gmail and
+/// Telegram are heavy). The sign-in lives in WebKit's store, not the view,
+/// so a closed one opens signed in again.
+const KEEP: usize = 3;
+
+/// `shown` becomes the most recent; views past KEEP are closed.
+fn keep_recent(app: &AppHandle, shown: &str) {
+    use std::sync::Mutex;
+    static RECENT: Mutex<Vec<String>> = Mutex::new(Vec::new());
+    let Ok(mut recent) = RECENT.lock() else { return };
+    recent.retain(|l| l != shown);
+    recent.insert(0, shown.to_string());
+    while recent.len() > KEEP {
+        if let Some(old) = recent.pop() {
+            if let Some(view) = app.get_webview(&old) {
+                let _ = view.close();
+            }
+        }
+    }
+}
+
 /// Shows the site `id` (`url`, https only) at the given rect of the app
 /// window (CSS pixels from the window's top left), making its web view on
 /// first use; every other lead is hidden.
@@ -128,6 +149,7 @@ pub fn lead_show(
 ) -> Result<(), String> {
     let target = label(&id);
     hide_all_but(&app, Some(&target));
+    keep_recent(&app, &target);
     let position = LogicalPosition::new(x.max(0.0), y.max(0.0));
     let size = LogicalSize::new(width.max(1.0), height.max(1.0));
     let corners = (radius.unwrap_or(0.0), round_left.unwrap_or(false));

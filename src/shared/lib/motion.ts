@@ -59,3 +59,13 @@ export const ARRIVAL: Record<"stagger" | "icon" | "rise", Variants> = {
     },
   },
 }
+
+/**
+ * WebKit (Kretya Flow for Mac, Safari): macOS 27.3 beta's WebKit misplaces
+ * composited layers when they come and go, so motion there is off: CSS
+ * (globals.css, the same `font: -apple-system-body` test) and JS alike
+ * (Motion's m.*, View Transitions, dnd-kit's drop). Lift once macOS ships
+ * the fix (WebKit bug 327003).
+ */
+export const webkitStill = () =>
+  typeof CSS !== "undefined" && CSS.supports("font: -apple-system-body")

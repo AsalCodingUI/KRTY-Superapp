@@ -1,5 +1,6 @@
 "use client"
 
+import { webkitStill } from "@/shared/lib/motion"
 import { PRIORITY_LABEL, priorityOf, TaskPriorityIcon } from "./TaskPriority"
 import { assigneesOf } from "./assignees"
 import { AssigneeStack } from "./AssigneeStack"
@@ -316,7 +317,7 @@ export function TaskBoard({
           />
         ))}
       </div>
-      <DragOverlay dropAnimation={DROP_ANIMATION}>
+      <DragOverlay dropAnimation={webkitStill() ? null : DROP_ANIMATION}>
         {active ? (
           <LiftedCard>
             <TaskCard

@@ -1,5 +1,6 @@
 "use client"
 
+import { useIsMobile } from "@/hooks/use-mobile"
 import { siteConfig } from "@/app/siteConfig"
 import { FloatingTabBar } from "@/components/floating-tab-bar"
 import { LanguageSwitcher } from "@/components/language-switcher"
@@ -61,6 +62,14 @@ const TABS = [
 ] as const
 
 export function MobileNav() {
+  // Phones only: from md up it was hidden by CSS yet still mounted (Motion's
+  // layout features and a measurement on every navigation).
+  const isMobile = useIsMobile()
+  if (!isMobile) return null
+  return <MobileNavBar />
+}
+
+function MobileNavBar() {
   const t = useT("nav")
   const tc = useT("common")
   const pathname = usePathname()

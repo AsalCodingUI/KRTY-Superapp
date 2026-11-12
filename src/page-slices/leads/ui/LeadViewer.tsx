@@ -13,17 +13,29 @@ import { useEffect, useRef, useState } from "react"
 import { hideLeads, inApp, showLead, snapshotLead } from "../lib/desktop"
 import { hostOf, useLeadSites } from "../model/data"
 
-/** Overlays the native view would cover (it's always on top of the
- *  page): it steps aside while one of them overlaps it. */
+/** Small overlays the native view would cover (it's always on top of the
+ *  page): it steps aside while one of them overlaps it, a picture of the
+ *  site in its place. */
 const OVERLAYS = [
   '[data-slot="tooltip-content"]',
-  '[data-slot="dialog-content"]',
-  '[data-slot="sheet-content"]',
   '[data-slot="popover-content"]',
   '[data-slot="dropdown-menu-content"]',
   '[data-slot="select-content"]',
+  '[data-slot="sheet-content"]',
+  '[data-slot="side-panel"]',
   "[data-ctxmenu-popup]",
   '[role="menu"]',
+  "[data-sonner-toast]",
+].join(",")
+
+/** Modals (⌘K, settings, confirms, the lightbox, any backdrop): the view
+ *  goes at once and no picture stays under them (WebKit didn't blur it
+ *  behind ⌘K's glass, and the site kept clicks until the picture came). */
+const MODALS = [
+  '[role="dialog"][aria-modal="true"]',
+  '[data-slot="dialog-content"]',
+  '[role="alertdialog"]',
+  '[data-slot$="-overlay"]',
 ].join(",")
 
 /**
@@ -55,7 +67,7 @@ export function LeadViewer({ id }: { id: string }) {
     const el = area.current
     if (!el) return
     let frame = 0
-    let covered = false
+    let covered: false | "small" | "modal" = false
     const place = () => {
       cancelAnimationFrame(frame)
       frame = requestAnimationFrame(async () => {
@@ -88,9 +100,18 @@ export function LeadViewer({ id }: { id: string }) {
     sizes.observe(el)
     window.addEventListener("resize", place)
     let check = 0
-    const overlays = new MutationObserver(() => {
+    const recheck = () => {
       cancelAnimationFrame(check)
       check = requestAnimationFrame(() => {
+        // A modal anywhere: the view goes now, no picture.
+        if (document.querySelector(MODALS)) {
+          if (covered !== "modal") {
+            covered = "modal"
+            setShot(null)
+            void hideLeads()
+          }
+          return
+        }
         // Only what lies over the site (a tooltip by the rail, a menu in
         // the sidebar don't).
         const box = el.getBoundingClientRect()
@@ -104,13 +125,19 @@ export function LeadViewer({ id }: { id: string }) {
             o.top < box.bottom
           )
         })
-        if (over === covered) return
-        covered = over
+        const next = over ? "small" : false
+        if (next === covered) return
+        covered = next
         if (over) {
           // The picture first, then the view out of the way.
           void snapshotLead(site.id).then((url) => {
+            // Closed again before the picture came: drop it.
+            if (covered !== "small") {
+              if (url) URL.revokeObjectURL(url)
+              return
+            }
             if (url) setShot(url)
-            if (covered) void hideLeads()
+            void hideLeads()
           })
         } else {
           place()
@@ -118,8 +145,21 @@ export function LeadViewer({ id }: { id: string }) {
           window.setTimeout(() => setShot(null), 120)
         }
       })
+    }
+    const overlays = new MutationObserver(recheck)
+    // Opened, closed or moved (popovers reposition through style).
+    overlays.observe(document.body, {
+      childList: true,
+      subtree: true,
+      attributes: true,
+      attributeFilter: ["data-open", "data-closed", "style"],
     })
-    overlays.observe(document.body, { childList: true, subtree: true })
+    // Back from a hidden window (closed to the menu bar, another Space).
+    const back = () => {
+      if (document.visibilityState === "visible") place()
+    }
+    window.addEventListener("focus", place)
+    document.addEventListener("visibilitychange", back)
     place()
     return () => {
       cancelAnimationFrame(frame)
@@ -127,6 +167,8 @@ export function LeadViewer({ id }: { id: string }) {
       sizes.disconnect()
       overlays.disconnect()
       window.removeEventListener("resize", place)
+      window.removeEventListener("focus", place)
+      document.removeEventListener("visibilitychange", back)
       void hideLeads()
       setShot(null)
     }

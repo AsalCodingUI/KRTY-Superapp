@@ -32,7 +32,7 @@ SidebarProvider  bg-chrome h-svh flex-col                      (tinted chrome)
 ├─ AppTopbar      phones only (56px): brand · bell · account. Mac: 52px strip,
 │                  traffic lights + sidebar toggle + the tab row
 ├─ row            md:pr-2 md:pb-2 (Mac md:pr-1.5 md:pb-1.5)
-│  ├─ AppSidebar  18rem (resizable, min 248px), icon 3.75rem, hidden < md
+│  ├─ AppSidebar  18rem (resizable, min 248px), rail 3.25rem (52px), hidden < md
 │  │  header: brand · workspace tabs + bell · search (outline pill)
 │  │  bottom: notices · What's new · Settings · account · theme / chrome color
 │  └─ column
@@ -61,8 +61,8 @@ inside it (see overlay.md).
   `TabNavigation`, `StatStrip`, a filter/search row (`pt-4 pb-3`), the
   content. Full width on the gutter; no `mx-auto max-w-*` page container
   (documents in dialogs read at `max-w-3xl`).
-- One `h1` per page and it is `PageHeader`'s (`text-2xl font-normal
-tracking-tight text-heading`). No description under the title
+- One `h1` per page and it is `PageHeader`'s (`text-sm font-medium`, in a
+  32px row: the panel's "Kantor" size and level). No description under the title
   (`description` is deprecated and ignored).
 - Back: `back={{ href, label }}` (or `onClick`) — a square outline
   `icon-sm` ← with a "Kembali ke …" tooltip. Use it on detail pages that
@@ -71,20 +71,18 @@ tracking-tight text-heading`). No description under the title
   (`Button` default variant), icon buttons with a `Tooltip`.
 - Don't add bottom padding to the page root; the layout gives `pb-6`
   (and room for the tab bar on phones).
-- Same padding on every page: the first thing (title, tabs or toolbar)
-  sits 48px below the sheet's top (sheet `md:pt-6` + `pt-6`), the sides
+- Same padding on every page: the title row sits 12px below the sheet's
+  top (the sheet's `md:pt-3`), level with the panel's "Kantor"; the sides
   are the gutter, and the last block ends 24px above the sheet's bottom
   (the layout's `pb-6` only). No `pb-*` on the last block either (a
   `pb-4` wrapper around the list or grid makes it 40px).
-- A page without a `PageHeader` that fills the sheet (calendar:
-  `CALENDAR_HEIGHT`) starts with `pt-6` too, so its toolbar sits where a
-  title would.
+- A page without a `PageHeader` that fills the sheet (calendar,
+  `data-sheet-fill`) puts its first bar where a title row would (12px down).
 
 **Gutter and bleed**
 
 - `--page-gutter`: 1.25rem on phones (never under `--bleed` 0.75rem), 1.5rem
-  (24px, the list | detail panes' edge) from md;
-  2.5rem from `md`, 4rem from `xl`, each minus the scrollbar width
+  (24px, the list | detail panes' edge) from md, minus the scrollbar width
   (`--sbw`), set once on `SidebarInset`. Use `gutter-x`; never hard-code
   `px-10` on a page.
 - Bands that overhang (stat strip, tab line) use `bleed gutter-x`:
@@ -155,7 +153,7 @@ tabular-nums`, `RollingValue`), side by side `gap-x-10`, `py-4`, no
 | < 640 (`sm`)  | Dialogs become bottom sheets; dialog widths apply from `sm:`                                                                            |
 | < 768 (`md`)  | No sidebar, no breadcrumb row; `MobileNav` tab bar; page sheet rounded on top only (`max-md:rounded-t-3xl max-md:pt-2`); gutter 1.25rem |
 | ≥ 1024 (`lg`) | Docked side panels (My notes) leave the flow and float right                                                                            |
-| ≥ 1280 (`xl`) | Gutter 4rem                                                                                                                             |
+| ≥ 1280 (`xl`) | Gutter 24px (as md)                                                                                                                             |
 
 - Phones get a reduced app: the tab bar (today, my tasks, calendar,
   leave) and pages reached from links. Mark desktop-only entries

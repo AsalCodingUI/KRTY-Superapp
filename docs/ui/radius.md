@@ -105,7 +105,7 @@ parallel. The container sets it once; children follow.
 | Right sheet / side panel                                        | `rounded-nested` in the page sheet (14px; Mac 4px)                        |
 | Page sheet (web, md+)                                           | `md:rounded-lg` (10px squircled, every corner alike)                     |
 | Page sheet (phone)                                              | `max-md:rounded-t-3xl`                                                    |
-| Page sheet (Mac app, md+)                                       | `md:rounded-[10px]`                                                       |
+| Page sheet (Mac app, md+)                                       | `md:rounded-[14px] md:rounded-br-[10px]` (painted in WebKit)              |
 | Minimal-screen glass card                                       | `rounded-[24px]` (`MinimalCard`)                                          |
 | Printed paper (invoice, PDF/docx page)                          | `rounded-[4px]` (not squircled)                                           |
 
@@ -115,8 +115,9 @@ parallel. The container sets it once; children follow.
 cookie says `mac` (Windows keeps the web's):
 
 - The page sheet sits 6px in from the window on web and Mac (`md:pr-1.5 md:pb-1.5`)
-  with `md:rounded-[10px]`: the macOS window corner is 16pt, 16 − 6 = 10,
-  the nested rule applied to the window itself.
+  with 14px corners (ChatGPT's) and 10px at the bottom right, where the
+  16pt window corner is 6px away (16 − 6 = 10). In WebKit the scroller's
+  corners are painted, not clipped (globals.css, `--sheet-*`).
 - Right sheets (from md) and `[data-slot="side-panel"]` (from lg) sit
   `right/bottom: 14px` (6 + 8) with `--nest-r: calc(10px * --corner-k)`;
   `rounded-nested` then floors at 4px.

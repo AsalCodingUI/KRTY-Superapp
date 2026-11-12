@@ -43,7 +43,7 @@ Tailwind's line-heights come with each size. px = font size / line height.
 | --------------------------------------------- | ---------------------------------------------------------------------------- | ---------- |
 | Document title (policy, What's New)           | `text-heading text-4xl leading-tight font-medium tracking-tight`             | 36 / 45    |
 | KPI hero number                               | `text-heading text-5xl leading-none font-normal tracking-tight tabular-nums` | 48 / 48    |
-| Page title (`PageHeader`)                     | `text-heading text-2xl font-normal tracking-tight` + `truncate`              | 24 / 32    |
+| Page title (`PageHeader`)                     | `text-sm font-medium` + `truncate`, in a 32px row (the panel's "Kantor") | 14 / 20    |
 | Card screen title (brief, public)             | `text-heading text-2xl font-medium tracking-tight text-balance`              | 24 / 32    |
 | Stat value (`StatStrip`, `StatTiles`)         | `text-xl font-normal tracking-tight tabular-nums`                            | 20 / 28    |
 | Heading in a document (md `#`)                | `text-heading text-xl font-medium tracking-tight`                            | 20 / 28    |

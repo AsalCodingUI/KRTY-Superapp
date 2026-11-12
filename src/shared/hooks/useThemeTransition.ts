@@ -3,6 +3,7 @@
 import { useTheme } from "next-themes"
 import { useCallback } from "react"
 import { flushSync } from "react-dom"
+import { webkitStill } from "@/shared/lib/motion"
 
 /**
  * next-themes' useTheme, with setTheme cross-fading light ↔ dark (a View
@@ -17,7 +18,8 @@ export function useThemeTransition() {
       const reduce = window.matchMedia(
         "(prefers-reduced-motion: reduce)",
       ).matches
-      if (!document.startViewTransition || reduce) return set(theme)
+      if (!document.startViewTransition || reduce || webkitStill())
+        return set(theme)
       // The new class has to land inside the callback, so the browser
       // snapshots the old look first and the new one after.
       document.startViewTransition(() => flushSync(() => set(theme)))

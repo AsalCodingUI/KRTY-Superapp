@@ -54,7 +54,7 @@ lightbox and the file viewer. Live examples: **/ui** → Overlay.
 | `dialogWidth.form` (`sm:max-w-[35rem]`, 560px)                   | Standard forms (leave request, project form, calendar)                          |
 | `dialogWidth.detail` (`sm:max-w-2xl`, 672px)                     | Read-mostly details with more content                                           |
 | `bare` + `documentDialogClassName` (5xl, `h-[min(56rem,92svh)]`) | Documents and viewers (report, note, policy, contract, file viewer, What's new) |
-| `searchDialogClassName` (600px, near the top)                    | ⌘K search only (`CommandDialog`): the right-click menu's surface (dark glass, popover corner and shadow) in every theme |
+| `searchDialogClassName` (600px, near the top)                    | ⌘K search only (`CommandDialog`): the right-click menu's surface (dark solid popover fill, popover corner and shadow) in every theme |
 | `AlertDialogContent size="sm"` (`max-w-xs`)                      | Tiny confirm with two equal buttons                                             |
 
 The shell caps height at `calc(100svh-4rem)`; tall content scrolls in the
@@ -108,11 +108,10 @@ own their layout; don't copy them for normal dialogs.
   ⋯ button on the right. Width from content; set `min-w-44` (or
   `min-w-40` for short labels) and nothing else. Destructive items:
   `variant="destructive"`, last, after a `DropdownMenuSeparator`.
-- Menus (dropdown + right-click) look: see-through popover
-  (92% popover + `backdrop-blur-xl` on a `::before` layer, submenus
-  too; the blur sits on its own layer, not on the element with the
-  shadow, because Chrome paints a stale dark patch where one blurred
-  menu's shadow falls on another), group labels
+- Menus (dropdown + right-click) look: a solid popover fill on the
+  popup itself, submenus too (the old 92% glass on a `::before` layer
+  scrolled away with long menus and, in WebKit, let the page show through
+  sharp whenever the blur dropped), group labels
   `text-meta` muted, rows 2px apart, separators inset (`mx-2 my-1.5`,
   `bg-foreground/10`), every plain icon `text-foreground/50` (foreground on focus; icons that set
   their own color, e.g. status glyphs, keep it), the check on the right in

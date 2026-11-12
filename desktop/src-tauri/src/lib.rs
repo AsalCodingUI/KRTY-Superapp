@@ -127,6 +127,8 @@ fn show_app(app: &AppHandle, path: Option<&str>) {
     // window is no longer a "webview window" (get_webview_window is None).
     if let Some(path) = path {
         if let Some(page) = app.get_webview(APP) {
+            // A full navigation runs no page cleanup: put the Leads site away.
+            leads::lead_hide(app.clone());
             let _ = page.navigate(app_link(path));
         }
     }
@@ -191,6 +193,7 @@ fn handle_deep_link(app: &AppHandle, link: &url::Url) {
         .append_pair("token", &token)
         .append_pair("next", "/dashboard");
     if let Some(page) = app.get_webview(APP) {
+        leads::lead_hide(app.clone());
         let _ = page.navigate(target);
     }
     show_app(app, None);
@@ -278,12 +281,12 @@ fn unified_toolbar(window: &WebviewWindow) {
 /// they stay round). AppKit lays them out again on resize and focus
 /// changes, so this runs after those too.
 #[cfg(target_os = "macos")]
-fn inset_traffic_lights(window: &WebviewWindow) {
+fn inset_traffic_lights(ns_window: tauri::Result<*mut std::ffi::c_void>) {
     use objc2::msg_send;
     use objc2::runtime::AnyObject;
     use objc2_foundation::NSRect;
     const LEFT: f64 = 16.0;
-    let Ok(ptr) = window.ns_window() else { return };
+    let Ok(ptr) = ns_window else { return };
     let w = ptr as *mut AnyObject;
     unsafe {
         // NSWindowCloseButton, NSWindowMiniaturizeButton, NSWindowZoomButton
@@ -575,6 +578,11 @@ fn set_theme(app: AppHandle, theme: String) {
     if let Some(w) = app.get_window(APP) {
         let _ = w.set_theme(theme);
     }
+    // AppKit may lay the title bar out again for the new appearance.
+    #[cfg(target_os = "macos")]
+    if let Some(w) = app.get_window(APP) {
+        inset_traffic_lights(w.ns_window());
+    }
 }
 
 /// A macOS notification; clicking it opens the app window, at `path` (a
@@ -849,7 +857,7 @@ pub fn run() {
             #[cfg(target_os = "macos")]
             {
                 unified_toolbar(&main);
-                inset_traffic_lights(&main);
+                inset_traffic_lights(main.ns_window());
                 use window_vibrancy::{
                     apply_vibrancy, NSVisualEffectMaterial, NSVisualEffectState,
                 };
@@ -883,10 +891,12 @@ pub fn run() {
                     leads::fit_page(&page);
                     leads::settle_page(&page);
                     #[cfg(target_os = "macos")]
-                    inset_traffic_lights(&keep);
+                    inset_traffic_lights(keep.ns_window());
                 }
                 #[cfg(target_os = "macos")]
-                WindowEvent::Focused(false) => inset_traffic_lights(&keep),
+                WindowEvent::Focused(false) | WindowEvent::ThemeChanged(_) => {
+                    inset_traffic_lights(keep.ns_window())
+                }
                 _ => {}
             });
 
