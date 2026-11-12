@@ -78,17 +78,13 @@ export function AppTopbar() {
         )}
         data-chrome-dark=""
       >
-        <div
-          className={cn(
-            "flex shrink-0 items-center pl-[5.25rem] transition-[width] duration-200 ease-out motion-reduce:transition-none",
-            // Past the traffic lights; the tabs start over the sheet.
-            "w-[7.75rem]",
-          )}
-        >
+        {/* Past the traffic lights: the toggle, then ‹ › and the tabs right
+            after it, one row centred in the 52pt bar like the lights (the
+            tabs used to sit on the bar's bottom, lower than the rest). */}
+        <div className="flex shrink-0 items-center pr-1 pl-[5.25rem]">
           <SidebarTrigger className="text-muted-foreground" />
         </div>
-        {/* The tabs over the page, their bottom on the sheet's top. */}
-        <div className="flex min-w-0 flex-1 self-end">
+        <div className="flex min-w-0 flex-1 items-center">
           <Suspense>
             <SiteHeader />
           </Suspense>

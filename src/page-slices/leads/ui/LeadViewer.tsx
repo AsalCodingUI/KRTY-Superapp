@@ -13,9 +13,10 @@ import { useEffect, useRef, useState } from "react"
 import { hideLeads, inApp, showLead } from "../lib/desktop"
 import { hostOf, useLeadSites } from "../model/data"
 
-/** Overlays that open over the sheet: the native view would cover them,
- *  so it steps aside while one is open. */
+/** Overlays the native view would cover (it's always on top of the
+ *  page): it steps aside while one of them overlaps it. */
 const OVERLAYS = [
+  '[data-slot="tooltip-content"]',
   '[data-slot="dialog-content"]',
   '[data-slot="sheet-content"]',
   '[data-slot="popover-content"]',
@@ -56,12 +57,25 @@ export function LeadViewer({ id }: { id: string }) {
       frame = requestAnimationFrame(async () => {
         if (covered) return
         const r = el.getBoundingClientRect()
+        // The sheet's corner: its wrapper's radius (a squircle there, so a
+        // touch less on macOS's continuous curve). The left corners round
+        // too when the panel is folded (the view starts at the sheet's
+        // edge then).
+        const sheet = el.closest("[data-paper]")?.parentElement
+        const sheetBox = sheet?.getBoundingClientRect()
+        const css = sheet
+          ? parseFloat(getComputedStyle(sheet).borderTopRightRadius) || 0
+          : 0
+        const squircle =
+          typeof CSS !== "undefined" && CSS.supports("corner-shape", "squircle")
         setNative(
           await showLead(site.id, site.url, {
             x: r.left,
             y: r.top,
             width: r.width,
             height: r.height,
+            radius: squircle ? css / 1.53 : css,
+            roundLeft: sheetBox ? Math.abs(r.left - sheetBox.left) < 2 : false,
           }),
         )
       })
@@ -73,7 +87,19 @@ export function LeadViewer({ id }: { id: string }) {
     const overlays = new MutationObserver(() => {
       cancelAnimationFrame(check)
       check = requestAnimationFrame(() => {
-        const over = Boolean(document.querySelector(OVERLAYS))
+        // Only what lies over the site (a tooltip by the rail, a menu in
+        // the sidebar don't).
+        const box = el.getBoundingClientRect()
+        const over = [...document.querySelectorAll(OVERLAYS)].some((node) => {
+          const o = node.getBoundingClientRect()
+          return (
+            o.width > 0 &&
+            o.right > box.left &&
+            o.left < box.right &&
+            o.bottom > box.top &&
+            o.top < box.bottom
+          )
+        })
         if (over === covered) return
         covered = over
         if (over) void hideLeads()

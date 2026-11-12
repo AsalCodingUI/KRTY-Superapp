@@ -14,7 +14,15 @@ export const inApp = () => Boolean(tauri())
 export async function showLead(
   id: string,
   url: string,
-  rect: { x: number; y: number; width: number; height: number },
+  rect: {
+    x: number
+    y: number
+    width: number
+    height: number
+    /** The sheet's corner radius (px), and whether the left corners too. */
+    radius?: number
+    roundLeft?: boolean
+  },
 ): Promise<boolean> {
   const t = tauri()
   if (!t) return false
@@ -26,6 +34,8 @@ export async function showLead(
       y: Math.round(rect.y),
       width: Math.round(rect.width),
       height: Math.round(rect.height),
+      radius: rect.radius ?? 0,
+      roundLeft: rect.roundLeft ?? false,
     })
     return true
   } catch {

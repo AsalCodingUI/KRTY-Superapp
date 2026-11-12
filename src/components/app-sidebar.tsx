@@ -165,7 +165,8 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   // Active projects, each opening in place to its pages.
   const projectTree = useProjectTree()
   // Leads' sites (its panel), loaded only while Leads is open.
-  const leadTree = useLeadTree(active?.id === "leads")
+  const leadsOpen = active?.id === "leads"
+  const leadTree = useLeadTree(leadsOpen)
 
   // The top block, for whoever can open each page.
   const topItems = React.useMemo(() => {
@@ -264,6 +265,16 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         ))}
       </SidebarMenu>
     </SidebarGroup>
+  ) : leadsOpen ? (
+    // Leads: its sites straight away (no fold), then Kelola situs.
+    <>
+      <div className="[&>[data-sidebar=group]]:py-0">
+        <NavMain items={leadTree} />
+      </div>
+      <div className="[&>[data-sidebar=group]]:py-0">
+        <NavMain items={navItems} />
+      </div>
+    </>
   ) : (
     <>
       <div className="[&>[data-sidebar=group]]:py-0">
@@ -277,17 +288,6 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         >
           <div className="[&>[data-sidebar=group]]:py-0">
             <NavMain items={projectTree} />
-          </div>
-        </NavSection>
-      )}
-      {active?.id === "leads" && leadTree.length > 0 && (
-        <NavSection
-          label={t("leadsSites")}
-          open={!closed.includes("leads")}
-          onToggle={() => toggleSection("leads")}
-        >
-          <div className="[&>[data-sidebar=group]]:py-0">
-            <NavMain items={leadTree} />
           </div>
         </NavSection>
       )}
@@ -363,11 +363,21 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
       <SidebarHeader
         // px-3: the same 12px edge as the menu rows below. In the sheet,
         // pt-3: 12px from its top edge.
-        className={cn("gap-1 px-3 pb-4", isMobile ? "pt-1.5" : "pt-3")}
+        className={cn(
+          // Leads (its title alone): the sites start right under it.
+          "gap-1 px-3",
+          leadsOpen ? "pb-1" : "pb-4",
+          isMobile ? "pt-1.5" : "pt-3",
+        )}
       >
         {titleRow}
-        <div className="mb-2">{newMenu}</div>
-        <div className="-mx-3">{topBlock}</div>
+        {/* Leads is its sites alone: no + Baru, search or top pages. */}
+        {!leadsOpen && (
+          <>
+            <div className="mb-2">{newMenu}</div>
+            <div className="-mx-3">{topBlock}</div>
+          </>
+        )}
         {/* Phones: Kantor | Project as tabs (the rail is md up). */}
         {isMobile && <WorkspaceTabs className="mt-3" />}
       </SidebarHeader>
