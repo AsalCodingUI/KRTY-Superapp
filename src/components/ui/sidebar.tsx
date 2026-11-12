@@ -813,7 +813,7 @@ function SidebarMenuSubItem({
       data-slot="sidebar-menu-sub-item"
       data-sidebar="menu-sub-item"
       className={cn(
-        "group/menu-sub-item relative pt-0.5 pl-5 before:absolute before:top-0 before:left-0 before:h-1/2 before:w-3 before:rounded-bl-[10px] before:border-b before:border-l before:border-[color-mix(in_oklch,var(--foreground)_11%,var(--sidebar))] after:absolute after:inset-y-0 after:left-0 after:border-l after:border-[color-mix(in_oklch,var(--foreground)_11%,var(--sidebar))] last:after:hidden dark:before:border-[color-mix(in_oklch,var(--foreground)_16%,var(--sidebar))] dark:after:border-[color-mix(in_oklch,var(--foreground)_16%,var(--sidebar))]",
+        "group/menu-sub-item relative pt-0.5 pl-5 before:absolute before:top-0 before:left-0 before:h-[calc(50%+1px)] before:w-3 before:border-b before:border-border after:absolute after:inset-y-0 after:left-0 after:border-l after:border-border last:before:rounded-bl-[8px] last:before:border-l last:after:hidden",
         className,
       )}
       {...props}

@@ -77,9 +77,10 @@ export function AppearancePopover({ className }: { className?: string }) {
             title={t("appearance")}
             className={cn(
               // Plain like the icons beside it: no fill at rest (a standing
-              // fill read as always on), the chrome's wash on hover, its
-              // selected fill while the popover is open.
-              "hover:bg-chrome-hover aria-expanded:bg-chrome-selected text-muted-foreground hover:text-foreground size-8 rounded-full",
+              // fill read as always on). On hover and while open the fill
+              // shows, blended into the chrome (plus-darker / plus-lighter,
+              // fill-ink) so it carries the tint.
+              "fill-ink text-muted-foreground hover:text-foreground size-8 rounded-full before:opacity-0 before:transition-opacity hover:bg-transparent hover:before:opacity-100 aria-expanded:bg-transparent aria-expanded:before:opacity-100",
               className,
             )}
           />
@@ -87,9 +88,13 @@ export function AppearancePopover({ className }: { className?: string }) {
       >
         <span
           aria-hidden
-          className="size-3.5 rounded-full ring-1 ring-black/15 dark:ring-white/20"
+          // relative: above the fill layer.
+          className="relative size-3.5 rounded-full"
           style={{ background: mounted ? tintSwatch(tint) : undefined }}
-        />
+        >
+          {/* The swatch's edge, blended too (not a flat gray ring). */}
+          <span className="blend-ink absolute inset-0 rounded-full ring-1 ring-black/15 dark:ring-white/25" />
+        </span>
       </PopoverTrigger>
       <PopoverContent
         side="top"

@@ -455,7 +455,9 @@ function WorkspaceRail() {
                 tooltip={t(ws.name)}
                 isActive={shown}
                 aria-pressed={shown}
-                className="not-data-active:blend-ink relative"
+                // Ink and fills (hover, the shown one) all blend into the
+                // chrome.
+                className="blend-ink relative"
                 // The one shown folds the panel away; another shows its
                 // pages (opening the panel when it's folded).
                 onClick={() => {
