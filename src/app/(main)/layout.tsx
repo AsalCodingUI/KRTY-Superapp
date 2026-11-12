@@ -47,18 +47,8 @@ const DESKTOP_CSS =
   // near the bottom could otherwise scroll it, sliding the page out from
   // under the Leads web view.
   "html,body{background:transparent;overflow:hidden}" +
-  // The page sheet's corners painted, not clipped: WebKit sometimes drops a
-  // rounded overflow clip's offset (a box at x/y > 0) and cuts the page off
-  // at the right and bottom, so the scroller stays square and its fill
-  // leaves the corners out (the sheet's 10px, as MAC_SHEET_RADIUS).
-  "@media (min-width:768px){[data-paper]{border-radius:0!important;--r:10px;--c:var(--background);" +
-  "background:radial-gradient(circle at 100% 100%,var(--c) calc(var(--r) - .5px),transparent var(--r)) 0 0/var(--r) var(--r) no-repeat," +
-  "radial-gradient(circle at 0 100%,var(--c) calc(var(--r) - .5px),transparent var(--r)) 100% 0/var(--r) var(--r) no-repeat," +
-  "radial-gradient(circle at 100% 0,var(--c) calc(var(--r) - .5px),transparent var(--r)) 0 100%/var(--r) var(--r) no-repeat," +
-  "radial-gradient(circle at 0 0,var(--c) calc(var(--r) - .5px),transparent var(--r)) 100% 100%/var(--r) var(--r) no-repeat," +
-  "linear-gradient(var(--c),var(--c)) 0 var(--r)/100% calc(100% - 2 * var(--r)) no-repeat," +
-  "linear-gradient(var(--c),var(--c)) var(--r) 0/calc(100% - 2 * var(--r)) 100% no-repeat!important}" +
-  ".dark [data-paper]{--c:var(--surface)}}" +
+  // The sheet's corner (painted in WebKit, globals.css): the window's.
+  ':root [data-paper]{--sheet-r:10px}' +
   // A light wash of the chrome over the window's blur: mostly see-through.
   '[data-slot="sidebar-wrapper"]{background-color:color-mix(in oklab,color-mix(in oklab,#fff 55%,var(--chrome)) 30%,transparent)}' +
   '.dark [data-slot="sidebar-wrapper"]{background-color:color-mix(in oklab,var(--chrome) 25%,transparent)}' +

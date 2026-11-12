@@ -19,10 +19,13 @@ export function GET(request: Request) {
       ? rawNext
       : "/dashboard"
   const response = NextResponse.redirect(`${origin}${next}`)
-  // The Windows app keeps its own title bar (and the web layout).
-  const shell = /Windows/.test(request.headers.get("user-agent") ?? "")
-    ? "windows"
-    : "mac"
+  // The Windows app, and Mac builds from 0.4 (shell=plain: a plain
+  // window), keep their own title bar and the web layout; older Mac builds
+  // draw the page under a see-through title bar ("mac").
+  const plain =
+    url.searchParams.get("shell") === "plain" ||
+    /Windows/.test(request.headers.get("user-agent") ?? "")
+  const shell = plain ? "windows" : "mac"
   response.cookies.set(DESKTOP_SHELL_COOKIE, shell, {
     path: "/",
     maxAge: 60 * 60 * 24 * 365,

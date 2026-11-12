@@ -1224,6 +1224,32 @@
   }
 }
 
+/* WebKit (Safari, Kretya Flow on macOS 27) sometimes drops the offset of
+   a rounded overflow clip on a box away from the page's origin and paints
+   the content cut off at the right and bottom by exactly that box's x/y.
+   So there the page sheet's scroller stays square and its fill leaves the
+   corners out (the sheet's radius, --sheet-r); the wrapper around it never
+   clips (components/page-sheet.tsx). Only WebKit knows this font keyword. */
+@supports (font: -apple-system-body) {
+  @media (min-width: 768px) {
+    [data-paper] {
+      --sheet-r: var(--radius-lg);
+      --sheet-c: var(--background);
+      border-radius: 0 !important;
+      background:
+        radial-gradient(circle at 100% 100%, var(--sheet-c) calc(var(--sheet-r) - 0.5px), transparent var(--sheet-r)) 0 0 / var(--sheet-r) var(--sheet-r) no-repeat,
+        radial-gradient(circle at 0 100%, var(--sheet-c) calc(var(--sheet-r) - 0.5px), transparent var(--sheet-r)) 100% 0 / var(--sheet-r) var(--sheet-r) no-repeat,
+        radial-gradient(circle at 100% 0, var(--sheet-c) calc(var(--sheet-r) - 0.5px), transparent var(--sheet-r)) 0 100% / var(--sheet-r) var(--sheet-r) no-repeat,
+        radial-gradient(circle at 0 0, var(--sheet-c) calc(var(--sheet-r) - 0.5px), transparent var(--sheet-r)) 100% 100% / var(--sheet-r) var(--sheet-r) no-repeat,
+        linear-gradient(var(--sheet-c), var(--sheet-c)) 0 var(--sheet-r) / 100% calc(100% - 2 * var(--sheet-r)) no-repeat,
+        linear-gradient(var(--sheet-c), var(--sheet-c)) var(--sheet-r) 0 / calc(100% - 2 * var(--sheet-r)) 100% no-repeat !important;
+    }
+    .dark [data-paper] {
+      --sheet-c: var(--surface);
+    }
+  }
+}
+
 /* A Leads site lies over the sheet as a native window (Kretya Flow): the
    panel's resize grip, which straddles the panel's edge, would be half
    under it. There the grip keeps to the panel's side, its line on the

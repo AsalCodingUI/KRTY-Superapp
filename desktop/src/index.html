@@ -65,8 +65,9 @@
           const ctl = new AbortController()
           setTimeout(() => ctl.abort(), 8000)
           await fetch(APP + "/login", { mode: "no-cors", signal: ctl.signal })
-          // Through /auth/desktop-shell, which marks this as the app.
-          location.replace(APP + "/auth/desktop-shell?next=" + encodeURIComponent(TO))
+          // Through /auth/desktop-shell, which marks this as the app (a plain
+          // window: the web layout, as on Windows).
+          location.replace(APP + "/auth/desktop-shell?shell=plain&next=" + encodeURIComponent(TO))
         } catch {
           spin.hidden = true
           down.hidden = false

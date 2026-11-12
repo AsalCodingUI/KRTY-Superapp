@@ -256,23 +256,6 @@ fn web_window<'a>(
     })
 }
 
-/// An empty unified toolbar: macOS then lays the traffic lights out the
-/// standard way for a window with a toolbar (inset, centred in a 52pt bar,
-/// full size), instead of nudging them by hand, which clips them.
-#[cfg(target_os = "macos")]
-fn unified_toolbar(window: &WebviewWindow) {
-    use objc2::{MainThreadMarker, MainThreadOnly};
-    use objc2_app_kit::{NSToolbar, NSWindow, NSWindowToolbarStyle};
-    let (Ok(ptr), Some(mtm)) = (window.ns_window(), MainThreadMarker::new()) else {
-        return;
-    };
-    // SAFETY: Tauri hands out the window's NSWindow, on the main thread.
-    let ns_window = unsafe { &*(ptr as *const NSWindow) };
-    let toolbar = NSToolbar::init(NSToolbar::alloc(mtm));
-    ns_window.setToolbar(Some(&toolbar));
-    ns_window.setToolbarStyle(NSWindowToolbarStyle::Unified);
-}
-
 /// The blur fills the whole window by default; keep it to the panel, so the
 /// shadow margin around it stays clear.
 #[cfg(target_os = "macos")]
@@ -797,33 +780,12 @@ pub fn run() {
                 .min_inner_size(960.0, 640.0)
                 .center()
                 .visible(false);
-            // No title bar of its own: the page runs up to the top and the
-            // traffic lights sit in the web app's top bar (see
-            // unified_toolbar and SHELL_SCRIPT); see-through, over the
-            // native sidebar blur (the page itself stays solid). Windows
-            // keeps its own title bar, and the web app its web layout.
-            #[cfg(target_os = "macos")]
-            let main = main
-                .title_bar_style(tauri::TitleBarStyle::Overlay)
-                .hidden_title(true)
-                .transparent(true);
+            // A plain window on every platform: the OS's own title bar and
+            // an opaque page, the web app in its web layout (as on Windows).
+            // macOS 27's WebKit painted a see-through window over the
+            // native blur (an overlay title bar, a unified toolbar) cut off
+            // at the right and bottom, even in builds that ran fine before.
             let main = main.build()?;
-            #[cfg(target_os = "macos")]
-            {
-                unified_toolbar(&main);
-                use window_vibrancy::{
-                    apply_vibrancy, NSVisualEffectMaterial, NSVisualEffectState,
-                };
-                // The most see-through material (it follows light / dark),
-                // kept live when the window isn't focused: the inactive
-                // state turns it a flat grey.
-                let _ = apply_vibrancy(
-                    &main,
-                    NSVisualEffectMaterial::UnderWindowBackground,
-                    Some(NSVisualEffectState::Active),
-                    None,
-                );
-            }
             // The page fills the window, sized by AppKit (see fit_page).
             leads::fit_page(app.handle());
             // Closing it keeps KRTY running in the menu bar.
