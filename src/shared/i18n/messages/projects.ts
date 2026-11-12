@@ -370,6 +370,8 @@ const id = {
   notesNew: "Catatan baru",
   notesSearch: "Cari catatan…",
   notesSheetTitle: "Catatan",
+  notesCount: "{n} catatan",
+  notesLastEdited: "Terakhir diubah {date}",
   // Someone else's notes, opened from "Lihat sebagai".
   notesReadOnly: "Hanya lihat",
   notesColNote: "Catatan",
@@ -907,6 +909,8 @@ const en: Record<keyof typeof id, string> = {
   notesNew: "New note",
   notesSearch: "Search notes…",
   notesSheetTitle: "Note",
+  notesCount: "{n} notes",
+  notesLastEdited: "Last edited {date}",
   notesReadOnly: "View only",
   notesColNote: "Note",
   notesColEdited: "Edited",
