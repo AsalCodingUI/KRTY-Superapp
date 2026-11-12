@@ -32,10 +32,11 @@ export const documentDialogClassName =
 
 /** ⌘K search: the one search size, near the top so results grow down. */
 // The same surface as the right-click menu (ContextMenuProvider POPUP):
-// dark in every theme, see-through popover glass, the popover shadow and
-// corner, so the two read as one family.
+// dark in every theme, see-through popover glass (the blur on the dialog
+// itself: on a pseudo-element it didn't reach the page behind), the
+// popover shadow and corner, so the two read as one family.
 export const searchDialogClassName =
-  "dark [color-scheme:dark] isolate top-[14vh] flex max-h-[min(560px,76svh)] translate-y-0 flex-col overflow-hidden bg-transparent p-0 text-popover-foreground shadow-popover sm:max-w-[600px] sm:rounded-popover! before:pointer-events-none before:absolute before:inset-0 before:-z-10 before:rounded-[inherit] before:bg-popover/92 before:backdrop-blur-xl before:backdrop-saturate-150"
+  "dark [color-scheme:dark] isolate top-[14vh] flex max-h-[min(560px,76svh)] translate-y-0 flex-col overflow-hidden bg-popover/88 backdrop-blur-xl backdrop-saturate-150 p-0 text-popover-foreground shadow-popover sm:max-w-[600px] sm:rounded-popover!"
 
 // The body scrolls, so it keeps 4px below its last field (and nested scroll
 // wrappers get 4px all round) so focus rings are not clipped by the overflow.

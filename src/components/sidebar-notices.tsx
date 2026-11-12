@@ -106,7 +106,8 @@ export function SidebarNoticeCard({
           "pointer-events-none flex size-7 shrink-0 items-center justify-center rounded-full [&_svg]:size-4",
           tone === "accent"
             ? "bg-primary text-primary-foreground"
-            : "bg-background text-foreground shadow-control dark:bg-white/10",
+            : // Outline only, like the keys: no fill, no shadow.
+              "text-foreground border border-black/10 dark:border-white/15",
         )}
       >
         {icon}

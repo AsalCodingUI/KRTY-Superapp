@@ -75,10 +75,10 @@ export function GlobalSearch({ className }: { className?: string }) {
         <RiSearchLine />
         <span className="truncate">{tc("search")}</span>
         <KbdGroup className="ml-auto group-data-[collapsible=icon]:hidden">
-          <Kbd className="bg-chrome-field rounded-full">
+          <Kbd className="rounded-full">
             {isMac ? "⌘" : "Ctrl"}
           </Kbd>
-          <Kbd className="bg-chrome-field rounded-full">K</Kbd>
+          <Kbd className="rounded-full">K</Kbd>
         </KbdGroup>
       </SidebarMenuButton>
       {dialog}
