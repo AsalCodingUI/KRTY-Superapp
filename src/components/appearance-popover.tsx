@@ -76,7 +76,10 @@ export function AppearancePopover({ className }: { className?: string }) {
             aria-label={t("appearance")}
             title={t("appearance")}
             className={cn(
-              "fill-ink hover:bg-chrome-hover text-muted-foreground hover:text-foreground aria-expanded:bg-chrome-active aria-expanded:shadow-raised size-8 rounded-full aria-expanded:before:opacity-0",
+              // Plain like the icons beside it: no fill at rest (a standing
+              // fill read as always on), the chrome's wash on hover, its
+              // selected fill while the popover is open.
+              "hover:bg-chrome-hover aria-expanded:bg-chrome-selected text-muted-foreground hover:text-foreground size-8 rounded-full",
               className,
             )}
           />
