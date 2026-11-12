@@ -1,6 +1,7 @@
 "use client"
 
 import { EmptyState } from "@/components/empty-state"
+import { useBreadcrumbs } from "@/components/page-breadcrumbs"
 import { ProjectAvatar } from "@/components/project-avatar"
 import { sheetFillClassName } from "@/components/split-pane"
 import { Button } from "@/components/ui/button"
@@ -38,6 +39,8 @@ export function LeadViewer({ id }: { id: string }) {
   const { profile } = useUserProfile()
   const { data: sites, isLoading, isError } = useLeadSites(profile?.id)
   const site = sites?.find((s) => s.id === id)
+  // The tab is named after the site (not Kelola situs, the /leads row).
+  useBreadcrumbs(site ? [{ label: site.name }] : [])
   const area = useRef<HTMLDivElement>(null)
   // null: not tried yet; false: a browser, or an app build without Leads.
   const [native, setNative] = useState<boolean | null>(null)

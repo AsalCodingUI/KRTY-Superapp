@@ -31,6 +31,21 @@ fn label(id: &str) -> String {
     format!("{PREFIX}{safe}")
 }
 
+/// The app's own page, the whole window. With child web views enabled
+/// (Tauri's "unstable" multi-webview) the page no longer follows the window
+/// by itself: after a resize (or macOS restoring the window's last size) it
+/// came out cut off on the right and bottom.
+pub fn fit_page(app: &AppHandle) {
+    let (Some(window), Some(page)) = (app.get_window(crate::APP), app.get_webview(crate::APP))
+    else {
+        return;
+    };
+    if let (Ok(size), Ok(scale)) = (window.inner_size(), window.scale_factor()) {
+        let _ = page.set_position(LogicalPosition::new(0.0, 0.0));
+        let _ = page.set_size(size.to_logical::<f64>(scale));
+    }
+}
+
 fn hide_all_but(app: &AppHandle, keep: Option<&str>) {
     for (name, view) in app.webviews() {
         if name.starts_with(PREFIX) && Some(name.as_str()) != keep {
@@ -89,6 +104,7 @@ pub fn lead_show(
         .add_child(builder, position, size)
         .map_err(|e| e.to_string())?;
     round(&view, corners);
+    fit_page(&app);
     Ok(())
 }
 
