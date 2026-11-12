@@ -273,6 +273,44 @@ fn unified_toolbar(window: &WebviewWindow) {
     ns_window.setToolbarStyle(NSWindowToolbarStyle::UnifiedCompact);
 }
 
+/// The traffic lights 16pt in (ChatGPT's) instead of the compact toolbar's
+/// 12pt: only moved sideways, keeping AppKit's size, spacing and height (so
+/// they stay round). AppKit lays them out again on resize and focus
+/// changes, so this runs after those too.
+#[cfg(target_os = "macos")]
+fn inset_traffic_lights(window: &WebviewWindow) {
+    use objc2::msg_send;
+    use objc2::runtime::AnyObject;
+    use objc2_foundation::NSRect;
+    const LEFT: f64 = 16.0;
+    let Ok(ptr) = window.ns_window() else { return };
+    let w = ptr as *mut AnyObject;
+    unsafe {
+        // NSWindowCloseButton, NSWindowMiniaturizeButton, NSWindowZoomButton
+        let buttons: Vec<*mut AnyObject> = [0usize, 1, 2]
+            .into_iter()
+            .map(|kind| msg_send![w, standardWindowButton: kind])
+            .collect();
+        let Some(&close) = buttons.first() else { return };
+        if close.is_null() {
+            return;
+        }
+        let first: NSRect = msg_send![close, frame];
+        let shift = LEFT - first.origin.x;
+        if shift.abs() < 0.5 {
+            return;
+        }
+        for button in buttons {
+            if button.is_null() {
+                continue;
+            }
+            let mut f: NSRect = msg_send![button, frame];
+            f.origin.x += shift;
+            let _: () = msg_send![button, setFrameOrigin: f.origin];
+        }
+    }
+}
+
 /// The blur fills the whole window by default; keep it to the panel, so the
 /// shadow margin around it stays clear.
 #[cfg(target_os = "macos")]
@@ -811,6 +849,7 @@ pub fn run() {
             #[cfg(target_os = "macos")]
             {
                 unified_toolbar(&main);
+                inset_traffic_lights(&main);
                 use window_vibrancy::{
                     apply_vibrancy, NSVisualEffectMaterial, NSVisualEffectState,
                 };
@@ -843,7 +882,11 @@ pub fn run() {
                 | WindowEvent::Focused(true) => {
                     leads::fit_page(&page);
                     leads::settle_page(&page);
+                    #[cfg(target_os = "macos")]
+                    inset_traffic_lights(&keep);
                 }
+                #[cfg(target_os = "macos")]
+                WindowEvent::Focused(false) => inset_traffic_lights(&keep),
                 _ => {}
             });
 
