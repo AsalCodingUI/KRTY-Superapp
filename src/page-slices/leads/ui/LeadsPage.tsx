@@ -68,8 +68,10 @@ export function LeadsPage() {
   // Viewing as someone: their list, read-only.
   const readOnly = Boolean(isImpersonating)
 
+  // The built-in defaults (no table yet) can't be changed.
+  const builtIn = sites.some((s) => s.builtIn)
   const canEdit = (site: LeadSite) =>
-    !readOnly && (site.studio ? stakeholder : true)
+    !readOnly && !site.builtIn && (site.studio ? stakeholder : true)
 
   const act = async (op: Promise<unknown>) => {
     try {
@@ -84,7 +86,8 @@ export function LeadsPage() {
       <PageHeader
         title={t("manage")}
         actions={
-          !readOnly && (
+          !readOnly &&
+          !builtIn && (
             <Button onClick={() => setEditing({ site: null })}>
               <RiAddLine data-icon="inline-start" />
               {t("addSite")}
@@ -139,7 +142,7 @@ export function LeadsPage() {
                     : t("mine")}
               </Badge>
               <div className="flex shrink-0 items-center gap-0.5">
-                {site.studio && !readOnly && (
+                {site.studio && !readOnly && !site.builtIn && (
                   <RowAction
                     label={site.hidden ? t("show") : t("hide")}
                     onClick={() => act(writer.setHidden(site.id, !site.hidden))}

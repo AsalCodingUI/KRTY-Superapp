@@ -19,11 +19,37 @@ export type LeadSite = LeadSource & {
   studio: boolean
   /** A studio default this person hid. */
   hidden: boolean
+  /** One of BUILT_IN (no table yet): read-only. */
+  builtIn?: boolean
 }
 
 export const LEAD_SITES_KEY = ["lead-sites"] as const
 
 const supabase = () => createClient()
+
+/**
+ * The studio defaults as the migration seeds them, shown read-only until
+ * lead_sources exists (a deploy before the migration, or a local test).
+ */
+const BUILT_IN: LeadSite[] = [
+  ["builtin-gmail", "Gmail", "https://mail.google.com/mail/"],
+  ["builtin-telegram", "Telegram", "https://web.telegram.org/a/"],
+  ["builtin-dribbble", "Dribbble", "https://dribbble.com/"],
+  ["builtin-behance", "Behance", "https://www.behance.net/"],
+].map(([id, name, url], i) => ({
+  id,
+  user_id: null,
+  name,
+  url,
+  position: i + 1,
+  studio: true,
+  hidden: false,
+  builtIn: true,
+}))
+
+/** Postgres' "no such table" (42P01) or PostgREST's (PGRST205). */
+const missingTable = (error: { code?: string } | null) =>
+  error?.code === "42P01" || error?.code === "PGRST205"
 
 async function fetchSites(userId: string): Promise<LeadSite[]> {
   const [sources, hidden] = await Promise.all([
@@ -37,6 +63,7 @@ async function fetchSites(userId: string): Promise<LeadSite[]> {
       .select("source_id")
       .eq("user_id", userId),
   ])
+  if (missingTable(sources.error)) return BUILT_IN
   if (sources.error) throw sources.error
   const hiddenIds = new Set(
     ((hidden.data ?? []) as { source_id: string }[]).map((h) => h.source_id),

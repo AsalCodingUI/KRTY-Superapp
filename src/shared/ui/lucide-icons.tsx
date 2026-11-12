@@ -89,6 +89,7 @@ export const RiGroupLine = A.Users
 export const RiHammerLine = A.Hammer
 export const RiHeartFill = /*#__PURE__*/ filled(A.Heart, "RiHeartFill")
 export const RiHome2Line = A.Home
+export const RiHouseWindowLine = A.HouseWindow
 export const RiInboxLine = A.Inbox
 export const RiInformationLine = A.Info
 export const RiItalic = A.Italic

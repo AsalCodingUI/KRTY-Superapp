@@ -13,12 +13,29 @@ export const metadata = { title: "Kembali ke Kretya Flow" }
  * and hands it back to the app over the krty:// link. The app trades it
  * for its own session at /auth/desktop; the browser's session is untouched.
  */
-export default async function DesktopConnectPage() {
+/** The app's link scheme: krty, or krtydev for a local dev build
+ *  (KRTY_SCHEME), so it doesn't hand the sign-in to the installed app. */
+const SCHEMES = new Set(["krty", "krtydev"])
+
+export default async function DesktopConnectPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ scheme?: string }>
+}) {
+  const { scheme: asked } = await searchParams
+  const scheme = asked && SCHEMES.has(asked) ? asked : "krty"
   const supabase = await createClient()
   const {
     data: { user },
   } = await supabase.auth.getUser()
-  if (!user?.email) redirect("/login?next=/desktop/connect")
+  if (!user?.email)
+    redirect(
+      `/login?next=${encodeURIComponent(
+        scheme === "krty"
+          ? "/desktop/connect"
+          : `/desktop/connect?scheme=${scheme}`,
+      )}`,
+    )
 
   const { data } = await createAdminClient().auth.admin.generateLink({
     type: "magiclink",
@@ -27,7 +44,9 @@ export default async function DesktopConnectPage() {
   const token = data?.properties?.hashed_token
   return (
     <ConnectView
-      link={token ? `krty://auth?token=${encodeURIComponent(token)}` : null}
+      link={
+        token ? `${scheme}://auth?token=${encodeURIComponent(token)}` : null
+      }
     />
   )
 }

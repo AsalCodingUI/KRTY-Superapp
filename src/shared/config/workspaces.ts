@@ -8,7 +8,6 @@ import {
   RiBarChartBoxLine,
   RiBookOpenLine,
   RiBriefcaseLine,
-  RiBuildingLine,
   RiFlowLine,
   RiCalendarCheckLine,
   RiCalendarLine,
@@ -19,6 +18,7 @@ import {
   RiFolderLine,
   RiGroupLine,
   RiHome2Line,
+  RiHouseWindowLine,
   RiInboxLine,
   RiSettings3Line,
   RiUserSmileLine,
@@ -110,7 +110,8 @@ export const workspaces: Workspace[] = [
     // stakeholders (each page decides by role).
     id: "personal",
     name: "workspacePersonal",
-    icon: RiBuildingLine,
+    // A house (Home's, with a window: not Beranda's own icon).
+    icon: RiHouseWindowLine,
     items: (p) => [
       // Stakeholders also manage the team from here.
       ...(isAdmin(p)

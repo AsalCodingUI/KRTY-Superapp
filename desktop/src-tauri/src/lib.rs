@@ -37,6 +37,13 @@ fn app_url() -> &'static str {
     option_env!("KRTY_APP_URL").unwrap_or("https://app.kretyastudio.com")
 }
 
+/// The deep link scheme: krty, or another one for a local dev build
+/// (`KRTY_SCHEME=krtydev`, with its own identifier) so the installed app
+/// doesn't take its sign-in.
+fn scheme() -> &'static str {
+    option_env!("KRTY_SCHEME").unwrap_or("krty")
+}
+
 fn app_link(path_and_query: &str) -> url::Url {
     url::Url::parse(app_url())
         .and_then(|base| base.join(path_and_query))
@@ -104,7 +111,11 @@ fn is_google_sign_in(url: &url::Url) -> bool {
 /// Where a link the app won't open itself goes.
 fn leave_app<R: Runtime>(app: &AppHandle<R>, url: &url::Url) {
     let target = if is_google_sign_in(url) {
-        app_link("/desktop/connect").to_string()
+        if scheme() == "krty" {
+            app_link("/desktop/connect").to_string()
+        } else {
+            app_link(&format!("/desktop/connect?scheme={}", scheme())).to_string()
+        }
     } else {
         url.to_string()
     };
@@ -160,7 +171,7 @@ fn toggle_popover(app: &AppHandle) {
 
 /// krty://auth?token=… : finish signing in (both windows share cookies).
 fn handle_deep_link(app: &AppHandle, link: &url::Url) {
-    if link.scheme() != "krty" || link.host_str() != Some("auth") {
+    if link.scheme() != scheme() || link.host_str() != Some("auth") {
         return;
     }
     let Some(token) = link
@@ -900,7 +911,9 @@ pub fn run() {
                 })
                 .build(app)?;
 
-            app.global_shortcut().register(shortcut)?;
+            // Taken already (another app, or the installed app beside a dev
+            // build): the app still starts, without the shortcut.
+            let _ = app.global_shortcut().register(shortcut);
 
             // Sign-in coming back from the browser.
             let links = app.handle().clone();
