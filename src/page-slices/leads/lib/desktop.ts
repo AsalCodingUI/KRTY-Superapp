@@ -54,3 +54,20 @@ export async function closeLead(id: string) {
     await tauri()?.core.invoke("lead_close", { id })
   } catch {}
 }
+
+/** A picture of the site as it is now (an object URL to a JPEG), to show
+ *  in its place while it's hidden for an overlay; null when unavailable. */
+export async function snapshotLead(id: string): Promise<string | null> {
+  const t = tauri()
+  if (!t) return null
+  try {
+    const bytes = (await t.core.invoke("lead_snapshot", { id })) as
+      | ArrayBuffer
+      | number[]
+    const buffer =
+      bytes instanceof ArrayBuffer ? bytes : new Uint8Array(bytes).buffer
+    return URL.createObjectURL(new Blob([buffer], { type: "image/jpeg" }))
+  } catch {
+    return null
+  }
+}

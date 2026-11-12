@@ -126,6 +126,101 @@ fn round(view: &tauri::Webview, (radius, left): (f64, bool)) {
 #[cfg(not(target_os = "macos"))]
 fn round(_view: &tauri::Webview, _corners: (f64, bool)) {}
 
+/// A picture of the site as it is (a JPEG), for the page to show in its
+/// place while an overlay (a menu, a tooltip, a dialog) needs the view out
+/// of the way: the site looks frozen for a moment instead of gone.
+#[tauri::command]
+pub async fn lead_snapshot(app: AppHandle, id: String) -> Result<tauri::ipc::Response, String> {
+    let view = app
+        .get_webview(&label(&id))
+        .ok_or_else(|| "no such lead".to_string())?;
+    let (tx, rx) = std::sync::mpsc::channel::<Option<Vec<u8>>>();
+    view.with_webview(move |platform| snapshot(platform, tx))
+        .map_err(|e| e.to_string())?;
+    let bytes = tauri::async_runtime::spawn_blocking(move || {
+        rx.recv_timeout(std::time::Duration::from_millis(1500))
+            .ok()
+            .flatten()
+    })
+    .await
+    .map_err(|e| e.to_string())?
+    .ok_or_else(|| "no snapshot".to_string())?;
+    Ok(tauri::ipc::Response::new(bytes))
+}
+
+#[cfg(target_os = "macos")]
+fn snapshot(
+    platform: tauri::webview::PlatformWebview,
+    tx: std::sync::mpsc::Sender<Option<Vec<u8>>>,
+) {
+    use block2::RcBlock;
+    use objc2::msg_send;
+    use objc2::runtime::AnyObject;
+    let web = platform.inner() as *mut AnyObject;
+    if web.is_null() {
+        let _ = tx.send(None);
+        return;
+    }
+    let tx = std::sync::Mutex::new(Some(tx));
+    let done = RcBlock::new(move |image: *mut AnyObject, _error: *mut AnyObject| {
+        let bytes = if image.is_null() {
+            None
+        } else {
+            unsafe { jpeg(image) }
+        };
+        if let Some(tx) = tx.lock().ok().and_then(|mut t| t.take()) {
+            let _ = tx.send(bytes);
+        }
+    });
+    unsafe {
+        let _: () = msg_send![
+            web,
+            takeSnapshotWithConfiguration: std::ptr::null_mut::<AnyObject>(),
+            completionHandler: &*done
+        ];
+    }
+}
+
+/// An NSImage as JPEG bytes (quality 0.75: small and quick, it's only on
+/// screen for a moment).
+#[cfg(target_os = "macos")]
+unsafe fn jpeg(image: *mut objc2::runtime::AnyObject) -> Option<Vec<u8>> {
+    use objc2::runtime::AnyObject;
+    use objc2::{class, msg_send};
+    use objc2_foundation::NSString;
+    let tiff: *mut AnyObject = msg_send![image, TIFFRepresentation];
+    if tiff.is_null() {
+        return None;
+    }
+    let rep: *mut AnyObject = msg_send![class!(NSBitmapImageRep), imageRepWithData: tiff];
+    if rep.is_null() {
+        return None;
+    }
+    let key = NSString::from_str("NSImageCompressionFactor");
+    let quality: *mut AnyObject = msg_send![class!(NSNumber), numberWithDouble: 0.75f64];
+    let props: *mut AnyObject =
+        msg_send![class!(NSDictionary), dictionaryWithObject: quality, forKey: &*key];
+    // NSBitmapImageFileTypeJPEG
+    let data: *mut AnyObject = msg_send![rep, representationUsingType: 3usize, properties: props];
+    if data.is_null() {
+        return None;
+    }
+    let len: usize = msg_send![data, length];
+    let ptr: *const u8 = msg_send![data, bytes];
+    if ptr.is_null() || len == 0 {
+        return None;
+    }
+    Some(std::slice::from_raw_parts(ptr, len).to_vec())
+}
+
+#[cfg(not(target_os = "macos"))]
+fn snapshot(
+    _platform: tauri::webview::PlatformWebview,
+    tx: std::sync::mpsc::Sender<Option<Vec<u8>>>,
+) {
+    let _ = tx.send(None);
+}
+
 /// Hides every lead (the web app left its /leads page, or a dialog opened
 /// over the sheet). They stay loaded.
 #[tauri::command]

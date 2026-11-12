@@ -28,6 +28,7 @@
     "allow-update-install",
     "allow-lead-show",
     "allow-lead-hide",
-    "allow-lead-close"
+    "allow-lead-close",
+    "allow-lead-snapshot"
   ]
 }

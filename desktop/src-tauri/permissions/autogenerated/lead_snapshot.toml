@@ -1,0 +1,11 @@
+# Automatically generated - DO NOT EDIT!
+
+[[permission]]
+identifier = "allow-lead-snapshot"
+description = "Enables the lead_snapshot command without any pre-configured scope."
+commands.allow = ["lead_snapshot"]
+
+[[permission]]
+identifier = "deny-lead-snapshot"
+description = "Denies the lead_snapshot command without any pre-configured scope."
+commands.deny = ["lead_snapshot"]

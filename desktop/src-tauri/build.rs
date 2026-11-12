@@ -21,6 +21,7 @@ fn main() {
             "lead_show",
             "lead_hide",
             "lead_close",
+            "lead_snapshot",
         ]),
     ))
     .expect("failed to run tauri-build");

@@ -10,7 +10,7 @@ import { useUserProfile } from "@/shared/hooks/useUserProfile"
 import { useT } from "@/shared/i18n/client"
 import { RiExternalLinkLine, RiInboxLine } from "@/shared/ui/lucide-icons"
 import { useEffect, useRef, useState } from "react"
-import { hideLeads, inApp, showLead } from "../lib/desktop"
+import { hideLeads, inApp, showLead, snapshotLead } from "../lib/desktop"
 import { hostOf, useLeadSites } from "../model/data"
 
 /** Overlays the native view would cover (it's always on top of the
@@ -41,6 +41,9 @@ export function LeadViewer({ id }: { id: string }) {
   const area = useRef<HTMLDivElement>(null)
   // null: not tried yet; false: a browser, or an app build without Leads.
   const [native, setNative] = useState<boolean | null>(null)
+  // While an overlay needs the view hidden: a picture of the site in its
+  // place, so it looks frozen for a moment rather than gone (loading).
+  const [shot, setShot] = useState<string | null>(null)
 
   useEffect(() => {
     if (!site) return
@@ -102,8 +105,17 @@ export function LeadViewer({ id }: { id: string }) {
         })
         if (over === covered) return
         covered = over
-        if (over) void hideLeads()
-        else place()
+        if (over) {
+          // The picture first, then the view out of the way.
+          void snapshotLead(site.id).then((url) => {
+            if (url) setShot(url)
+            if (covered) void hideLeads()
+          })
+        } else {
+          place()
+          // The view is back on top; drop the picture once it has painted.
+          window.setTimeout(() => setShot(null), 120)
+        }
       })
     })
     overlays.observe(document.body, { childList: true, subtree: true })
@@ -115,8 +127,17 @@ export function LeadViewer({ id }: { id: string }) {
       overlays.disconnect()
       window.removeEventListener("resize", place)
       void hideLeads()
+      setShot(null)
     }
   }, [site])
+
+  // The picture's object URL is let go once it's replaced or dropped.
+  useEffect(
+    () => () => {
+      if (shot) URL.revokeObjectURL(shot)
+    },
+    [shot],
+  )
 
   if (isLoading || (!site && !isError && !sites))
     return (
@@ -165,10 +186,22 @@ export function LeadViewer({ id }: { id: string }) {
           </span>
         </div>
       ) : (
-        // Under the web view while it loads (or for a moment as it moves).
-        <div className="m-auto">
-          <Spinner className="text-muted-foreground size-5" />
-        </div>
+        <>
+          {/* Under the web view while it loads (or for a moment as it
+              moves). */}
+          <div className="m-auto">
+            <Spinner className="text-muted-foreground size-5" />
+          </div>
+          {shot && (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img
+              src={shot}
+              alt=""
+              aria-hidden
+              className="absolute inset-0 size-full object-cover object-left-top"
+            />
+          )}
+        </>
       )}
     </div>
   )

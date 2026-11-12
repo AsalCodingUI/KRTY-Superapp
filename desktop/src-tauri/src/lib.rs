@@ -778,7 +778,8 @@ pub fn run() {
             updater::update_install,
             leads::lead_show,
             leads::lead_hide,
-            leads::lead_close
+            leads::lead_close,
+            leads::lead_snapshot
         ]);
     #[cfg(target_os = "macos")]
     let builder = builder.menu(app_menu).on_menu_event(on_app_menu);
