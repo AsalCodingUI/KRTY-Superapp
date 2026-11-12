@@ -1,0 +1,11 @@
+# Automatically generated - DO NOT EDIT!
+
+[[permission]]
+identifier = "allow-lead-nav"
+description = "Enables the lead_nav command without any pre-configured scope."
+commands.allow = ["lead_nav"]
+
+[[permission]]
+identifier = "deny-lead-nav"
+description = "Denies the lead_nav command without any pre-configured scope."
+commands.deny = ["lead_nav"]

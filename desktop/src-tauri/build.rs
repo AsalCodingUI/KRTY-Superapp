@@ -22,6 +22,8 @@ fn main() {
             "lead_hide",
             "lead_close",
             "lead_focus",
+            "lead_nav",
+            "lead_url",
             "lead_snapshot",
         ]),
     ))

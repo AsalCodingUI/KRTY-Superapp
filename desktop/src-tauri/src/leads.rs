@@ -298,6 +298,15 @@ fn focus(view: &tauri::Webview) {
             return;
         }
         let _: () = msg_send![window, setAcceptsMouseMovedEvents: Bool::YES];
+        // Already the site's (or a view inside it, its page): nothing to do,
+        // so a re-placement doesn't bounce the focus.
+        let current: *mut AnyObject = msg_send![window, firstResponder];
+        if !current.is_null() {
+            let inside: Bool = msg_send![current, isDescendantOf: web];
+            if current == web || inside.as_bool() {
+                return;
+            }
+        }
         let _: Bool = msg_send![window, makeFirstResponder: web];
     });
 }
@@ -413,6 +422,30 @@ pub fn lead_focus(app: AppHandle, id: String) {
     if let Some(view) = app.get_webview(&label(&id)) {
         focus(&view);
     }
+}
+
+/// The site's own back / forward / reload (the web app's toolbar over it).
+#[tauri::command]
+pub fn lead_nav(app: AppHandle, id: String, action: String) -> Result<(), String> {
+    let view = app
+        .get_webview(&label(&id))
+        .ok_or_else(|| "no such lead".to_string())?;
+    let script = match action.as_str() {
+        "back" => "history.back()",
+        "forward" => "history.forward()",
+        "reload" => "location.reload()",
+        _ => return Err("unknown action".into()),
+    };
+    view.eval(script).map_err(|e| e.to_string())
+}
+
+/// Where the site is now (its own navigation moves it: the toolbar shows
+/// it), or None before it's made.
+#[tauri::command]
+pub fn lead_url(app: AppHandle, id: String) -> Option<String> {
+    app.get_webview(&label(&id))
+        .and_then(|view| view.url().ok())
+        .map(|url| url.to_string())
 }
 
 /// Hides every lead (the web app left its /leads page, or a dialog opened

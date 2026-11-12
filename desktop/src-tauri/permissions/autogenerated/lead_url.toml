@@ -1,0 +1,11 @@
+# Automatically generated - DO NOT EDIT!
+
+[[permission]]
+identifier = "allow-lead-url"
+description = "Enables the lead_url command without any pre-configured scope."
+commands.allow = ["lead_url"]
+
+[[permission]]
+identifier = "deny-lead-url"
+description = "Denies the lead_url command without any pre-configured scope."
+commands.deny = ["lead_url"]

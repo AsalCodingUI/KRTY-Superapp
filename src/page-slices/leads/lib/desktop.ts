@@ -79,3 +79,19 @@ export async function snapshotLead(id: string): Promise<string | null> {
     return null
   }
 }
+
+/** The site's own back / forward / reload. */
+export async function navLead(id: string, action: "back" | "forward" | "reload") {
+  try {
+    await tauri()?.core.invoke("lead_nav", { id, action })
+  } catch {}
+}
+
+/** Where the site is now (null outside the app or before it's made). */
+export async function leadUrl(id: string): Promise<string | null> {
+  try {
+    return ((await tauri()?.core.invoke("lead_url", { id })) as string | null) ?? null
+  } catch {
+    return null
+  }
+}

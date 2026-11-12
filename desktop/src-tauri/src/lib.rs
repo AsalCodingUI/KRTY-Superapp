@@ -363,6 +363,10 @@ fn fit_blur_to_panel(window: &WebviewWindow) {
 /// then the menu never fires.
 #[cfg(target_os = "macos")]
 const MENU_UNDO: &str = "krty-undo";
+/// Search (⌘K) as a menu item too: with a Leads site holding the focus the
+/// key goes to the site, and only the menu brings it back to the app.
+#[cfg(target_os = "macos")]
+const MENU_SEARCH: &str = "krty-search";
 #[cfg(target_os = "macos")]
 const MENU_REDO: &str = "krty-redo";
 
@@ -385,12 +389,23 @@ fn app_menu(app: &AppHandle) -> tauri::Result<Menu<tauri::Wry>> {
         let redo = MenuItem::with_id(app, MENU_REDO, "Redo", true, Some("CmdOrCtrl+Shift+Z"))?;
         edit.insert(&undo, 0)?;
         edit.insert(&redo, 1)?;
+        let search = MenuItem::with_id(app, MENU_SEARCH, "Search", true, Some("CmdOrCtrl+K"))?;
+        edit.append(&tauri::menu::PredefinedMenuItem::separator(app)?)?;
+        edit.append(&search)?;
     }
     Ok(menu)
 }
 
 #[cfg(target_os = "macos")]
 fn on_app_menu(app: &AppHandle, event: MenuEvent) {
+    if event.id().as_ref() == MENU_SEARCH {
+        // The app's ⌘K (GlobalSearch listens for this event).
+        if let Some(page) = app.get_webview(APP) {
+            let _ = page.eval("window.dispatchEvent(new CustomEvent('krty:open-search'))");
+        }
+        show_app(app, None);
+        return;
+    }
     let action = match event.id().as_ref() {
         MENU_UNDO => "undo",
         MENU_REDO => "redo",
@@ -846,6 +861,8 @@ pub fn run() {
             leads::lead_hide,
             leads::lead_close,
             leads::lead_focus,
+            leads::lead_nav,
+            leads::lead_url,
             leads::lead_snapshot
         ]);
     #[cfg(target_os = "macos")]

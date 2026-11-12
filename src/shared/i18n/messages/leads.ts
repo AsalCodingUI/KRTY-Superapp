@@ -24,6 +24,9 @@ const id = {
     "Ini daftar bawaan. Tambah, edit dan hapus situs aktif setelah migrasi lead_sources dijalankan.",
   open: "Buka",
   openInBrowser: "Buka di browser",
+  back: "Kembali",
+  forward: "Maju",
+  reload: "Muat ulang",
   empty: "Belum ada situs",
   emptyDesc:
     "Tambah situs yang biasa kamu pakai cari klien: Gmail, Telegram, Dribbble, Behance, LinkedIn…",
@@ -61,6 +64,9 @@ const en: Record<keyof typeof id, string> = {
     "These are the built-in sites. Adding, editing and removing sites turns on once the lead_sources migration has run.",
   open: "Open",
   openInBrowser: "Open in browser",
+  back: "Back",
+  forward: "Forward",
+  reload: "Reload",
   empty: "No sites yet",
   emptyDesc:
     "Add the sites you look for clients on: Gmail, Telegram, Dribbble, Behance, LinkedIn…",

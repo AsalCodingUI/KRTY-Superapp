@@ -30,6 +30,8 @@
     "allow-lead-hide",
     "allow-lead-close",
     "allow-lead-focus",
+    "allow-lead-nav",
+    "allow-lead-url",
     "allow-lead-snapshot"
   ]
 }

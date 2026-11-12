@@ -5,6 +5,12 @@ import { useBreadcrumbs } from "@/components/page-breadcrumbs"
 import { ProjectAvatar } from "@/components/project-avatar"
 import { sheetFillClassName } from "@/components/split-pane"
 import { Button } from "@/components/ui/button"
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@/components/ui/tooltip"
+import { ArrowLeft, ArrowRight, RotateCw } from "@/components/icons"
 import { Spinner } from "@/components/ui/spinner"
 import { cn } from "@/lib/utils"
 import { useT } from "@/shared/i18n/client"
@@ -14,6 +20,8 @@ import {
   focusLead,
   hideLeads,
   inApp,
+  leadUrl,
+  navLead,
   showLead,
   snapshotLead,
 } from "../lib/desktop"
@@ -264,18 +272,13 @@ export function LeadViewer({ id }: { id: string }) {
       />
     )
 
-  return (
-    // The sheet, edge to edge: the app's web view lies over exactly this.
-    <div
-      ref={area}
-      data-sheet-fill=""
-      // The site's view lies over this, flush with the panel's hairline:
-      // the panel's resize grip keeps to the panel's side (globals.css).
-      data-lead-view={native ? "" : undefined}
-      className={cn(sheetFillClassName, "relative flex min-h-[520px]")}
-    >
-      {native === false ? (
-        // A browser: the site opens in a tab of its own.
+  if (native === false)
+    return (
+      // A browser: the site opens in a tab of its own.
+      <div
+        data-sheet-fill=""
+        className={cn(sheetFillClassName, "relative flex min-h-[520px]")}
+      >
         <div className="m-auto flex max-w-sm flex-col items-center gap-4 p-6 text-center">
           <ProjectAvatar id={site.id} name={site.name} className="size-12" />
           <div className="flex flex-col gap-1">
@@ -295,24 +298,114 @@ export function LeadViewer({ id }: { id: string }) {
             {hostOf(site.url)}
           </span>
         </div>
-      ) : (
-        <>
-          {/* Under the web view while it loads (or for a moment as it
-              moves). */}
-          <div className="m-auto">
-            <Spinner className="text-muted-foreground size-5" />
-          </div>
-          {shot && (
-            // eslint-disable-next-line @next/next/no-img-element
-            <img
-              src={shot}
-              alt=""
-              aria-hidden
-              className="absolute inset-0 size-full object-cover object-left-top"
+      </div>
+    )
+
+  return (
+    // The sheet, edge to edge: a browser pane (Claude's / ChatGPT's): the
+    // site's own toolbar on the page, the site's view under it.
+    <div
+      data-sheet-fill=""
+      className={cn(sheetFillClassName, "flex min-h-[520px] flex-col")}
+    >
+      <LeadToolbar id={site.id} fallback={site.url} />
+      <div
+        ref={area}
+        // The site's view lies over this, flush with the panel's hairline:
+        // the panel's resize grip keeps to the panel's side (globals.css).
+        data-lead-view={native ? "" : undefined}
+        className="relative flex min-h-0 flex-1"
+      >
+        {/* Nothing moving under the view (a spinner here repainted the
+            page every frame behind the site); a picture of it while an
+            overlay needs it out of the way. */}
+        {shot && (
+          // eslint-disable-next-line @next/next/no-img-element
+          <img
+            src={shot}
+            alt=""
+            aria-hidden
+            className="absolute inset-0 size-full object-cover object-left-top"
+          />
+        )}
+      </div>
+    </div>
+  )
+}
+
+/** The site's toolbar (a browser pane's): back, forward, reload, where it
+ *  is, open in the browser. On the page, above the view, so its tooltips
+ *  never fall over the site. */
+function LeadToolbar({ id, fallback }: { id: string; fallback: string }) {
+  const t = useT("leads")
+  const [url, setUrl] = useState(fallback)
+  // The site moves itself (links, its own app routes): read where it is.
+  useEffect(() => {
+    let alive = true
+    const read = async () => {
+      if (document.visibilityState !== "visible") return
+      const now = await leadUrl(id)
+      if (alive && now) setUrl(now)
+    }
+    void read()
+    const timer = window.setInterval(read, 1000)
+    return () => {
+      alive = false
+      window.clearInterval(timer)
+    }
+  }, [id])
+  let shown = url
+  try {
+    const u = new URL(url)
+    shown = u.hostname.replace(/^www\./, "") + (u.pathname === "/" ? "" : u.pathname)
+  } catch {}
+  const button = (
+    label: string,
+    action: "back" | "forward" | "reload",
+    icon: React.ReactNode,
+  ) => (
+    <Tooltip>
+      <TooltipTrigger
+        render={
+          <Button
+            variant="ghost"
+            size="icon-sm"
+            aria-label={label}
+            className="text-foreground/55 hover:text-foreground"
+            onClick={() => void navLead(id, action)}
+          />
+        }
+      >
+        {icon}
+      </TooltipTrigger>
+      <TooltipContent side="top">{label}</TooltipContent>
+    </Tooltip>
+  )
+  return (
+    <div className="border-border flex h-11 shrink-0 items-center gap-1.5 border-b px-2">
+      {button(t("back"), "back", <ArrowLeft />)}
+      {button(t("forward"), "forward", <ArrowRight />)}
+      {button(t("reload"), "reload", <RotateCw />)}
+      <span className="text-muted-foreground text-meta min-w-0 flex-1 truncate px-1.5">
+        {shown}
+      </span>
+      <Tooltip>
+        <TooltipTrigger
+          render={
+            <Button
+              variant="ghost"
+              size="icon-sm"
+              aria-label={t("openInBrowser")}
+              className="text-foreground/55 hover:text-foreground"
+              nativeButton={false}
+              render={<a href={url} target="_blank" rel="noreferrer" />}
             />
-          )}
-        </>
-      )}
+          }
+        >
+          <RiExternalLinkLine />
+        </TooltipTrigger>
+        <TooltipContent side="top">{t("openInBrowser")}</TooltipContent>
+      </Tooltip>
     </div>
   )
 }
