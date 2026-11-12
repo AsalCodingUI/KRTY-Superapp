@@ -123,14 +123,10 @@ fn leave_app<R: Runtime>(app: &AppHandle<R>, url: &url::Url) {
 }
 
 fn show_app(app: &AppHandle, path: Option<&str>) {
-    // The window and its page apart: once Leads adds its web views the app
-    // window is no longer a "webview window" (get_webview_window is None).
-    if let Some(path) = path {
-        if let Some(page) = app.get_webview(APP) {
-            let _ = page.navigate(app_link(path));
+    if let Some(w) = app.get_webview_window(APP) {
+        if let Some(path) = path {
+            let _ = w.navigate(app_link(path));
         }
-    }
-    if let Some(w) = app.get_window(APP) {
         let _ = w.unminimize();
         let _ = w.show();
         let _ = w.set_focus();
@@ -190,8 +186,8 @@ fn handle_deep_link(app: &AppHandle, link: &url::Url) {
         .query_pairs_mut()
         .append_pair("token", &token)
         .append_pair("next", "/dashboard");
-    if let Some(page) = app.get_webview(APP) {
-        let _ = page.navigate(target);
+    if let Some(w) = app.get_webview_window(APP) {
+        let _ = w.navigate(target);
     }
     show_app(app, None);
     // The popover picks the new session up once the app window has it.
@@ -343,9 +339,9 @@ fn on_app_menu(app: &AppHandle, event: MenuEvent) {
     // The window in front (the popover when it's open), else the app's.
     let window = [APP, POPOVER]
         .iter()
-        .filter_map(|label| app.get_webview(label))
-        .find(|w| w.window().is_focused().unwrap_or(false))
-        .or_else(|| app.get_webview(APP));
+        .filter_map(|label| app.get_webview_window(label))
+        .find(|w| w.is_focused().unwrap_or(false))
+        .or_else(|| app.get_webview_window(APP));
     if let Some(w) = window {
         // A page without the web app's undo (the loader, signed out, an
         // older web build) still gets text undo.
@@ -533,8 +529,7 @@ fn set_theme(app: AppHandle, theme: String) {
         "dark" => Some(tauri::Theme::Dark),
         _ => None,
     };
-    // The window, not the "webview window" (gone once Leads adds views).
-    if let Some(w) = app.get_window(APP) {
+    if let Some(w) = app.get_webview_window(APP) {
         let _ = w.set_theme(theme);
     }
 }
@@ -831,13 +826,15 @@ pub fn run() {
                 WindowEvent::CloseRequested { api, .. } => {
                     api.prevent_close();
                     let _ = keep.hide();
+                    // The Leads site over the sheet goes with it.
+                    leads::lead_hide(page.clone());
                 }
-                // The window no longer sizes its own page (child web views
-                // on): keep the page the whole window.
-                WindowEvent::Resized(_)
-                | WindowEvent::ScaleFactorChanged { .. }
-                | WindowEvent::Focused(true) => {
-                    leads::fit_page(&page);
+                // The Leads site on show (a window of its own over the
+                // sheet) follows the app window.
+                WindowEvent::Moved(_)
+                | WindowEvent::Resized(_)
+                | WindowEvent::ScaleFactorChanged { .. } => {
+                    leads::follow(&page);
                 }
                 _ => {}
             });

@@ -4,21 +4,13 @@ import { createClient } from "@/shared/api/supabase/client"
 import { useQuery, useQueryClient } from "@tanstack/react-query"
 import { useCallback } from "react"
 
-/** A row of lead_sources (migrations/lead_sources.sql). */
-export type LeadSource = {
+/** A row of lead_sources (migrations/lead_sources.sql): one shared list,
+ *  the same for every PM and stakeholder. */
+export type LeadSite = {
   id: string
-  /** Null: a studio default. */
-  user_id: string | null
   name: string
   url: string
   position: number
-}
-
-/** A source as the viewer sees it. */
-export type LeadSite = LeadSource & {
-  studio: boolean
-  /** A studio default this person hid. */
-  hidden: boolean
   /** One of BUILT_IN (no table yet): read-only. */
   builtIn?: boolean
 }
@@ -28,7 +20,7 @@ export const LEAD_SITES_KEY = ["lead-sites"] as const
 const supabase = () => createClient()
 
 /**
- * The studio defaults as the migration seeds them, shown read-only until
+ * The first sites as the migration seeds them, shown read-only until
  * lead_sources exists (a deploy before the migration, or a local test).
  */
 const BUILT_IN: LeadSite[] = [
@@ -38,12 +30,9 @@ const BUILT_IN: LeadSite[] = [
   ["builtin-behance", "Behance", "https://www.behance.net/"],
 ].map(([id, name, url], i) => ({
   id,
-  user_id: null,
   name,
   url,
   position: i + 1,
-  studio: true,
-  hidden: false,
   builtIn: true,
 }))
 
@@ -51,36 +40,23 @@ const BUILT_IN: LeadSite[] = [
 const missingTable = (error: { code?: string } | null) =>
   error?.code === "42P01" || error?.code === "PGRST205"
 
-async function fetchSites(userId: string): Promise<LeadSite[]> {
-  const [sources, hidden] = await Promise.all([
-    supabase()
-      .from("lead_sources")
-      .select("id, user_id, name, url, position")
-      .order("position")
-      .order("created_at"),
-    supabase()
-      .from("lead_source_hidden")
-      .select("source_id")
-      .eq("user_id", userId),
-  ])
-  if (missingTable(sources.error)) return BUILT_IN
-  if (sources.error) throw sources.error
-  const hiddenIds = new Set(
-    ((hidden.data ?? []) as { source_id: string }[]).map((h) => h.source_id),
-  )
-  return ((sources.data ?? []) as LeadSource[]).map((s) => ({
-    ...s,
-    studio: s.user_id === null,
-    hidden: hiddenIds.has(s.id),
-  }))
+async function fetchSites(): Promise<LeadSite[]> {
+  const { data, error } = await supabase()
+    .from("lead_sources")
+    .select("id, name, url, position")
+    .order("position")
+    .order("created_at")
+  if (missingTable(error)) return BUILT_IN
+  if (error) throw error
+  return (data ?? []) as LeadSite[]
 }
 
-/** The studio's sites and the viewer's own (hidden ones flagged). */
-export function useLeadSites(userId: string | null | undefined) {
+/** The studio's sites (the Leads panel and Kelola situs). */
+export function useLeadSites(enabled = true) {
   return useQuery({
-    queryKey: [...LEAD_SITES_KEY, userId],
-    queryFn: () => fetchSites(userId!),
-    enabled: Boolean(userId),
+    queryKey: LEAD_SITES_KEY,
+    queryFn: fetchSites,
+    enabled,
     staleTime: 60_000,
   })
 }
@@ -108,7 +84,7 @@ export const hostOf = (url: string) => {
   }
 }
 
-export function useLeadWriter(userId: string | null | undefined) {
+export function useLeadWriter() {
   const queryClient = useQueryClient()
   const refresh = useCallback(
     () => queryClient.invalidateQueries({ queryKey: LEAD_SITES_KEY }),
@@ -120,17 +96,11 @@ export function useLeadWriter(userId: string | null | undefined) {
     if (error) throw error
   }
   return {
-    /** Your own, or (studio: true, stakeholders) a studio default. */
-    add: (name: string, url: string, position: number, studio = false) =>
+    add: (name: string, url: string, position: number) =>
       run(
         supabase()
           .from("lead_sources")
-          .insert({
-            user_id: studio ? null : userId,
-            name: name.trim(),
-            url,
-            position,
-          }),
+          .insert({ name: name.trim(), url, position }),
       ),
     rename: (id: string, name: string) =>
       run(
@@ -141,17 +111,5 @@ export function useLeadWriter(userId: string | null | undefined) {
       ),
     remove: (id: string) =>
       run(supabase().from("lead_sources").delete().eq("id", id)),
-    setHidden: (id: string, hidden: boolean) =>
-      run(
-        hidden
-          ? supabase()
-              .from("lead_source_hidden")
-              .insert({ user_id: userId, source_id: id })
-          : supabase()
-              .from("lead_source_hidden")
-              .delete()
-              .eq("user_id", userId)
-              .eq("source_id", id),
-      ),
   }
 }

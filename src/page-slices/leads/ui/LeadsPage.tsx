@@ -5,9 +5,7 @@ import { EmptyState } from "@/components/empty-state"
 import { GroupedList, ListRow } from "@/components/grouped-list"
 import { PageHeader } from "@/components/page-header"
 import { ProjectAvatar } from "@/components/project-avatar"
-import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
-import { Checkbox } from "@/components/ui/checkbox"
 import {
   Dialog,
   DialogContent,
@@ -24,14 +22,11 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip"
 import { cn } from "@/lib/utils"
-import { accessLevel } from "@/shared/config/access"
 import { useUserProfile } from "@/shared/hooks/useUserProfile"
 import { useT } from "@/shared/i18n/client"
 import {
   RiAddLine,
   RiDeleteBinLine,
-  RiEyeLine,
-  RiEyeOffLine,
   RiInboxLine,
   RiPencilLine,
 } from "@/shared/ui/lucide-icons"
@@ -51,18 +46,15 @@ import { leadHref } from "./lead-tree"
 type Editing = { site: LeadSite | null } | null
 
 /**
- * Leads → Kelola situs: the studio's sites and your own, in the panel's
- * order. Add your own (stakeholders also for the whole studio), rename or
- * remove what's yours, hide a studio default you don't use.
+ * Leads → Kelola situs: the studio's one list of sites (every PM and
+ * stakeholder sees the same), in the panel's order: add, rename, remove.
  */
 export function LeadsPage() {
   const t = useT("leads")
   const tc = useT("common")
-  const { profile, isImpersonating } = useUserProfile()
-  const userId = profile?.id
-  const stakeholder = accessLevel(profile) === "stakeholder"
-  const { data: sites = [], isLoading, isError } = useLeadSites(userId)
-  const writer = useLeadWriter(userId)
+  const { isImpersonating } = useUserProfile()
+  const { data: sites = [], isLoading, isError } = useLeadSites()
+  const writer = useLeadWriter()
   const [editing, setEditing] = useState<Editing>(null)
   const [removing, setRemoving] = useState<LeadSite | null>(null)
   // Viewing as someone: their list, read-only.
@@ -70,8 +62,7 @@ export function LeadsPage() {
 
   // The built-in defaults (no table yet) can't be changed.
   const builtIn = sites.some((s) => s.builtIn)
-  const canEdit = (site: LeadSite) =>
-    !readOnly && !site.builtIn && (site.studio ? stakeholder : true)
+  const canEdit = (site: LeadSite) => !readOnly && !site.builtIn
 
   const act = async (op: Promise<unknown>) => {
     try {
@@ -115,10 +106,7 @@ export function LeadsPage() {
           {sites.map((site) => (
             <ListRow
               key={site.id}
-              className={cn(
-                "group/site flex min-h-14 items-center gap-3 py-2",
-                site.hidden && "opacity-60",
-              )}
+              className="group/site flex min-h-14 items-center gap-3 py-2"
             >
               <ProjectAvatar
                 id={site.id}
@@ -134,22 +122,7 @@ export function LeadsPage() {
                   {hostOf(site.url)}
                 </span>
               </PrefetchLink>
-              <Badge variant="secondary" className="shrink-0">
-                {site.hidden
-                  ? t("hidden")
-                  : site.studio
-                    ? t("studio")
-                    : t("mine")}
-              </Badge>
               <div className="flex shrink-0 items-center gap-0.5">
-                {site.studio && !readOnly && !site.builtIn && (
-                  <RowAction
-                    label={site.hidden ? t("show") : t("hide")}
-                    onClick={() => act(writer.setHidden(site.id, !site.hidden))}
-                  >
-                    {site.hidden ? <RiEyeLine /> : <RiEyeOffLine />}
-                  </RowAction>
-                )}
                 {canEdit(site) && (
                   <>
                     <RowAction
@@ -175,9 +148,8 @@ export function LeadsPage() {
 
       <SiteDialog
         editing={editing}
-        stakeholder={stakeholder}
         onClose={() => setEditing(null)}
-        onSave={async ({ name, url, studio }) => {
+        onSave={async ({ name, url }) => {
           const site = editing?.site
           if (site) await writer.rename(site.id, name)
           else
@@ -185,7 +157,6 @@ export function LeadsPage() {
               name,
               url,
               Math.max(0, ...sites.map((s) => s.position)) + 1,
-              studio,
             )
         }}
       />
@@ -244,22 +215,15 @@ function RowAction({
   )
 }
 
-/** Add a site (name + https address; stakeholders: for the studio), or
- *  rename one. */
+/** Add a site (name + https address), or rename one. */
 function SiteDialog({
   editing,
-  stakeholder,
   onClose,
   onSave,
 }: {
   editing: Editing
-  stakeholder: boolean
   onClose: () => void
-  onSave: (value: {
-    name: string
-    url: string
-    studio: boolean
-  }) => Promise<void>
+  onSave: (value: { name: string; url: string }) => Promise<void>
 }) {
   return (
     <Dialog open={editing !== null} onOpenChange={(open) => !open && onClose()}>
@@ -268,7 +232,6 @@ function SiteDialog({
           <SiteForm
             key={editing.site?.id ?? "new"}
             site={editing.site}
-            stakeholder={stakeholder}
             onClose={onClose}
             onSave={onSave}
           />
@@ -280,24 +243,17 @@ function SiteDialog({
 
 function SiteForm({
   site,
-  stakeholder,
   onClose,
   onSave,
 }: {
   site: LeadSite | null
-  stakeholder: boolean
   onClose: () => void
-  onSave: (value: {
-    name: string
-    url: string
-    studio: boolean
-  }) => Promise<void>
+  onSave: (value: { name: string; url: string }) => Promise<void>
 }) {
   const t = useT("leads")
   const tc = useT("common")
   const [name, setName] = useState(site?.name ?? "")
   const [url, setUrl] = useState(site?.url ?? "")
-  const [studio, setStudio] = useState(false)
   const [saving, setSaving] = useState(false)
   const [urlError, setUrlError] = useState(false)
 
@@ -307,7 +263,7 @@ function SiteForm({
     if (!normalized) return setUrlError(true)
     setSaving(true)
     try {
-      await onSave({ name, url: normalized, studio })
+      await onSave({ name, url: normalized })
       onClose()
     } catch {
       toast.error(t("saveFailed"))
@@ -359,15 +315,6 @@ function SiteForm({
               </p>
             )}
           </div>
-        )}
-        {!site && stakeholder && (
-          <label className="flex items-center gap-2.5 text-sm">
-            <Checkbox
-              checked={studio}
-              onCheckedChange={(v) => setStudio(v === true)}
-            />
-            {t("addStudio")}
-          </label>
         )}
       </form>
       <DialogFooter>

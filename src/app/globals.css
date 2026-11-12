@@ -1223,3 +1223,20 @@
     scrollbar-gutter: auto;
   }
 }
+
+/* A Leads site lies over the sheet as a native window (Kretya Flow): the
+   panel's resize grip, which straddles the panel's edge, would be half
+   under it. There the grip keeps to the panel's side, its line on the
+   panel's own hairline. */
+:root:has([data-lead-view]) [data-slot="sidebar-rail"] {
+  right: 0 !important;
+}
+:root:has([data-lead-view]) [data-slot="sidebar-rail"]::before,
+:root:has([data-lead-view]) [data-slot="sidebar-rail"]::after {
+  left: auto;
+  right: 0;
+  translate: 0 0;
+}
+:root:has([data-lead-view]) [data-slot="sidebar-rail"]::after {
+  translate: 0 -50%;
+}

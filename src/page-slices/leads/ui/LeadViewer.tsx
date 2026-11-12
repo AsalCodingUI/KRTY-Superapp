@@ -7,7 +7,6 @@ import { sheetFillClassName } from "@/components/split-pane"
 import { Button } from "@/components/ui/button"
 import { Spinner } from "@/components/ui/spinner"
 import { cn } from "@/lib/utils"
-import { useUserProfile } from "@/shared/hooks/useUserProfile"
 import { useT } from "@/shared/i18n/client"
 import { RiExternalLinkLine, RiInboxLine } from "@/shared/ui/lucide-icons"
 import { useEffect, useRef, useState } from "react"
@@ -36,8 +35,7 @@ const OVERLAYS = [
  */
 export function LeadViewer({ id }: { id: string }) {
   const t = useT("leads")
-  const { profile } = useUserProfile()
-  const { data: sites, isLoading, isError } = useLeadSites(profile?.id)
+  const { data: sites, isLoading, isError } = useLeadSites()
   const site = sites?.find((s) => s.id === id)
   // The tab is named after the site (not Kelola situs, the /leads row).
   useBreadcrumbs(site ? [{ label: site.name }] : [])
@@ -161,6 +159,9 @@ export function LeadViewer({ id }: { id: string }) {
     <div
       ref={area}
       data-sheet-fill=""
+      // The site's window lies over this: the panel's resize grip keeps
+      // to the panel's side (globals.css).
+      data-lead-view={native ? "" : undefined}
       className={cn(sheetFillClassName, "relative flex min-h-[520px]")}
     >
       {native === false ? (
