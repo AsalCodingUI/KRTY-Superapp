@@ -21,6 +21,13 @@ const SAFARI_UA: &str = "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWe
 
 const PREFIX: &str = "lead-";
 
+/// No passkeys in a site's view: macOS lets an app's web view use them only
+/// for the app's own domains (other sites need Apple's browser entitlement),
+/// so Google asked for a fingerprint or face that could never answer. With
+/// no WebAuthn on offer, sites go straight to a password, a phone prompt or
+/// a code.
+const NO_PASSKEYS: &str = "try{Object.defineProperty(window,'PublicKeyCredential',{value:undefined,configurable:true});if(navigator.credentials){navigator.credentials.create=undefined;navigator.credentials.get=undefined}}catch(e){}";
+
 /// A web view label from the source's id (labels allow a-z, 0-9, - …).
 fn label(id: &str) -> String {
     let safe: String = id
@@ -165,6 +172,7 @@ fn popup(
     tauri::WebviewWindowBuilder::new(app, label, WebviewUrl::External(link.clone()))
         .window_features(features)
         .user_agent(SAFARI_UA)
+        .initialization_script(NO_PASSKEYS)
         .title(link.host_str().unwrap_or("Kretya Flow"))
         .build()
         .ok()
@@ -234,6 +242,7 @@ pub fn lead_show(
     let view_label = target.clone();
     let builder = WebviewBuilder::new(&target, WebviewUrl::External(parsed))
         .user_agent(SAFARI_UA)
+        .initialization_script(NO_PASSKEYS)
         // A new window from the site: a sign-in popup stays in the app
         // (sharing the site's session and opener, so the flow completes), a
         // tab on the site's own domain opens in the site's view (Gmail's
