@@ -412,10 +412,12 @@ export function AppRail() {
               />
             }
           >
+            {/* Grayscale on the rail: quiet next to the icons, not a
+                color spot above them. */}
             <AppIcon
               variant="badge"
               size={96}
-              className="size-5 shrink-0 rounded-[5px]"
+              className="size-5 shrink-0 rounded-[5px] grayscale"
             />
           </TooltipTrigger>
           <TooltipContent side="right">{siteConfig.name}</TooltipContent>
