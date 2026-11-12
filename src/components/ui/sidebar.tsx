@@ -445,8 +445,9 @@ function SidebarRail({ className, ...props }: React.ComponentProps<"div">) {
       data-slot="sidebar-rail"
       role="separator"
       aria-orientation="vertical"
-      aria-label={t("sidebarResize")}
-      title={t("sidebarResizeHint")}
+      // No native title tooltip: macOS keeps it on screen, and beside a
+      // Leads site it hung over the site.
+      aria-label={`${t("sidebarResize")} · ${t("sidebarResizeHint")}`}
       onPointerDown={onPointerDown}
       onDoubleClick={() => setWidth(null)}
       className={cn(
