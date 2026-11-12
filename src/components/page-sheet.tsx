@@ -57,7 +57,8 @@ export function PageSheet({
   const page = (
     <SidebarInset
       data-paper=""
-      className={cn(pageSheetClassName, radius, aside && "md:rounded-none", className)}
+      // Beside the panel: its own right corners (the wrapper doesn't clip).
+      className={cn(pageSheetClassName, radius, aside && "md:rounded-l-none", className)}
       {...props}
     />
   )
@@ -73,10 +74,13 @@ export function PageSheet({
       />
       {aside ? (
         // The sheet's fill and corners on the wrapper, so the column and
-        // the page read as one sheet.
+        // the page read as one sheet. No overflow clip here: WebKit
+        // (Kretya Flow, Safari) offsets a rounded clip around the scrolling
+        // page by the wrapper's own position, cutting the page's right and
+        // bottom off and dropping repaints on hover.
         <div
           className={cn(
-            "md:bg-background md:dark:bg-surface flex min-h-0 min-w-0 flex-1 overflow-hidden md:z-20",
+            "md:bg-background md:dark:bg-surface flex min-h-0 min-w-0 flex-1 md:z-20",
             radius,
           )}
         >
