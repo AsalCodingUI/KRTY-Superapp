@@ -26,7 +26,20 @@ const PREFIX: &str = "lead-";
 /// so Google asked for a fingerprint or face that could never answer. With
 /// no WebAuthn on offer, sites go straight to a password, a phone prompt or
 /// a code.
-const NO_PASSKEYS: &str = "try{Object.defineProperty(window,'PublicKeyCredential',{value:undefined,configurable:true});if(navigator.credentials){navigator.credentials.create=undefined;navigator.credentials.get=undefined}}catch(e){}";
+const NO_PASSKEYS: &str = r#"(() => { try {
+  const c = navigator.credentials;
+  if (c) {
+    const get = c.get && c.get.bind(c);
+    const create = c.create && c.create.bind(c);
+    const deny = () => Promise.reject(new DOMException("Passkeys aren't available here", "NotAllowedError"));
+    // Only passkey requests are turned down; passwords, federated sign-in
+    // (FedCM) and the rest go through as before (without them Google's
+    // sign-in page broke and stayed blank).
+    c.get = (o) => (o && o.publicKey ? deny() : get(o));
+    c.create = (o) => (o && o.publicKey ? deny() : create(o));
+  }
+  Object.defineProperty(window, "PublicKeyCredential", { value: undefined, configurable: true });
+} catch (e) {} })()"#;
 
 /// A web view label from the source's id (labels allow a-z, 0-9, - …).
 fn label(id: &str) -> String {
@@ -169,13 +182,52 @@ fn popup(
     use std::sync::atomic::{AtomicU32, Ordering};
     static NEXT: AtomicU32 = AtomicU32::new(1);
     let label = format!("leadpopup-{}", NEXT.fetch_add(1, Ordering::Relaxed));
-    tauri::WebviewWindowBuilder::new(app, label, WebviewUrl::External(link.clone()))
+    let window = tauri::WebviewWindowBuilder::new(app, label, WebviewUrl::External(link.clone()))
         .window_features(features)
         .user_agent(SAFARI_UA)
         .initialization_script(NO_PASSKEYS)
         .title(link.host_str().unwrap_or("Kretya Flow"))
         .build()
-        .ok()
+        .ok()?;
+    #[cfg(target_os = "macos")]
+    close_on_window_close(&window);
+    Some(window)
+}
+
+/// A sign-in popup closes itself (window.close()) once it has handed the
+/// result to the site; wry's web view delegate ignores that, so the popup
+/// stayed open on a blank relay page. This teaches the delegate's class
+/// `webViewDidClose:`, closing the popup's window.
+#[cfg(target_os = "macos")]
+fn close_on_window_close(window: &tauri::WebviewWindow) {
+    let _ = window.with_webview(|platform| unsafe {
+        use objc2::runtime::{AnyClass, AnyObject, Bool, Sel};
+        use objc2::{msg_send, sel};
+        let web = platform.inner() as *mut AnyObject;
+        if web.is_null() {
+            return;
+        }
+        let delegate: *mut AnyObject = msg_send![web, UIDelegate];
+        if delegate.is_null() {
+            return;
+        }
+        let cls: *const AnyClass = msg_send![delegate, class];
+        let name = sel!(webViewDidClose:);
+        let has: Bool = msg_send![delegate, respondsToSelector: name];
+        if has.as_bool() {
+            return;
+        }
+        unsafe extern "C-unwind" fn did_close(_this: *mut AnyObject, _cmd: Sel, web: *mut AnyObject) {
+            let window: *mut AnyObject = msg_send![web, window];
+            if !window.is_null() {
+                let _: () = msg_send![window, performClose: std::ptr::null_mut::<AnyObject>()];
+            }
+        }
+        let imp: objc2::runtime::Imp = std::mem::transmute(
+            did_close as unsafe extern "C-unwind" fn(*mut AnyObject, Sel, *mut AnyObject),
+        );
+        objc2::ffi::class_addMethod(cls as *mut AnyClass, name, imp, c"v@:@".as_ptr());
+    });
 }
 
 /// ~/Downloads.
