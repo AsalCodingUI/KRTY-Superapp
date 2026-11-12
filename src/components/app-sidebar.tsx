@@ -431,7 +431,8 @@ function WorkspaceRail() {
   const { loading, visible, active, select, hasBadge } = useWorkspaceNav()
   const { open, setOpen } = useSidebar()
   const t = useT("nav")
-  const brand = siteConfig.name
+  // It goes to Beranda, so it's named that (not the studio's name).
+  const brand = t("home")
   return (
     // 40px buttons, 10px either side on the 60px rail (16px icons stay).
     <SidebarGroup className="py-0 group-data-[collapsible=icon]:px-2.5">
