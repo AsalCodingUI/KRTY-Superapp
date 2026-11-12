@@ -74,15 +74,12 @@ export function LeaveRequestContextMenu({
   req,
   person,
   actions,
-  calendar = "personal",
   children,
 }: {
   req: LeaveMenuRequest
   /** The requester's name (team lists); the group label. */
   person?: string | null
   actions: LeaveMenuActions
-  /** Which calendar shows it: your own, or the team's (PM / stakeholder). */
-  calendar?: "personal" | "team"
   children: React.ReactElement<Record<string, unknown>>
 }) {
   const t = useT("leave")
@@ -160,11 +157,8 @@ export function LeaveRequestContextMenu({
             // Only approved leave is on the calendar.
             hidden: req.status !== "approved",
             onSelect: () =>
-              router.push(
-                calendar === "team"
-                  ? "/calendar/month"
-                  : "/calendar/personal/month",
-              ),
+              // One calendar now (yours and the team's).
+              router.push("/calendar/month"),
           },
           {
             id: "proof",

@@ -80,14 +80,8 @@ const links = siteConfig.baseLinks
  */
 export const globalItems = (): WorkspaceItem[] => [
   { name: "home", href: links.dashboard, icon: RiHome2Line },
-  // One calendar: yours first; the project calendar is its other scope
-  // (CalendarScopes).
-  {
-    name: "calendar",
-    href: `${links.calendar}/personal`,
-    icon: RiCalendarLine,
-    match: [links.calendar],
-  },
+  // One calendar: yours and the team's (Timeline, Minggu, Bulan).
+  { name: "calendar", href: links.calendar, icon: RiCalendarLine },
   // Your tasks across projects.
   {
     name: "myTasks",
@@ -106,9 +100,7 @@ export const globalItems = (): WorkspaceItem[] => [
  * Pages with no row of their own (a scope of another page): named here so
  * tab titles and search still find them.
  */
-export const scopePages = (): WorkspaceItem[] => [
-  { name: "calendarProject", href: links.calendar, icon: RiCalendarLine },
-]
+export const scopePages = (): WorkspaceItem[] => []
 
 export const workspaces: Workspace[] = [
   {

@@ -629,7 +629,8 @@ function SplitTaskRow({
       {...data}
       className={cn(
         splitPaneItemClassName(active),
-        "focus-within:ring-focus-ring relative items-start gap-2.5 px-3 py-2.5 focus-within:ring-2 focus-within:ring-inset",
+        // The ring for the keyboard only (focus-within lit it on a click).
+        "has-[:focus-visible]:ring-focus-ring relative items-start gap-2.5 px-3 py-2.5 has-[:focus-visible]:ring-2 has-[:focus-visible]:ring-inset",
       )}
     >
       <Checkbox

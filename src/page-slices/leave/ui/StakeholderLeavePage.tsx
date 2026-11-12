@@ -625,7 +625,6 @@ export function StakeholderLeavePage({
         <LeaveRequestContextMenu
           req={req}
           person={req.profiles?.full_name}
-          calendar="team"
           actions={{
             onDetail: () => setDetailRequest(req),
             onApprove: canManage ? () => handleApprove(req.id) : undefined,

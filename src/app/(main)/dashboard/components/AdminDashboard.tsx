@@ -274,7 +274,6 @@ export function AdminDashboard({ data }: AdminDashboardProps) {
                   key={l.id}
                   req={{ ...l, status: "pending" }}
                   person={l.user_name}
-                  calendar="team"
                   actions={{ onReviewInInbox: () => openInbox(l.id) }}
                 >
                   <HomeRow

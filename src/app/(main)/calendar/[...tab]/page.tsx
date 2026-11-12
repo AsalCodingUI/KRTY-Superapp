@@ -1,9 +1,9 @@
-import { notFound } from "next/navigation"
+import { notFound, permanentRedirect } from "next/navigation"
 import { renderCalendar } from "../render-calendar"
 
-/** /calendar/<view> and /calendar/personal[/<view>]; anything else 404s. */
-const PROJECT_VIEWS = ["timeline", "week", "month"]
-const PERSONAL_VIEWS = ["week", "month"]
+/** /calendar/<view>. The old personal calendar (/calendar/personal[/<view>])
+ *  is the same page now: it redirects there. Anything else 404s. */
+const VIEWS = ["timeline", "week", "month"]
 
 export const dynamic = "force-dynamic"
 
@@ -13,10 +13,10 @@ export default async function CalendarTabPage({
   params: Promise<{ tab: string[] }>
 }) {
   const { tab } = await params
-  const personal = tab[0] === "personal"
-  const view = personal ? tab[1] : tab[0]
-  const views = personal ? PERSONAL_VIEWS : PROJECT_VIEWS
-  if (tab.length > (personal ? 2 : 1) || (view && !views.includes(view)))
-    notFound()
-  return renderCalendar(personal ? "personal" : "project")
+  if (tab[0] === "personal") {
+    const view = tab[1] === "week" || tab[1] === "month" ? `/${tab[1]}` : ""
+    permanentRedirect(`/calendar${view}`)
+  }
+  if (tab.length > 1 || !VIEWS.includes(tab[0])) notFound()
+  return renderCalendar()
 }

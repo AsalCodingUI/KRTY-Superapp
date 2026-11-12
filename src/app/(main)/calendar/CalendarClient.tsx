@@ -1,6 +1,5 @@
 "use client"
 
-import { CalendarScopes } from "@/components/route-scopes"
 import { useRealtimeRefresh } from "@/shared/hooks/useRealtimeRefresh"
 import { useIsMobile } from "@/hooks/use-mobile"
 import {
@@ -125,10 +124,7 @@ type OneOnOneCalendarRow = Pick<
     | null
 }
 
-export type CalendarScope = "personal" | "project"
-
 interface CalendarClientProps {
-  scope: CalendarScope
   level: AccessLevel
   userId: string | null
 }
@@ -326,64 +322,42 @@ const mapSlotToEvent = (
 
 const SANTUY = "Sharing Santuy"
 
-/** What each calendar is for, per access level. */
-const SCOPES = {
-  personal: {
-    basePath: "/calendar/personal",
-    views: ["week", "month"] as ViewMode[],
-    categories: [
-      "Personal",
-      SANTUY,
-      "Internal",
-      "Event",
-      "301 Meeting",
-      "Company Holiday",
-      "Public Holiday",
-      "Cuti",
-      "WFH",
-      "Task",
-    ],
-    // Sharing Santuy isn't created here: its sessions come from the rotation
-    // (/calendar/santuy). Old Santuy rows still open and edit as before.
-    eventTypes: {
-      employee: ["Personal"],
-      pm: ["Personal", "Internal"],
-      stakeholder: ["Personal", "Internal", "Event", "Company Holiday"],
-    },
-  },
-  project: {
-    basePath: "/calendar",
-    views: ["timeline", "week", "month"] as ViewMode[],
-    categories: [
-      "Internal",
-      "Event",
-      "Company Holiday",
-      "Public Holiday",
-      SANTUY,
-      "Task",
-      "Cuti",
-      "WFH",
-    ],
-    eventTypes: {
-      employee: [],
-      pm: ["Internal", "Event"],
-      stakeholder: ["Internal", "Event", "Company Holiday"],
-    },
-  },
-} satisfies Record<
-  CalendarScope,
-  {
-    basePath: string
-    views: ViewMode[]
-    categories: string[]
-    eventTypes: Record<AccessLevel, string[]>
-  }
->
-
 /**
- * Team-wide work events; Personal and stored Sharing Santuy rows live on the
- * personal one (the rotation's sessions show on both, see santuyEvents).
+ * The calendar: one page (it used to be two scopes, Saya and Project). Yours
+ * and the team's together: your own events and invites, the team-wide work
+ * events, leave, 1:1s, Sharing Santuy and task deadlines, each a filter
+ * under "Kalender"; Timeline (the projects), Minggu and Bulan.
  */
+const CALENDAR = {
+  basePath: "/calendar",
+  views: ["timeline", "week", "month"] as ViewMode[],
+  categories: [
+    "Personal",
+    SANTUY,
+    "Internal",
+    "Event",
+    "301 Meeting",
+    "Company Holiday",
+    "Public Holiday",
+    "Cuti",
+    "WFH",
+    "Task",
+  ],
+  // Sharing Santuy isn't created here: its sessions come from the rotation
+  // (/calendar/santuy). Old Santuy rows still open and edit as before.
+  eventTypes: {
+    employee: ["Personal"],
+    pm: ["Personal", "Internal", "Event"],
+    stakeholder: ["Personal", "Internal", "Event", "Company Holiday"],
+  },
+} satisfies {
+  basePath: string
+  views: ViewMode[]
+  categories: string[]
+  eventTypes: Record<AccessLevel, string[]>
+}
+
+/** Team-wide work events: on everyone's calendar, invited or not. */
 const PROJECT_EVENT_TYPES = new Set(["Internal", "Event", "Company Holiday"])
 
 /**
@@ -441,7 +415,7 @@ const taskToEvent = (
   }
 }
 
-function CalendarDataLayer({ scope, level, userId }: CalendarClientProps) {
+function CalendarDataLayer({ level, userId }: CalendarClientProps) {
   const t = useT("calendar")
   const tLeave = useT("leave")
   const supabase = useMemo(() => createClient(), [])
@@ -455,13 +429,11 @@ function CalendarDataLayer({ scope, level, userId }: CalendarClientProps) {
   const [taskDialogOpen, setTaskDialogOpen] = useState(false)
   const { currentDate, viewMode } = useCalendarContext()
 
-  const config = SCOPES[scope]
-  const personal = scope === "personal"
+  const config = CALENDAR
   // Phones: a week doesn't fit, so my calendar lists what's coming (agenda)
   // or shows the month.
   const isMobile = useIsMobile()
-  const views: ViewMode[] =
-    personal && isMobile ? ["agenda", "month"] : config.views
+  const views: ViewMode[] = isMobile ? ["agenda", "month"] : config.views
   const isStakeholder = level === "stakeholder"
   // Other people's leave: PM and stakeholders, on both calendars (who's out
   // matters to them whichever one is open). Employees see their own.
@@ -470,28 +442,18 @@ function CalendarDataLayer({ scope, level, userId }: CalendarClientProps) {
 
   const categories: EventCategory[] = useMemo(
     () =>
-      config.categories
-        .filter(
-          (type) =>
-            personal || teamLeave || (type !== "Cuti" && type !== "WFH"),
-        )
-        // National holidays are for stakeholders (Google's copy may still
-        // show on someone's personal calendar).
-        .filter(
-          (type) => personal || isStakeholder || type !== "Public Holiday",
-        )
-        .map((type) => {
-          const definition = getEventTypeDefinition(type)
-          const labelKey = getEventTypeLabelKey(type)
-          return {
-            id: type,
-            name: labelKey ? t(labelKey) : (definition?.label ?? type),
-            color: definition?.color ?? "neutral",
-            // Task deadlines start hidden on the personal calendar (opt-in filter).
-            isActive: !(personal && type === "Task"),
-          }
-        }),
-    [config, personal, teamLeave, isStakeholder, t],
+      config.categories.map((type) => {
+        const definition = getEventTypeDefinition(type)
+        const labelKey = getEventTypeLabelKey(type)
+        return {
+          id: type,
+          name: labelKey ? t(labelKey) : (definition?.label ?? type),
+          color: definition?.color ?? "neutral",
+          // Task deadlines start hidden (an opt-in filter).
+          isActive: type !== "Task",
+        }
+      }),
+    [config, t],
   )
 
   const range = useMemo(() => {
@@ -507,7 +469,7 @@ function CalendarDataLayer({ scope, level, userId }: CalendarClientProps) {
   const rangeStartDate = format(range.start, "yyyy-MM-dd")
   const rangeEndDate = format(range.end, "yyyy-MM-dd")
   const onTimeline = viewMode === "timeline"
-  const eventsKey = ["calendar-events", scope, rangeStartIso, rangeEndIso]
+  const eventsKey = ["calendar-events", rangeStartIso, rangeEndIso]
   // Live: events, leave and 1:1 slots others add show up here.
   useRealtimeRefresh("calendar", [
     { table: "calendar_events", keys: () => [["calendar-events"]] },
@@ -542,16 +504,16 @@ function CalendarDataLayer({ scope, level, userId }: CalendarClientProps) {
     staleTime: 30_000,
   })
 
-  // RLS already hides other people's Personal events; this picks what
-  // belongs on this calendar.
+  // RLS already hides other people's Personal events; yours, the ones
+  // you're invited to and the team-wide ones show.
   const events = useMemo(
     () =>
-      rawEvents.filter((event) =>
-        personal
-          ? onMyAgenda(event, userId, userEmail ?? null)
-          : PROJECT_EVENT_TYPES.has(event.type ?? ""),
+      rawEvents.filter(
+        (event) =>
+          onMyAgenda(event, userId, userEmail ?? null) ||
+          PROJECT_EVENT_TYPES.has(event.type ?? ""),
       ),
-    [rawEvents, personal, userId, userEmail],
+    [rawEvents, userId, userEmail],
   )
 
   const { data: leaveRequests = [], isLoading: leaveLoading } = useQuery<
@@ -559,7 +521,6 @@ function CalendarDataLayer({ scope, level, userId }: CalendarClientProps) {
   >({
     queryKey: [
       "calendar-leave",
-      scope,
       userId,
       teamLeave,
       rangeStartDate,
@@ -586,7 +547,7 @@ function CalendarDataLayer({ scope, level, userId }: CalendarClientProps) {
         throw error
       }
     },
-    enabled: !!userId && !onTimeline && (personal || teamLeave),
+    enabled: !!userId && !onTimeline,
     placeholderData: keepPreviousData,
     staleTime: 30_000,
   })
@@ -624,33 +585,33 @@ function CalendarDataLayer({ scope, level, userId }: CalendarClientProps) {
         throw error
       }
     },
-    enabled: !!userId && personal,
+    enabled: !!userId,
     placeholderData: keepPreviousData,
     staleTime: 30_000,
   })
 
-  // Task deadlines: your own on the personal calendar, the team's on the
-  // project one (which also feeds the timeline).
-  // Personal: just your open deadlines in the visible range (not all of
-  // Tugas saya).
-  const myTasks = useMyDueTasks(
-    personal ? userId : null,
-    rangeStartDate,
-    rangeEndDate,
-  )
-  const projectData = useProjectCalendarData(isStakeholder, !personal)
+  // Task deadlines: your own open ones in the visible range, and the
+  // team's from the projects (which also feed the timeline); one each.
+  const myTasks = useMyDueTasks(userId, rangeStartDate, rangeEndDate)
+  const projectData = useProjectCalendarData(isStakeholder, true)
 
   const taskEvents = useMemo(() => {
-    if (personal)
-      return (myTasks.data ?? [])
-        .filter((task) => task.due_date && !task.done)
-        .map((task) => taskToEvent(task, task.projectName || undefined))
     const data = projectData.data
     const names = new Map(data?.projects.map((p) => [p.id, p.name]) ?? [])
-    return (data?.tasks ?? [])
-      .filter((task) => task.due_date && !task.done)
-      .map((task) => taskToEvent(task, names.get(task.project_id)))
-  }, [personal, myTasks.data, projectData.data])
+    const seen = new Set<string>()
+    const out: CalendarEvent[] = []
+    for (const task of myTasks.data ?? []) {
+      if (!task.due_date || task.done || seen.has(task.id)) continue
+      seen.add(task.id)
+      out.push(taskToEvent(task, task.projectName || undefined))
+    }
+    for (const task of data?.tasks ?? []) {
+      if (!task.due_date || task.done || seen.has(task.id)) continue
+      seen.add(task.id)
+      out.push(taskToEvent(task, names.get(task.project_id)))
+    }
+    return out
+  }, [myTasks.data, projectData.data])
 
   const taskProject = useMemo(() => {
     const map = new Map<string, string>()
@@ -860,10 +821,7 @@ function CalendarDataLayer({ scope, level, userId }: CalendarClientProps) {
   }
 
   const loading =
-    isLoading ||
-    leaveLoading ||
-    oneOnOneLoading ||
-    (personal ? myTasks.isLoading : projectData.isLoading)
+    isLoading || leaveLoading || oneOnOneLoading || myTasks.isLoading
 
   return (
     <>
@@ -881,19 +839,16 @@ function CalendarDataLayer({ scope, level, userId }: CalendarClientProps) {
         categories={categories}
         views={views}
         basePath={config.basePath}
-        header={<CalendarScopes />}
-        withGoogle={personal}
+        withGoogle
         blockedGoogleEventIds={blockedGoogleEventIds}
         onEventOpen={handleEventOpen}
         timeline={
-          personal ? undefined : (
-            <ProjectTimeline
-              projects={projectData.data?.projects ?? []}
-              tasks={projectData.data?.tasks ?? []}
-              loading={projectData.isLoading}
-              onOpenTask={(task) => openTaskById(task.id, task.project_id)}
-            />
-          )
+          <ProjectTimeline
+            projects={projectData.data?.projects ?? []}
+            tasks={projectData.data?.tasks ?? []}
+            loading={projectData.isLoading}
+            onOpenTask={(task) => openTaskById(task.id, task.project_id)}
+          />
         }
       />
       {openTask && (
@@ -912,15 +867,12 @@ function CalendarDataLayer({ scope, level, userId }: CalendarClientProps) {
   )
 }
 
-export default function CalendarClient({
-  scope,
-  level,
-  userId,
-}: CalendarClientProps) {
+export default function CalendarClient({ level, userId }: CalendarClientProps) {
   return (
-    <CalendarProvider initialView={SCOPES[scope].views[0]}>
+    // Minggu first; the URL's view (/calendar/<view>) wins.
+    <CalendarProvider initialView="week">
       <GoogleCalendarProvider>
-        <CalendarDataLayer scope={scope} level={level} userId={userId} />
+        <CalendarDataLayer level={level} userId={userId} />
       </GoogleCalendarProvider>
     </CalendarProvider>
   )

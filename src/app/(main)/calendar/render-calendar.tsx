@@ -1,6 +1,4 @@
-import CalendarClient, {
-  type CalendarScope,
-} from "@/app/(main)/calendar/CalendarClient"
+import CalendarClient from "@/app/(main)/calendar/CalendarClient"
 
 import { createClient } from "@/shared/api/supabase/server"
 import { accessLevel } from "@/shared/config/access"
@@ -9,8 +7,8 @@ import {
   getMiddlewareViewer,
 } from "@/shared/lib/viewer-context-server"
 
-/** Both calendars: /calendar (project) and /calendar/personal/<view>. */
-export async function renderCalendar(scope: CalendarScope) {
+/** The calendar: /calendar and /calendar/<view>. */
+export async function renderCalendar() {
   const supabase = await createClient()
   const {
     data: { user },
@@ -37,5 +35,5 @@ export async function renderCalendar(scope: CalendarScope) {
           ).data,
         )
 
-  return <CalendarClient scope={scope} level={level} userId={effectiveUserId} />
+  return <CalendarClient level={level} userId={effectiveUserId} />
 }

@@ -294,6 +294,6 @@ sheet doesn't scroll, each pane does), a full-height hairline between.
   stack; a list whose detail is heavy (Tugas) opens the dialog instead.
 
 The calendar fills the sheet the same way (`sheetFillClassName` +
-`data-sheet-fill`): one bar on top (the scopes' tabs, their underline on
-the bar's hairline, then the toolbar; centred on the panel's "Kantor"),
+`data-sheet-fill`): one bar on top (the toolbar: Timeline / Minggu / Bulan, the
+range, filters, new event; centred on the panel's "Kantor"),
 the grid under it edge to edge with no card. Below lg: the old stack.

@@ -2,7 +2,7 @@ import { renderCalendar } from "./render-calendar"
 
 export const dynamic = "force-dynamic"
 
-/** Project calendar (timeline, week, month). */
+/** The calendar (timeline, week, month): yours and the team's. */
 export default async function CalendarPage() {
-  return renderCalendar("project")
+  return renderCalendar()
 }

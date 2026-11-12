@@ -1492,7 +1492,8 @@ function OptionRow({
       </button>
       <div
         className={cn(
-          "focus-within:ring-focus-ring flex min-h-10 w-fit max-w-full items-center gap-3 rounded-full border py-1.5 pr-4 pl-2 transition-colors focus-within:ring-2",
+          // Ringed while typing or tabbing in, not when the badge is clicked.
+          "has-[:focus-visible]:ring-focus-ring flex min-h-10 w-fit max-w-full items-center gap-3 rounded-full border py-1.5 pr-4 pl-2 transition-colors has-[:focus-visible]:ring-2",
           picked
             ? "border-foreground bg-foreground text-background"
             : "border-field-border bg-field hover:bg-field-hover",
