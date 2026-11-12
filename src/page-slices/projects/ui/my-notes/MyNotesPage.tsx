@@ -262,9 +262,9 @@ export function MyNotesPage() {
               </Tooltip>
             )}
           </div>
-          {/* The same line as + Baru beside it (0.5px chrome hairline, no
+          {/* The same line as + Baru beside it (1px chrome line, no
               fill), not the 1px field edge. */}
-          <InputGroup className="border-chrome-border hover:border-chrome-border w-full border-[0.5px] bg-transparent hover:bg-transparent">
+          <InputGroup className="border-chrome-border hover:border-chrome-border w-full border bg-transparent hover:bg-transparent">
             <InputGroupAddon>
               <RiSearchLine />
             </InputGroupAddon>

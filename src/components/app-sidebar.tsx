@@ -230,7 +230,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
       aside={
         <Notifications
           variant="icon"
-          className="border-chrome-border size-8 shrink-0 rounded-full border-[0.5px] group-data-[collapsible=icon]:border-transparent"
+          className="border-chrome-border size-8 shrink-0 rounded-full border group-data-[collapsible=icon]:border-transparent"
         />
       }
     />
