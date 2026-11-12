@@ -57,8 +57,13 @@ export function PageSheet({
   const page = (
     <SidebarInset
       data-paper=""
-      // Beside the panel: its own right corners (the wrapper doesn't clip).
-      className={cn(pageSheetClassName, radius, aside && "md:rounded-l-none", className)}
+      // Never round the Mac scroller: WebKit can retain that clip after hover.
+      className={cn(
+        pageSheetClassName,
+        mac ? "md:rounded-none" : radius,
+        !mac && aside && "md:rounded-l-none",
+        className,
+      )}
       {...props}
     />
   )
