@@ -151,7 +151,6 @@ function NavSection({
 }
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
-  const desktop = useMacChrome()
   const pathname = usePathname()
   const { profile } = useUserProfile()
   const { loading, active, badges } = useWorkspaceNav()
@@ -307,8 +306,8 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
     </SidebarGroup>
   )
 
-  // The panel's title row: the open workspace (the rail picks it) and the
-  // toggle (the Mac app's sits by its traffic lights instead). On phones
+  // The panel's title row: the open workspace (the rail picks it; the
+  // toggle is on the rail, or by the Mac app's traffic lights). On phones
   // the studio's mark and name, there's no rail there. mb-2: 12px to +
   // Baru.
   const titleRow = (
@@ -333,9 +332,6 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         <span className="text-foreground min-w-0 flex-1 truncate pl-2.5 text-sm font-medium">
           {active ? t(active.name) : null}
         </span>
-      )}
-      {!desktop && !isMobile && (
-        <SidebarTrigger className="text-muted-foreground shrink-0" />
       )}
     </div>
   )
@@ -396,35 +392,22 @@ export function AppRail() {
       data-chrome-dark=""
       className={cn(
         "on-chrome hidden w-(--sidebar-width-icon) shrink-0 flex-col pb-1.5 md:flex",
-        // pt-1.5: the mark's 32px row centres on the tab row beside it
+        // pt-1.5: the toggle's 32px row centres on the tab row beside it
         // (44px). In the Mac app, the top strip is above it.
         desktop ? "pt-1" : "pt-1.5",
       )}
     >
-      <div className="flex justify-center">
-        <Tooltip>
-          <TooltipTrigger
-            render={
-              <PrefetchLink
-                href={siteConfig.baseLinks.dashboard}
-                aria-label={siteConfig.name}
-                className="flex size-8 items-center justify-center"
-              />
-            }
-          >
-            {/* Grayscale on the rail: quiet next to the icons, not a
-                color spot above them. */}
-            <AppIcon
-              variant="badge"
-              size={96}
-              className="size-5 shrink-0 rounded-[5px] grayscale"
-            />
-          </TooltipTrigger>
-          <TooltipContent side="right">{siteConfig.name}</TooltipContent>
-        </Tooltip>
-      </div>
-      {/* 12px under the mark, the sidebar's block gap. */}
-      <div className="mt-3">
+      {/* Where the mark was: the toggle, its 32px row centred on the tab
+          row beside it (44px). The Mac app has its toggle by the traffic
+          lights instead. */}
+      {!desktop && (
+        <div className="flex justify-center">
+          <SidebarTrigger className="text-chrome-label hover:bg-chrome-hover blend-ink size-8 rounded-full" />
+        </div>
+      )}
+      {/* 12px under the toggle, the sidebar's block gap: the mark, then
+          the workspaces, one column. */}
+      <div className={desktop ? undefined : "mt-3"}>
         <WorkspaceRail />
       </div>
       <div className="flex-1" />
@@ -445,41 +428,55 @@ function WorkspaceRail() {
   const { loading, visible, active, select, hasBadge } = useWorkspaceNav()
   const { open, setOpen } = useSidebar()
   const t = useT("nav")
-  if (loading || visible.length < 2) return null
+  const brand = siteConfig.name
   return (
     <SidebarGroup className="py-0">
       <SidebarMenu>
-        {visible.map((ws) => {
-          const shown = open && ws.id === active?.id
-          return (
-            <SidebarMenuItem key={ws.id}>
-              <SidebarMenuButton
-                tooltip={t(ws.name)}
-                isActive={shown}
-                aria-pressed={shown}
-                // Ink and fills (hover, the shown one) all blend into the
-                // chrome.
-                className="blend-ink relative"
-                // The one shown folds the panel away; another shows its
-                // pages (opening the panel when it's folded).
-                onClick={() => {
-                  if (shown) return setOpen(false)
-                  select(ws.id)
-                  if (!open) setOpen(true)
-                }}
-              >
-                <ws.icon />
-                <span>{t(ws.name)}</span>
-                {!shown && hasBadge(ws) && (
-                  <span
-                    aria-hidden
-                    className="bg-primary absolute top-1 right-1 size-1.5 rounded-full"
-                  />
-                )}
-              </SidebarMenuButton>
-            </SidebarMenuItem>
-          )
-        })}
+        {/* The studio's mark (the plain PNG: black, white on dark), a
+            link to Beranda, in line with the workspaces under it. */}
+        <SidebarMenuItem>
+          <SidebarMenuButton
+            tooltip={brand}
+            aria-label={brand}
+            className="blend-ink"
+            render={<PrefetchLink href={siteConfig.baseLinks.dashboard} />}
+          >
+            <AppIcon variant="mark" size={96} className="size-4" />
+          </SidebarMenuButton>
+        </SidebarMenuItem>
+        {!loading &&
+          visible.length > 1 &&
+          visible.map((ws) => {
+            const shown = open && ws.id === active?.id
+            return (
+              <SidebarMenuItem key={ws.id}>
+                <SidebarMenuButton
+                  tooltip={t(ws.name)}
+                  isActive={shown}
+                  aria-pressed={shown}
+                  // Ink and fills (hover, the shown one) all blend into the
+                  // chrome.
+                  className="blend-ink relative"
+                  // The one shown folds the panel away; another shows its
+                  // pages (opening the panel when it's folded).
+                  onClick={() => {
+                    if (shown) return setOpen(false)
+                    select(ws.id)
+                    if (!open) setOpen(true)
+                  }}
+                >
+                  <ws.icon />
+                  <span>{t(ws.name)}</span>
+                  {!shown && hasBadge(ws) && (
+                    <span
+                      aria-hidden
+                      className="bg-primary absolute top-1 right-1 size-1.5 rounded-full"
+                    />
+                  )}
+                </SidebarMenuButton>
+              </SidebarMenuItem>
+            )
+          })}
       </SidebarMenu>
     </SidebarGroup>
   )

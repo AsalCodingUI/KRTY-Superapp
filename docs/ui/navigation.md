@@ -36,17 +36,20 @@ examples: **/ui** → Navigasi.
 The shell has no top bar from `md` up. The sidebar is two parts
 (Obvious-style):
 
-- **The rail** (`AppRail`, 60px, on the chrome): the studio's mark
-  (`AppIcon variant="badge"`, a link to Beranda), 12px under it the
-  workspaces only (Kantor, Project; `WorkspaceRail`), the theme
-  (`AppearancePopover`) at the bottom. The workspace shown is filled; a
+- **The rail** (`AppRail`, 60px, on the chrome): the sidebar toggle on
+  top (level with the tab row; the Mac app's is by its traffic lights),
+  12px under it one column of 32px buttons: the studio's mark (the plain
+  PNG, `AppIcon variant="mark"`, a link to Beranda), then the workspaces
+  (Kantor, Project; `WorkspaceRail`); the theme (`AppearancePopover`) at
+  the bottom. The workspace shown is filled; a
   dot on one with something new. Picking another shows its pages; picking
   the one shown folds the panel; picking one while folded opens it.
 - **The panel** (`AppSidebar`, 260px / 16.25rem, resizable 220–420),
   *inside the page sheet* (`PageSheet aside`), a hairline between it and
-  the page; it folds to nothing (⌘B, its toggle, the rail). From the top:
-  the workspace's name with the toggle at its end (the Mac app keeps its
-  toggle by the traffic lights), 12px above "+ Baru" (`NewMenu`: an
+  the page; it folds to nothing (⌘B, the rail's toggle, the rail). The
+  resize handle sits across that hairline: hovering darkens the line
+  itself and shows a grip on it. From the top: the workspace's name,
+  12px above "+ Baru" (`NewMenu`: an
   outline button, full width, label centred; a dropdown of what you can
   start — cuti, event, catatan, project for PMs up — each opening its
   page's own form via `?new=1` / `useNewParam`) with the bell (icon only)

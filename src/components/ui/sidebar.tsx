@@ -278,6 +278,7 @@ function Sidebar({
     return (
       <div
         className="group peer text-sidebar-foreground relative hidden h-full shrink-0 md:block"
+        data-inline="true"
         data-state={state}
         data-collapsible={state === "collapsed" ? "offcanvas" : ""}
         data-variant={variant}
@@ -288,7 +289,10 @@ function Sidebar({
           data-slot="sidebar-container"
           data-side={side}
           className={cn(
-            "relative h-full w-(--sidebar-width) overflow-hidden transition-[width] duration-200 ease-out group-data-[collapsible=offcanvas]:w-0 group-data-[resizing=true]/sidebar-wrapper:transition-none motion-reduce:transition-none",
+            // Clipped only while folded (or folding): open, the resize handle
+            // can sit across the panel's edge. Opening, the panel slides
+            // in under the page (the page is above it, z-20).
+            "relative h-full w-(--sidebar-width) transition-[width] group-data-[collapsible=offcanvas]:overflow-hidden duration-200 ease-out group-data-[collapsible=offcanvas]:w-0 group-data-[resizing=true]/sidebar-wrapper:transition-none motion-reduce:transition-none",
             className,
           )}
           {...props}
@@ -449,6 +453,10 @@ function SidebarRail({ className, ...props }: React.ComponentProps<"div">) {
         // page sheet) and a small grip pill fade in. Both are ink blended
         // into the chrome (darken / lighten), so they carry the tint.
         "absolute inset-y-0 right-0 z-20 hidden w-3 cursor-col-resize md:block",
+        // In the page sheet: centred on the panel's hairline (z over the
+        // page), the line its full height, so hovering darkens the edge
+        // itself instead of drawing a second line beside it.
+        "group-data-[inline=true]:-right-[5.5px] group-data-[inline=true]:z-30 group-data-[inline=true]:before:inset-y-0",
         "before:bg-foreground/0 before:absolute before:inset-y-3 before:left-1/2 before:w-px before:-translate-x-1/2 before:rounded-full before:mix-blend-darken before:transition-colors before:duration-200 dark:before:mix-blend-lighten",
         "after:bg-foreground/0 after:absolute after:top-1/2 after:left-1/2 after:h-9 after:w-1 after:-translate-1/2 after:rounded-full after:mix-blend-darken after:transition-[background-color,height] after:duration-200 dark:after:mix-blend-lighten",
         "hover:before:bg-foreground/12 hover:after:bg-foreground/30",
