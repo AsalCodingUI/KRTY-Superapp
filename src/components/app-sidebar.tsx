@@ -241,7 +241,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
       aside={
         <Notifications
           variant="icon"
-          className="border-chrome-border size-8 shrink-0 rounded-full border group-data-[collapsible=icon]:border-transparent"
+          className="border-border size-8 shrink-0 rounded-full border group-data-[collapsible=icon]:border-transparent"
         />
       }
     />
@@ -462,27 +462,11 @@ function WorkspaceRail() {
   const { loading, visible, active, select, hasBadge } = useWorkspaceNav()
   const { open, setOpen } = useSidebar()
   const t = useT("nav")
-  // It goes to Beranda, so it's named that (not the studio's name).
-  const brand = t("home")
   return (
     // ChatGPT's rail (measured): 36px buttons, 8px either side on the
     // 52px rail, 44px apart; 16px icons.
     <SidebarGroup className="py-0 group-data-[collapsible=icon]:px-2">
       <SidebarMenu className="gap-2">
-        {/* The studio's mark (the plain PNG: black, white on dark), a
-            link to Beranda, in line with the workspaces under it. */}
-        <SidebarMenuItem>
-          <SidebarMenuButton
-            tooltip={brand}
-            aria-label={brand}
-            className="blend-ink rounded-[8px] group-data-[collapsible=icon]:size-9! group-data-[collapsible=icon]:p-2!"
-            render={<PrefetchLink href={siteConfig.baseLinks.dashboard} />}
-          >
-            {/* The PNG's mark fills 2/3 of it: a 20px box draws it ~13px,
-                the live size of the 16px icons under it. */}
-            <AppIcon variant="mark" size={96} className="-m-0.5 size-5" />
-          </SidebarMenuButton>
-        </SidebarMenuItem>
         {!loading &&
           visible.length > 1 &&
           visible.map((ws) => {
@@ -496,9 +480,8 @@ function WorkspaceRail() {
                   // Square (a fixed 8px corner: the theme's radius can be a
                   // pill). As ChatGPT's rail: the rest the secondary ink of
                   // the bar's toggle (55%), the shown one a faint ink fill
-                  // (6%) and its icon solid (the line glyph filled, its
-                  // inner shapes cut out). 16px icons.
-                  className="not-data-active:text-foreground/55 data-active:bg-foreground/6 data-active:text-foreground data-active:[&_svg_*]:fill-current data-active:[&_svg_*]:[fill-rule:evenodd] relative rounded-[8px] group-data-[collapsible=icon]:size-9! group-data-[collapsible=icon]:p-2.5! [&_svg]:size-4"
+                  // (6%) and its solid icon (activeIcon). 16px icons.
+                  className="not-data-active:text-foreground/55 data-active:bg-foreground/6 data-active:text-foreground relative rounded-[8px] group-data-[collapsible=icon]:size-9! group-data-[collapsible=icon]:p-2.5! [&_svg]:size-4"
                   // The one shown folds the panel away; another shows its
                   // pages (opening the panel when it's folded).
                   onClick={() => {
@@ -507,7 +490,7 @@ function WorkspaceRail() {
                     if (!open) setOpen(true)
                   }}
                 >
-                  <ws.icon />
+                  {shown && ws.activeIcon ? <ws.activeIcon /> : <ws.icon />}
                   <span>{t(ws.name)}</span>
                   {!shown && hasBadge(ws) && (
                     <span

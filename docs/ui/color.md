@@ -79,7 +79,7 @@ project colors. Live swatches: **/ui** → Color.
 | Token                | For                                                                                                  |
 | -------------------- | ---------------------------------------------------------------------------------------------------- |
 | `border` (default)   | Hairlines: card edges in dark, panel headers, separators. `*` already has `border-border`            |
-| `field-border`       | Edge of fields and outline buttons; transparent in dark                                              |
+| `field-border`       | Edge of fields and outline buttons: the hairline's tone (`--border`), one border everywhere; transparent in dark |
 | `field-border-hover` | Their hover                                                                                          |
 | `input`              | Fills of tracks (slider, radio, button-group divider)                                                |
 | `focus-ring`         | Focus halo: `focus-visible:ring-2 focus-visible:ring-focus-ring` + `focus-visible:border-primary/50` |
@@ -369,5 +369,5 @@ text-amber-400`, `hover:text-amber-300` → `fill-amber-9 text-amber-9`, `hover:
   stay light-mode values inside a dark sidebar in light mode. Add the
   dark-chrome selector there like globals.css does.
 - Hex values inside `:root` tokens (`--border: #f3f3f3`, `--field-border:
-#ebebeb`, `--sidebar-border: #f0f0f0`, `--neutral-line`, `--*-line`,
+var(--border)`, `--sidebar-border: #f0f0f0`, `--neutral-line`, `--*-line`,
   `--dialog-shell`) don't lean to the tint like the oklch ones do.

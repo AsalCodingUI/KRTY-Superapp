@@ -109,7 +109,7 @@ export function SplitPaneHead({
 /** The list's search: on the chrome's 1px line with no fill, like + Baru
  *  beside it in the sidebar (not the 1px field edge). */
 export const splitPaneSearchClassName =
-  "border-chrome-border hover:border-chrome-border w-full border bg-transparent hover:bg-transparent"
+  "border-border hover:border-border w-full border bg-transparent hover:bg-transparent"
 
 /** The list's rows, scrolling under the head (ends fade, scroll-fade).
  *  px-3 + a row's px-3: the rows' content on the head's 24px edge, the

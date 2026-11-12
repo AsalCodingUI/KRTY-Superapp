@@ -634,12 +634,16 @@
   --info-subtle: var(--blue-3);
   --neutral-subtle: oklch(0.22 0 0 / 0.06);
   --neutral-ink: oklch(0.52 var(--tint-ink) var(--tint-h));
-  --border: #f3f3f3;
+  /* Translucent ink: #f3f3f3 on white, and still a shade darker than any
+     tinted or see-through fill under it (never a lighter line). */
+  --border: oklch(0 0 0 / 0.047);
   --input: #dddddd;
   --field: oklch(1 0 0 / 0.7);
   --field-hover: oklch(1 0 0 / 0.9);
-  --field-border: #ebebeb;
-  --field-border-hover: #dcdcdc;
+  /* One border tone for lines and outlines alike (fields, chips, kbd):
+     the hairline's. Hover still darkens. */
+  --field-border: var(--border);
+  --field-border-hover: oklch(0 0 0 / 0.137);
   --focus-ring: color-mix(in oklab, var(--primary) 22%, transparent);
   --ring: color-mix(in oklab, var(--primary) 50%, transparent);
   /* Behind dialogs: a light, tinted veil (the page stays readable). */
@@ -658,7 +662,7 @@
   --sidebar-accent: var(--chrome-hover);
   --sidebar-active: var(--chrome-selected);
   --sidebar-accent-foreground: oklch(0.289 var(--tint-ink) var(--tint-h));
-  --sidebar-border: #f0f0f0;
+  --sidebar-border: oklch(0 0 0 / 0.059); /* #f0f0f0 on white, ink on anything else */
   --sidebar-ring: var(--ring);
   /* Row highlights (tables + lists): opaque so cell edges never seam. */
   --row-surface: var(--background);

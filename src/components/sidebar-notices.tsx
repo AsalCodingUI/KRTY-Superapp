@@ -107,7 +107,7 @@ export function SidebarNoticeCard({
           tone === "accent"
             ? "bg-primary text-primary-foreground"
             : // Outline only, like the keys: no fill, no shadow.
-              "text-foreground border border-black/10 dark:border-white/15",
+              "text-foreground border border-border",
         )}
       >
         {icon}

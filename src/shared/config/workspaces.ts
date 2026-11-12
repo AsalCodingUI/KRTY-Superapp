@@ -1,3 +1,4 @@
+import { BriefcaseSolid, HouseWindowSolid, InboxSolid } from "@/components/icons"
 import { siteConfig } from "@/app/siteConfig"
 import type { MessageKey } from "@/shared/i18n/messages"
 import { accessLevel } from "@/shared/config/access"
@@ -66,6 +67,8 @@ export interface Workspace {
   id: WorkspaceId
   name: NavKey
   icon: RemixiconComponentType
+  /** Its solid icon: the rail's shown workspace. */
+  activeIcon?: RemixiconComponentType
   /** Whether the workspace exists for this profile at all. */
   can?: (profile: WorkspaceProfile) => boolean
   items: (profile: WorkspaceProfile) => WorkspaceItem[]
@@ -112,6 +115,7 @@ export const workspaces: Workspace[] = [
     name: "workspacePersonal",
     // A house (Home's, with a window: not Beranda's own icon).
     icon: RiHouseWindowLine,
+    activeIcon: HouseWindowSolid,
     items: (p) => [
       // Stakeholders also manage the team from here.
       ...(isAdmin(p)
@@ -198,6 +202,7 @@ export const workspaces: Workspace[] = [
     id: "project",
     name: "workspaceProject",
     icon: RiBriefcaseLine,
+    activeIcon: BriefcaseSolid,
     items: () => [
       {
         // "Semua project": the section itself is called Project.
@@ -235,6 +240,7 @@ export const workspaces: Workspace[] = [
     id: "leads",
     name: "workspaceLeads",
     icon: RiInboxLine,
+    activeIcon: InboxSolid,
     can: isPmUp,
     items: () => [
       { name: "leadsManage", href: links.leads, icon: RiSettings3Line },

@@ -3,7 +3,7 @@
  * free set doesn't have, drawn the same way (24px, round caps and joins,
  * no fill) so it sits with the rest.
  */
-import type { SVGProps } from "react"
+import { useId, type SVGProps } from "react"
 
 /** The icons' stroke on their 24px grid: 1.75 (as heavy, for its size, as the BRDG set's 2 on a full 24 box). It scales with the icon
  *  (through VIEWBOX: ~1.33px at size-4, 2.67 at 32px), so every size is the
@@ -188,3 +188,70 @@ export function CircleCheckSolid({
   )
 }
 ;(CircleCheckSolid as { ours?: boolean }).ours = true
+
+/** A solid glyph (the rail's shown workspace, ChatGPT-style), 1:1 with
+ *  its line glyph: the same body path, stroked the same and filled, so the
+ *  outline, corners and size match; the inner details are cut out of it
+ *  (`cutFill` a filled + stroked shape, `cutLine` a stroked line), and
+ *  `line` keeps parts that stay lines (a handle). */
+export function solidGlyph(
+  name: string,
+  { body, line, cutFill, cutLine }: {
+    body: string
+    line?: string
+    cutFill?: string
+    cutLine?: string
+  },
+) {
+  const Glyph = ({
+    size = 24,
+    color = "currentColor",
+    ...props
+  }: GlyphProps) => {
+    const id = useId()
+    return (
+      <svg
+        viewBox={VIEWBOX}
+        width={size}
+        height={size}
+        fill="none"
+        stroke={color}
+        strokeWidth={STROKE}
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        {...props}
+      >
+        <mask id={id} maskUnits="userSpaceOnUse" x="0" y="0" width="24" height="24">
+          <rect x="0" y="0" width="24" height="24" fill="white" stroke="none" />
+          {cutFill && <path d={cutFill} fill="black" stroke="black" />}
+          {cutLine && <path d={cutLine} stroke="black" />}
+        </mask>
+        <path d={body} fill={color} mask={`url(#${id})`} />
+        {line && <path d={line} />}
+      </svg>
+    )
+  }
+  Glyph.displayName = name
+  ;(Glyph as { ours?: boolean }).ours = true
+  return Glyph
+}
+
+/** HouseWindow, solid: the house filled, its window cut out. */
+export const HouseWindowSolid = solidGlyph("HouseWindowSolid", {
+  body: "M3.292 19.617L3.292 10.311A1.633 1.633 0 0 1 3.88 9.059L10.955 3.181A1.633 1.633 0 0 1 13.045 3.181L20.12 9.059A1.633 1.633 0 0 1 20.708 10.311L20.708 19.617A1.633 1.633 0 0 1 19.075 21.25L4.925 21.25A1.633 1.633 0 0 1 3.292 19.617Z",
+  cutFill:
+    "M10.6 12.75h2.8a0.85 0.85 0 0 1 0.85 0.85v2.8a0.85 0.85 0 0 1 -0.85 0.85h-2.8a0.85 0.85 0 0 1 -0.85 -0.85v-2.8a0.85 0.85 0 0 1 0.85 -0.85Z",
+})
+/** Briefcase (Briefcase02), solid: the case filled, its band cut out, the
+ *  handle a line. */
+export const BriefcaseSolid = solidGlyph("BriefcaseSolid", {
+  body: "M6.015 6.831H17.985A3.265 3.265 0 0 1 21.25 10.096V17.713A3.265 3.265 0 0 1 17.985 20.978H6.015A3.265 3.265 0 0 1 2.75 17.713V10.096A3.265 3.265 0 0 1 6.015 6.831Z",
+  line: "M9.279 6.831V5.199a2.176 2.176 0 0 1 2.176 -2.176h1.088a2.176 2.176 0 0 1 2.176 2.176v1.632",
+  cutLine: "M2.75 13.088h18.5",
+})
+/** Inbox (Inbox01), solid: the tray filled, its notched line cut out. */
+export const InboxSolid = solidGlyph("InboxSolid", {
+  body: "M6.015 3.294H17.985A3.265 3.265 0 0 1 21.25 6.559V17.441A3.265 3.265 0 0 1 17.985 20.706H6.015A3.265 3.265 0 0 1 2.75 17.441V6.559A3.265 3.265 0 0 1 6.015 3.294Z",
+  cutLine:
+    "M2.75 13.088L6.722 13.088A1.632 1.632 0 0 1 8.126 13.883L8.801 15.014A1.632 1.632 0 0 0 10.204 15.809L13.796 15.809A1.632 1.632 0 0 0 15.199 15.014L15.874 13.883A1.632 1.632 0 0 1 17.278 13.088L21.25 13.088",
+})
