@@ -42,7 +42,7 @@ export function RouteScopes({ items }: { items: Scope[] }) {
 
 const links = siteConfig.baseLinks
 
-/** Kalender: yours, the projects', Sharing Santuy. */
+/** Kalender: yours, the projects'. */
 export function CalendarScopes() {
   const t = useT("nav")
   return (
@@ -50,7 +50,6 @@ export function CalendarScopes() {
       items={[
         { href: `${links.calendar}/personal`, label: t("calendarMine") },
         { href: links.calendar, label: t("workspaceProject") },
-        { href: `${links.calendar}/santuy`, label: t("sharingSantuy") },
       ]}
     />
   )

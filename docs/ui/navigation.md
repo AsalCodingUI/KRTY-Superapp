@@ -185,7 +185,8 @@ tabular-nums`, hidden at 0; badge.md).
   flat pill (no outline or shadow) is the active app tab; the tab row's
   icons (‹ ›, tabs, +) are all 14px.
 - Sibling pages behind one row switch with `RouteScopes` as the page
-  title: Kalender (Saya / Project / Sharing Santuy). Tugas saya and
+  title: Kalender (Saya / Project). Sharing Santuy is a row of its own in
+  Kantor. Tugas saya and
   Catatan saya are rows of their own (the top block). Scopes are pages, so `TabNavigation plain` (links), never a
   SegmentedControl: the pill is kept for the view switch under them
   (Minggu / Bulan), so the two levels never look alike.

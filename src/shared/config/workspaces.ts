@@ -80,8 +80,8 @@ const links = siteConfig.baseLinks
  */
 export const globalItems = (): WorkspaceItem[] => [
   { name: "home", href: links.dashboard, icon: RiHome2Line },
-  // One calendar: yours first; the project calendar and Sharing Santuy
-  // are its scopes (CalendarScopes).
+  // One calendar: yours first; the project calendar is its other scope
+  // (CalendarScopes).
   {
     name: "calendar",
     href: `${links.calendar}/personal`,
@@ -107,7 +107,6 @@ export const globalItems = (): WorkspaceItem[] => [
  * tab titles and search still find them.
  */
 export const scopePages = (): WorkspaceItem[] => [
-  { name: "sharingSantuy", href: `${links.calendar}/santuy`, icon: RiCupLine },
   { name: "calendarProject", href: links.calendar, icon: RiCalendarLine },
 ]
 
@@ -187,6 +186,13 @@ export const workspaces: Workspace[] = [
             },
           ] satisfies WorkspaceItem[])
         : []),
+      // Sharing Santuy: the team's sharing sessions, a page of its own (no
+      // longer a scope of the calendar).
+      {
+        name: "sharingSantuy",
+        href: `${links.calendar}/santuy`,
+        icon: RiCupLine,
+      },
       // Office rules: everyone reads, stakeholders write.
       { name: "policies", href: links.policies, icon: RiBookOpenLine },
       // Employment contracts: employees see their own, stakeholders all.

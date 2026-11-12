@@ -214,6 +214,11 @@ function CalendarContent({
             tab's underline sits on the hairline under it. */}
         <div className="border-border flex flex-col gap-4 lg:flex-row lg:items-center lg:gap-x-6 lg:border-b lg:px-6 lg:pt-1.5">
           {header && <div className="shrink-0 lg:self-end">{header}</div>}
+          {/* The pages (tabs) apart from the view switch beside them, the
+              toolbar's own divider. */}
+          {header && (
+            <div aria-hidden className="bg-border h-4 w-px max-lg:hidden" />
+          )}
           <div className="min-w-0 flex-1 lg:py-1.5">
             <CalendarToolbar
               onAddEvent={() => setDialogOpen(true)}

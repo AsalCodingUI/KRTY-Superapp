@@ -1,6 +1,5 @@
 "use client"
 
-import { CalendarScopes } from "@/components/route-scopes"
 import { ConfirmDialog } from "@/components/confirm-dialog"
 import { EmptyState } from "@/components/empty-state"
 import { PageHeader } from "@/components/page-header"
@@ -96,13 +95,14 @@ export function SantuyPage({
   googleConfigured: boolean
 }) {
   const t = useT("santuy")
+  const tn = useT("nav")
   const { profile } = useUserProfile()
   const canEdit = !!profile && accessLevel(profile) !== "employee"
   const { data, isLoading, isError } = useSantuy()
 
   return (
     <div className="flex flex-col">
-      <PageHeader title={<CalendarScopes />} />
+      <PageHeader title={tn("sharingSantuy")} />
       {isLoading ? (
         <div className="grid gap-4 lg:grid-cols-[minmax(0,1fr)_20rem]">
           <Skeleton className="h-64 rounded-xl" />
