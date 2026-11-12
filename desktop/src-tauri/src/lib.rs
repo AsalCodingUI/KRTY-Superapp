@@ -256,62 +256,21 @@ fn web_window<'a>(
     })
 }
 
-/// The traffic lights as ChatGPT's (measured): 16pt in, 23pt apart, centred
-/// in the web app's 44pt top bar. AppKit lays the title bar out again on
-/// every resize and focus change, so this runs after those too.
+/// An empty compact unified toolbar: macOS then draws the traffic lights at
+/// their toolbar size and lays them out itself (without one, the larger
+/// lights were clipped to the plain title bar's narrower buttons).
 #[cfg(target_os = "macos")]
-fn place_traffic_lights(window: &WebviewWindow) {
-    use objc2::msg_send;
-    use objc2::runtime::AnyObject;
-    use objc2_foundation::{NSPoint, NSRect, NSSize};
-    const BAR: f64 = 44.0;
-    const LEFT: f64 = 16.0;
-    const STEP: f64 = 23.0;
-    let Ok(ptr) = window.ns_window() else { return };
-    let w = ptr as *mut AnyObject;
-    unsafe {
-        let frame: NSRect = msg_send![w, frame];
-        // NSWindowCloseButton, NSWindowMiniaturizeButton, NSWindowZoomButton
-        for (i, kind) in [0usize, 1, 2].into_iter().enumerate() {
-            let button: *mut AnyObject = msg_send![w, standardWindowButton: kind];
-            if button.is_null() {
-                continue;
-            }
-            if i == 0 {
-                // The title bar's views: as tall as the bar, at the top.
-                let bar: *mut AnyObject = msg_send![button, superview];
-                let container: *mut AnyObject = if bar.is_null() {
-                    bar
-                } else {
-                    msg_send![bar, superview]
-                };
-                if !container.is_null() {
-                    let rect = NSRect::new(
-                        NSPoint::new(0.0, frame.size.height - BAR),
-                        NSSize::new(frame.size.width, BAR),
-                    );
-                    let _: () = msg_send![container, setFrame: rect];
-                    let inner = NSRect::new(NSPoint::new(0.0, 0.0), rect.size);
-                    let _: () = msg_send![bar, setFrame: inner];
-                }
-            }
-            let mut f: NSRect = msg_send![button, frame];
-            f.origin.x = LEFT + i as f64 * STEP;
-            // Centred 22pt down, as low as the title bar AppKit keeps
-            // (often 28pt, whatever we set) lets it go without clipping.
-            let parent: *mut AnyObject = msg_send![button, superview];
-            let height = if parent.is_null() {
-                BAR
-            } else {
-                let pf: NSRect = msg_send![parent, frame];
-                pf.size.height
-            };
-            let top = (BAR / 2.0 - f.size.height / 2.0).min(height - f.size.height);
-            // AppKit's y runs up from the bar's bottom.
-            f.origin.y = height - top - f.size.height;
-            let _: () = msg_send![button, setFrameOrigin: f.origin];
-        }
-    }
+fn unified_toolbar(window: &WebviewWindow) {
+    use objc2::{MainThreadMarker, MainThreadOnly};
+    use objc2_app_kit::{NSToolbar, NSWindow, NSWindowToolbarStyle};
+    let (Ok(ptr), Some(mtm)) = (window.ns_window(), MainThreadMarker::new()) else {
+        return;
+    };
+    // SAFETY: Tauri hands out the window's NSWindow, on the main thread.
+    let ns_window = unsafe { &*(ptr as *const NSWindow) };
+    let toolbar = NSToolbar::init(NSToolbar::alloc(mtm));
+    ns_window.setToolbar(Some(&toolbar));
+    ns_window.setToolbarStyle(NSWindowToolbarStyle::UnifiedCompact);
 }
 
 /// The blur fills the whole window by default; keep it to the panel, so the
@@ -851,7 +810,7 @@ pub fn run() {
             let main = main.build()?;
             #[cfg(target_os = "macos")]
             {
-                place_traffic_lights(&main);
+                unified_toolbar(&main);
                 use window_vibrancy::{
                     apply_vibrancy, NSVisualEffectMaterial, NSVisualEffectState,
                 };
@@ -884,12 +843,7 @@ pub fn run() {
                 | WindowEvent::Focused(true) => {
                     leads::fit_page(&page);
                     leads::settle_page(&page);
-                    #[cfg(target_os = "macos")]
-                    place_traffic_lights(&keep);
                 }
-                // Unfocused, AppKit draws the lights again (at its place).
-                #[cfg(target_os = "macos")]
-                WindowEvent::Focused(false) => place_traffic_lights(&keep),
                 _ => {}
             });
 
