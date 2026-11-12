@@ -117,3 +117,34 @@ export function unreadOf(title: string | null | undefined): number {
   const m = title?.match(/\((\d[\d.,]*)\)/)
   return m ? Number(m[1].replace(/[.,]/g, "")) || 0 : 0
 }
+
+/** Every site's state as it changes (the app pushes it: no polling). */
+export function onLeadState(
+  cb: (id: string, state: LeadState) => void,
+): () => void {
+  const listen = (
+    window as unknown as {
+      __TAURI__?: {
+        event?: {
+          listen: (
+            name: string,
+            handler: (e: { payload: { id: string; state: LeadState } }) => void,
+          ) => Promise<() => void>
+        }
+      }
+    }
+  ).__TAURI__?.event?.listen
+  if (!listen) return () => {}
+  let off: (() => void) | null = null
+  let gone = false
+  void listen("lead-state", (e) => cb(e.payload.id, e.payload.state)).then(
+    (unlisten) => {
+      if (gone) unlisten()
+      else off = unlisten
+    },
+  )
+  return () => {
+    gone = true
+    off?.()
+  }
+}

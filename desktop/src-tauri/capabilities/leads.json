@@ -1,0 +1,17 @@
+{
+  "$schema": "../gen/schemas/desktop-schema.json",
+  "identifier": "leads",
+  "description": "Leads' sites (third-party pages in the app window's lead-* web views) may only report to the app: their desktop notifications and their address / title changes (lead_report). Nothing else.",
+  "webviews": [
+    "lead-*"
+  ],
+  "remote": {
+    "urls": [
+      "https://*/*",
+      "https://*"
+    ]
+  },
+  "permissions": [
+    "allow-lead-report"
+  ]
+}

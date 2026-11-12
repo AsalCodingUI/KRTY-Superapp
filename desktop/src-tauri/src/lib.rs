@@ -863,6 +863,7 @@ pub fn run() {
             leads::lead_focus,
             leads::lead_nav,
             leads::lead_state,
+            leads::lead_report,
             leads::lead_snapshot
         ]);
     #[cfg(target_os = "macos")]

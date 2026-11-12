@@ -24,6 +24,7 @@ fn main() {
             "lead_focus",
             "lead_nav",
             "lead_state",
+            "lead_report",
             "lead_snapshot",
         ]),
     ))

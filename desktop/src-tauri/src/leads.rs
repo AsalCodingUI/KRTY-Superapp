@@ -21,6 +21,60 @@ const SAFARI_UA: &str = "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWe
 
 const PREFIX: &str = "lead-";
 
+/// Runs in every site's view (and its frames' top only): the site reports
+/// to the app through its one allowed command (`lead_report`, its own
+/// capability): its desktop notifications (the site's Notification and
+/// service worker showNotification, which a web view inside an app doesn't
+/// show) and its changes (address, title), so the app's toolbar and the
+/// panel's unread badges follow without polling.
+const REPORTER: &str = r#"(() => {
+  if (window.top !== window) return;
+  const send = (kind, extra) => {
+    try { window.__TAURI_INTERNALS__.invoke("lead_report", Object.assign({ kind }, extra || {})); } catch (e) {}
+  };
+  const notify = (title, options) =>
+    send("notify", { title: String(title || ""), body: options && options.body ? String(options.body) : null });
+  class LeadNotification extends EventTarget {
+    constructor(title, options) {
+      super();
+      this.title = title;
+      this.body = options && options.body;
+      this.onclick = null; this.onclose = null; this.onerror = null; this.onshow = null;
+      notify(title, options);
+    }
+    close() {}
+    static get permission() { return "granted"; }
+    static requestPermission(callback) { if (callback) callback("granted"); return Promise.resolve("granted"); }
+  }
+  try { Object.defineProperty(window, "Notification", { value: LeadNotification, configurable: true, writable: true }); } catch (e) {}
+  try {
+    if (window.ServiceWorkerRegistration)
+      ServiceWorkerRegistration.prototype.showNotification = function (title, options) { notify(title, options); return Promise.resolve(); };
+  } catch (e) {}
+  let last = "", timer = 0;
+  const changed = () => {
+    clearTimeout(timer);
+    timer = setTimeout(() => {
+      const now = location.href + "\n" + document.title;
+      if (now === last) return;
+      last = now;
+      send("change");
+    }, 150);
+  };
+  for (const k of ["pushState", "replaceState"]) {
+    const f = history[k];
+    history[k] = function () { const r = f.apply(this, arguments); changed(); return r; };
+  }
+  addEventListener("popstate", changed);
+  addEventListener("hashchange", changed);
+  const watch = () => {
+    if (!document.head) return setTimeout(watch, 300);
+    new MutationObserver(changed).observe(document.head, { childList: true, subtree: true, characterData: true });
+    changed();
+  };
+  if (document.readyState === "loading") addEventListener("DOMContentLoaded", watch); else watch();
+})()"#;
+
 
 
 /// A web view label from the source's id (labels allow a-z, 0-9, - …).
@@ -103,6 +157,9 @@ pub fn settle_page(app: &AppHandle) {
         let _ = handle.run_on_main_thread(move || fit(&inner, true));
     });
 }
+
+/// The site on show (its view's label), if any.
+static SHOWN_LEAD: std::sync::Mutex<Option<String>> = std::sync::Mutex::new(None);
 
 fn hide_all_but(app: &AppHandle, keep: Option<&str>) {
     for (name, view) in app.webviews() {
@@ -248,6 +305,9 @@ pub fn lead_show(
 ) -> Result<(), String> {
     let target = label(&id);
     hide_all_but(&app, Some(&target));
+    if let Ok(mut shown) = SHOWN_LEAD.lock() {
+        *shown = Some(target.clone());
+    }
     keep_recent(&app, &target);
     let position = LogicalPosition::new(x.max(0.0), y.max(0.0));
     let size = LogicalSize::new(width.max(1.0), height.max(1.0));
@@ -271,8 +331,16 @@ pub fn lead_show(
     let opener = app.clone();
     let home = parsed.clone();
     let view_label = target.clone();
+    let page_app = app.clone();
     let builder = WebviewBuilder::new(&target, WebviewUrl::External(parsed))
         .user_agent(SAFARI_UA)
+        .initialization_script(REPORTER)
+        // Loading starts / ends: the toolbar's reload ↔ stop and its bar.
+        .on_page_load(move |view, _payload| {
+            let app = page_app.clone();
+            let label = view.label().to_string();
+            tauri::async_runtime::spawn(async move { emit_state(&app, &label).await });
+        })
         // A new window from the site: a sign-in popup stays in the app
         // (sharing the site's session and opener, so the flow completes), a
         // tab on the site's own domain opens in the site's view (Gmail's
@@ -683,10 +751,81 @@ fn read_state(_platform: tauri::webview::PlatformWebview) -> LeadState {
     LeadState::default()
 }
 
+/// A site's state to the app's page (`lead-state`, with its id).
+async fn emit_state(app: &AppHandle, label_: &str) {
+    use tauri::Emitter;
+    let Some(view) = app.get_webview(label_) else { return };
+    let (tx, rx) = std::sync::mpsc::channel::<LeadState>();
+    if view.with_webview(move |p| { let _ = tx.send(read_state(p)); }).is_err() {
+        return;
+    }
+    let state = tauri::async_runtime::spawn_blocking(move || {
+        rx.recv_timeout(std::time::Duration::from_millis(500)).unwrap_or_default()
+    })
+    .await
+    .unwrap_or_default();
+    let id = label_.strip_prefix(PREFIX).unwrap_or(label_).to_string();
+    let _ = app.emit("lead-state", serde_json::json!({ "id": id, "state": state }));
+}
+
+/// What a site reports (REPORTER): a desktop notification (shown as the
+/// app's, opening the site in the app on click; not while you're looking
+/// at that site), or a change (address, title) for the toolbar and badges.
+#[tauri::command]
+pub async fn lead_report(
+    app: AppHandle,
+    webview: tauri::Webview,
+    kind: String,
+    title: Option<String>,
+    body: Option<String>,
+) -> Result<(), String> {
+    let label_ = webview.label().to_string();
+    if !label_.starts_with(PREFIX) {
+        return Err("not a lead".into());
+    }
+    match kind.as_str() {
+        "change" => emit_state(&app, &label_).await,
+        "notify" => {
+            use std::collections::HashMap;
+            use std::sync::Mutex;
+            use std::time::Instant;
+            // At most one every 1.5s per site (a burst of messages).
+            static LAST: Mutex<Option<HashMap<String, Instant>>> = Mutex::new(None);
+            if let Ok(mut last) = LAST.lock() {
+                let map = last.get_or_insert_with(HashMap::new);
+                if map.get(&label_).is_some_and(|t| t.elapsed().as_millis() < 1500) {
+                    return Ok(());
+                }
+                map.insert(label_.clone(), Instant::now());
+            }
+            // Looking at that very site in the focused app: no banner.
+            let looking = app
+                .get_window(crate::APP)
+                .and_then(|w| w.is_focused().ok())
+                .unwrap_or(false)
+                && SHOWN_LEAD.lock().ok().and_then(|s| s.clone()).as_deref() == Some(label_.as_str());
+            if looking {
+                return Ok(());
+            }
+            let id = label_.strip_prefix(PREFIX).unwrap_or(&label_).to_string();
+            let title = title.filter(|t| !t.trim().is_empty()).unwrap_or_else(|| "Leads".into());
+            #[cfg(target_os = "macos")]
+            crate::mac_notify::show(&title, body.as_deref().unwrap_or(""), Some(&format!("/leads/{id}")), None);
+            #[cfg(not(target_os = "macos"))]
+            let _ = (title, body, id);
+        }
+        _ => {}
+    }
+    Ok(())
+}
+
 /// Hides every lead (the web app left its /leads page, or a dialog opened
 /// over the sheet). They stay loaded.
 #[tauri::command]
 pub fn lead_hide(app: AppHandle) {
+    if let Ok(mut shown) = SHOWN_LEAD.lock() {
+        *shown = None;
+    }
     hide_all_but(&app, None);
 }
 

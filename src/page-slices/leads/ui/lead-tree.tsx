@@ -4,7 +4,13 @@ import type { NavMainItem } from "@/components/nav-main"
 import { ProjectAvatar } from "@/components/project-avatar"
 import { usePathname } from "next/navigation"
 import { useEffect, useMemo, useState } from "react"
-import { hideLeads, inApp, leadState, unreadOf } from "../lib/desktop"
+import {
+  hideLeads,
+  inApp,
+  leadState,
+  onLeadState,
+  unreadOf,
+} from "../lib/desktop"
 import { useLeadSites } from "../model/data"
 
 export const leadHref = (id: string) => `/leads/${id}`
@@ -21,28 +27,21 @@ export function useLeadTree(enabled: boolean): NavMainItem[] {
     void hideLeads()
   }, [])
   // Unread counts from the sites' titles (Gmail's "Inbox (3)", Telegram's
-  // "(12)"), for the sites open in the app; every 10s.
+  // "(12)"): read once, then as the sites report their titles.
   const [unread, setUnread] = useState<Record<string, number>>({})
   useEffect(() => {
     if (!enabled || !inApp() || !data?.length) return
     let alive = true
-    const read = async () => {
-      if (document.visibilityState !== "visible") return
-      const next: Record<string, number> = {}
-      for (const site of data) {
-        const state = await leadState(site.id)
-        next[site.id] = unreadOf(state?.title)
-      }
-      if (alive)
-        setUnread((prev) =>
-          JSON.stringify(prev) === JSON.stringify(next) ? prev : next,
-        )
-    }
-    void read()
-    const timer = window.setInterval(read, 10_000)
+    const set = (id: string, count: number) =>
+      setUnread((prev) => (prev[id] === count ? prev : { ...prev, [id]: count }))
+    for (const site of data)
+      void leadState(site.id).then((state) => {
+        if (alive && state) set(site.id, unreadOf(state.title))
+      })
+    const off = onLeadState((id, state) => set(id, unreadOf(state.title)))
     return () => {
       alive = false
-      window.clearInterval(timer)
+      off()
     }
   }, [enabled, data])
   return useMemo(

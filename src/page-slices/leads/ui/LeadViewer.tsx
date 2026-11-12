@@ -21,6 +21,7 @@ import {
   hideLeads,
   inApp,
   leadState,
+  onLeadState,
   type LeadState,
   navLead,
   showLead,
@@ -340,25 +341,19 @@ export function LeadViewer({ id }: { id: string }) {
 function LeadToolbar({ id, fallback }: { id: string; fallback: string }) {
   const t = useT("leads")
   const [state, setState] = useState<LeadState | null>(null)
-  // The site moves itself (links, its own app routes): read where it is,
-  // quicker while it loads.
+  // Read once, then the site's own reports (address, title, loading)
+  // keep it current: nothing runs while the site sits still.
   useEffect(() => {
     let alive = true
-    let timer = 0
-    const read = async () => {
-      if (document.visibilityState === "visible") {
-        const now = await leadState(id)
-        if (!alive) return
-        if (now) setState(now)
-        timer = window.setTimeout(read, now?.loading ? 300 : 1000)
-        return
-      }
-      timer = window.setTimeout(read, 1000)
-    }
-    void read()
+    void leadState(id).then((now) => {
+      if (alive && now) setState(now)
+    })
+    const off = onLeadState((from, now) => {
+      if (from === id) setState(now)
+    })
     return () => {
       alive = false
-      window.clearTimeout(timer)
+      off()
     }
   }, [id])
   const url = state?.url || fallback
