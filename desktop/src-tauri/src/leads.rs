@@ -21,25 +21,7 @@ const SAFARI_UA: &str = "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWe
 
 const PREFIX: &str = "lead-";
 
-/// No passkeys in a site's view: macOS lets an app's web view use them only
-/// for the app's own domains (other sites need Apple's browser entitlement),
-/// so Google asked for a fingerprint or face that could never answer. With
-/// no WebAuthn on offer, sites go straight to a password, a phone prompt or
-/// a code.
-const NO_PASSKEYS: &str = r#"(() => { try {
-  const c = navigator.credentials;
-  if (c) {
-    const get = c.get && c.get.bind(c);
-    const create = c.create && c.create.bind(c);
-    const deny = () => Promise.reject(new DOMException("Passkeys aren't available here", "NotAllowedError"));
-    // Only passkey requests are turned down; passwords, federated sign-in
-    // (FedCM) and the rest go through as before (without them Google's
-    // sign-in page broke and stayed blank).
-    c.get = (o) => (o && o.publicKey ? deny() : get(o));
-    c.create = (o) => (o && o.publicKey ? deny() : create(o));
-  }
-  Object.defineProperty(window, "PublicKeyCredential", { value: undefined, configurable: true });
-} catch (e) {} })()"#;
+
 
 /// A web view label from the source's id (labels allow a-z, 0-9, - …).
 fn label(id: &str) -> String {
@@ -172,37 +154,16 @@ fn same_site(link: &url::Url, home: &url::Url) -> bool {
     }
 }
 
-/// A sign-in popup from a site, as a small window of the app sharing the
-/// site's web view configuration (its cookies and window.opener).
-fn popup(
-    app: &AppHandle,
-    link: &url::Url,
-    features: tauri::webview::NewWindowFeatures,
-) -> Option<tauri::WebviewWindow> {
-    use std::sync::atomic::{AtomicU32, Ordering};
-    static NEXT: AtomicU32 = AtomicU32::new(1);
-    let label = format!("leadpopup-{}", NEXT.fetch_add(1, Ordering::Relaxed));
-    let window = tauri::WebviewWindowBuilder::new(app, label, WebviewUrl::External(link.clone()))
-        .window_features(features)
-        .user_agent(SAFARI_UA)
-        .initialization_script(NO_PASSKEYS)
-        .title(link.host_str().unwrap_or("Kretya Flow"))
-        .build()
-        .ok()?;
-    #[cfg(target_os = "macos")]
-    close_on_window_close(&window);
-    Some(window)
-}
-
-/// A sign-in popup closes itself (window.close()) once it has handed the
-/// result to the site; wry's web view delegate ignores that, so the popup
-/// stayed open on a blank relay page. This teaches the delegate's class
-/// `webViewDidClose:`, closing the popup's window.
+/// WebKit's popups (wry's Allow) get no UI delegate, so a sign-in popup's
+/// window.close() did nothing and it stayed open on a blank relay page.
+/// Each popup window without one borrows the lead view's delegate, taught
+/// `webViewDidClose:` (close the web view's window).
 #[cfg(target_os = "macos")]
-fn close_on_window_close(window: &tauri::WebviewWindow) {
-    let _ = window.with_webview(|platform| unsafe {
+fn adopt_popups(app: &AppHandle, lead: &str) {
+    let Some(view) = app.get_webview(lead) else { return };
+    let _ = view.with_webview(|platform| unsafe {
         use objc2::runtime::{AnyClass, AnyObject, Bool, Sel};
-        use objc2::{msg_send, sel};
+        use objc2::{class, msg_send, sel};
         let web = platform.inner() as *mut AnyObject;
         if web.is_null() {
             return;
@@ -211,22 +172,40 @@ fn close_on_window_close(window: &tauri::WebviewWindow) {
         if delegate.is_null() {
             return;
         }
-        let cls: *const AnyClass = msg_send![delegate, class];
         let name = sel!(webViewDidClose:);
         let has: Bool = msg_send![delegate, respondsToSelector: name];
-        if has.as_bool() {
-            return;
+        if !has.as_bool() {
+            unsafe extern "C-unwind" fn did_close(_this: *mut AnyObject, _cmd: Sel, web: *mut AnyObject) {
+                let window: *mut AnyObject = msg_send![web, window];
+                if !window.is_null() {
+                    let _: () = msg_send![window, performClose: std::ptr::null_mut::<AnyObject>()];
+                }
+            }
+            let cls: *const AnyClass = msg_send![delegate, class];
+            let imp: objc2::runtime::Imp = std::mem::transmute(
+                did_close as unsafe extern "C-unwind" fn(*mut AnyObject, Sel, *mut AnyObject),
+            );
+            objc2::ffi::class_addMethod(cls as *mut AnyClass, name, imp, c"v@:@".as_ptr());
         }
-        unsafe extern "C-unwind" fn did_close(_this: *mut AnyObject, _cmd: Sel, web: *mut AnyObject) {
-            let window: *mut AnyObject = msg_send![web, window];
-            if !window.is_null() {
-                let _: () = msg_send![window, performClose: std::ptr::null_mut::<AnyObject>()];
+        let ns_app: *mut AnyObject = msg_send![class!(NSApplication), sharedApplication];
+        let windows: *mut AnyObject = msg_send![ns_app, windows];
+        let count: usize = msg_send![windows, count];
+        let wk = class!(WKWebView);
+        for i in 0..count {
+            let window: *mut AnyObject = msg_send![windows, objectAtIndex: i];
+            let content: *mut AnyObject = msg_send![window, contentView];
+            if content.is_null() {
+                continue;
+            }
+            let is_web: Bool = msg_send![content, isKindOfClass: wk];
+            if !is_web.as_bool() {
+                continue;
+            }
+            let current: *mut AnyObject = msg_send![content, UIDelegate];
+            if current.is_null() {
+                let _: () = msg_send![content, setUIDelegate: delegate];
             }
         }
-        let imp: objc2::runtime::Imp = std::mem::transmute(
-            did_close as unsafe extern "C-unwind" fn(*mut AnyObject, Sel, *mut AnyObject),
-        );
-        objc2::ffi::class_addMethod(cls as *mut AnyClass, name, imp, c"v@:@".as_ptr());
     });
 }
 
@@ -294,18 +273,28 @@ pub fn lead_show(
     let view_label = target.clone();
     let builder = WebviewBuilder::new(&target, WebviewUrl::External(parsed))
         .user_agent(SAFARI_UA)
-        .initialization_script(NO_PASSKEYS)
         // A new window from the site: a sign-in popup stays in the app
         // (sharing the site's session and opener, so the flow completes), a
         // tab on the site's own domain opens in the site's view (Gmail's
         // "Add account" on accounts.google.com), anything else goes to the
         // browser (Dribbble's shots linking out).
         .on_new_window(move |link, features| {
+            // WebKit's own popup (wry's default: a window with a web view on
+            // the configuration WebKit hands over, which keeps the opener and
+            // the session; a web view made by Tauri for it stayed blank).
             if features.size().is_some() {
-                return match popup(&opener, &link, features) {
-                    Some(window) => NewWindowResponse::Create { window },
-                    None => NewWindowResponse::Deny,
-                };
+                #[cfg(target_os = "macos")]
+                {
+                    // Once wry has made it: let it close itself.
+                    let app = opener.clone();
+                    let label = view_label.clone();
+                    std::thread::spawn(move || {
+                        std::thread::sleep(std::time::Duration::from_millis(300));
+                        let inner = app.clone();
+                        let _ = app.run_on_main_thread(move || adopt_popups(&inner, &label));
+                    });
+                }
+                return NewWindowResponse::Allow;
             }
             if same_site(&link, &home) {
                 let app = opener.clone();
