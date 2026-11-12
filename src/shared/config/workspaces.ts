@@ -19,6 +19,8 @@ import {
   RiFolderLine,
   RiGroupLine,
   RiHome2Line,
+  RiInboxLine,
+  RiSettings3Line,
   RiUserSmileLine,
   RiWalletLine,
 } from "@/shared/ui/lucide-icons"
@@ -30,7 +32,7 @@ import {
  * personal view for employees and the approval center for stakeholders).
  */
 
-export type WorkspaceId = "personal" | "project"
+export type WorkspaceId = "personal" | "project" | "leads"
 
 /** Page and workspace names are "nav" message keys, translated where shown. */
 export type NavKey = MessageKey<"nav">
@@ -223,6 +225,18 @@ export const workspaces: Workspace[] = [
         icon: RiBankCardLine,
         can: isPmUp,
       },
+    ],
+  },
+  {
+    // The sites PMs and stakeholders find and answer leads on (Gmail,
+    // Telegram, Dribbble, Behance, their own): the panel lists them
+    // (LeadsNav), each opening in the app (Kretya Flow) over the sheet.
+    id: "leads",
+    name: "workspaceLeads",
+    icon: RiInboxLine,
+    can: isPmUp,
+    items: () => [
+      { name: "leadsManage", href: links.leads, icon: RiSettings3Line },
     ],
   },
 ]

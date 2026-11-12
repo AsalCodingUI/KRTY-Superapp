@@ -17,6 +17,7 @@ export const siteConfig = {
     paymentMethods: "/payment-methods",
     teams: "/teams",
     calendar: "/calendar",
+    leads: "/leads",
     settings: {
       general: "/settings/general",
       permission: "/settings/permission",

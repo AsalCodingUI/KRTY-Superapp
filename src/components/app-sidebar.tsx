@@ -13,6 +13,7 @@ import { Notifications } from "@/widgets/notifications/ui/Notifications"
 import { NavMain } from "@/components/nav-main"
 import { NewMenu } from "@/components/new-menu"
 import { useProjectTree } from "@/components/nav-project"
+import { useLeadTree } from "@/page-slices/leads/ui/lead-tree"
 import { PrefetchLink } from "@/components/prefetch-link"
 import { SidebarNotices } from "@/components/sidebar-notices"
 import { useWorkspaceNav } from "@/components/workspace-nav"
@@ -163,6 +164,8 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
 
   // Active projects, each opening in place to its pages.
   const projectTree = useProjectTree()
+  // Leads' sites (its panel), loaded only while Leads is open.
+  const leadTree = useLeadTree(active?.id === "leads")
 
   // The top block, for whoever can open each page.
   const topItems = React.useMemo(() => {
@@ -187,8 +190,15 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         (!best || project.url.length > best.length)
       )
         best = { href: project.url, length: project.url.length }
+    // A Leads site's row too (not Kelola situs' /leads).
+    for (const site of leadTree)
+      if (
+        matchesRoute(pathname, site.url) &&
+        (!best || site.url.length > best.length)
+      )
+        best = { href: site.url, length: site.url.length }
     return best?.href
-  }, [active, topItems, projectTree, pathname])
+  }, [active, topItems, projectTree, leadTree, pathname])
 
   const toNav = React.useCallback(
     (item: WorkspaceItem) => {
@@ -267,6 +277,17 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         >
           <div className="[&>[data-sidebar=group]]:py-0">
             <NavMain items={projectTree} />
+          </div>
+        </NavSection>
+      )}
+      {active?.id === "leads" && leadTree.length > 0 && (
+        <NavSection
+          label={t("leadsSites")}
+          open={!closed.includes("leads")}
+          onToggle={() => toggleSection("leads")}
+        >
+          <div className="[&>[data-sidebar=group]]:py-0">
+            <NavMain items={leadTree} />
           </div>
         </NavSection>
       )}

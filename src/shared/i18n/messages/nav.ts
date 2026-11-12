@@ -6,6 +6,9 @@
 const id = {
   workspacePersonal: "Kantor",
   workspaceProject: "Project",
+  workspaceLeads: "Leads",
+  leadsManage: "Kelola situs",
+  leadsSites: "Situs",
 
   home: "Beranda",
   calendar: "Kalender",
@@ -64,6 +67,9 @@ const id = {
 const en: Record<keyof typeof id, string> = {
   workspacePersonal: "Office",
   workspaceProject: "Project",
+  workspaceLeads: "Leads",
+  leadsManage: "Manage sites",
+  leadsSites: "Sites",
 
   home: "Home",
   calendar: "Calendar",
