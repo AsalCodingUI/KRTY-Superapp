@@ -359,6 +359,15 @@ export function ProjectTasks({ projectId }: { projectId: string }) {
         title={t("sectionTasks")}
         actions={
           <>
+            {/* In the title row (both views), not on a row of its own. */}
+            <Button
+              variant="outline"
+              className={cn(mine && "bg-muted text-foreground")}
+              aria-pressed={mine}
+              onClick={() => setMine((v) => !v)}
+            >
+              {t("filterMine")}
+            </Button>
             <ViewToggle
               value={board ? "kanban" : "list"}
               onValueChange={setView}
@@ -375,10 +384,9 @@ export function ProjectTasks({ projectId }: { projectId: string }) {
           </>
         }
       />
-      <div className="border-border flex items-end justify-between gap-3 border-b">
-        {board ? (
-          <span />
-        ) : (
+      {/* The list's filters as tabs on a hairline; the board has none. */}
+      {!board && (
+        <div className="border-border border-b">
           <TabNavigation plain>
             {(
               [
@@ -398,17 +406,8 @@ export function ProjectTasks({ projectId }: { projectId: string }) {
               </TabNavigationLink>
             ))}
           </TabNavigation>
-        )}
-        <Button
-          size="sm"
-          variant="outline"
-          className={cn("mb-2", mine && "bg-muted text-foreground")}
-          aria-pressed={mine}
-          onClick={() => setMine((v) => !v)}
-        >
-          {t("filterMine")}
-        </Button>
-      </div>
+        </div>
+      )}
 
       {board ? (
         isLoading ? (

@@ -481,106 +481,116 @@ export function ProjectDashboard({ projectId }: { projectId: string }) {
             </div>
           </div>
 
-          <aside
-            className={cn(surfaceClassName, "flex flex-col gap-5 p-4 text-sm")}
-          >
-            <ProjectAbout
-              projectId={projectId}
-              description={project.description}
-              canEdit={canManage}
-            />
-            {/* Property list (Attio style): icon + label, then the value;
+          <aside className={cn(surfaceClassName, "flex flex-col text-sm")}>
+            {/* The same header as the cards beside it (Panel): 44px, the
+                title, a hairline under it. */}
+            <header className="border-border flex h-11 shrink-0 items-center border-b px-4">
+              <h2 className="text-heading truncate text-sm font-medium">
+                {t("colProject")}
+              </h2>
+            </header>
+            <div className="flex flex-col gap-5 p-4">
+              <ProjectAbout
+                projectId={projectId}
+                description={project.description}
+                canEdit={canManage}
+              />
+              {/* Property list (Attio style): icon + label, then the value;
                 empty values read as a quiet placeholder. */}
-            <Facts
-              projectId={projectId}
-              canEdit={canManage}
-              rows={[
-                {
-                  icon: CalendarDays,
-                  label: t("colStart"),
-                  field: "start_date",
-                  kind: "date",
-                  value: project.start_date,
-                  display: project.start_date
-                    ? day(project.start_date, dateLocale)
-                    : null,
-                },
-                {
-                  icon: CalendarRange,
-                  label: t("colQuarter"),
-                  field: "quarter_id",
-                  kind: "quarter",
-                  value: project.quarter_id,
-                },
-                {
-                  icon: Tag,
-                  label: t("colCategory"),
-                  field: "category_id",
-                  kind: "category",
-                  value: project.category_id ?? null,
-                  display:
-                    categories.find((c) => c.id === project.category_id)
-                      ?.name ?? null,
-                },
-                {
-                  icon: Building2,
-                  label: t("factsClient"),
-                  field: "client_name",
-                  value: client?.name ?? null,
-                  readOnly: true,
-                  // Contact, email and phone on hover, not as rows.
-                  render: client && (
-                    <ClientContact
-                      name={client.name}
-                      contact={client.contact_name}
-                      email={client.email}
-                      phone={client.phone}
-                    />
-                  ),
-                },
-              ]}
-            />
-            <DesignLinks projectId={projectId} />
-            <section className="border-border flex flex-col gap-2 border-t pt-4">
-              <h3 className="text-muted-foreground flex min-h-7 items-center gap-2 [&_svg]:size-4">
-                <UsersRound aria-hidden="true" />
-                <span className="flex-1">{t("colTeam")}</span>
-                {canMove && (
-                  // Straight to the team (the project form), without the
-                  // trip to Pengaturan.
-                  <Button
-                    variant="ghost"
-                    size="icon-sm"
-                    aria-label={t("editProjectAndTeam")}
-                    title={t("editProjectAndTeam")}
-                    className="text-muted-foreground -my-1"
-                    onClick={() => setEditOpen(true)}
-                  >
-                    <Pencil />
-                  </Button>
+              <Facts
+                projectId={projectId}
+                canEdit={canManage}
+                rows={[
+                  {
+                    icon: CalendarDays,
+                    label: t("colStart"),
+                    field: "start_date",
+                    kind: "date",
+                    value: project.start_date,
+                    display: project.start_date
+                      ? day(project.start_date, dateLocale)
+                      : null,
+                  },
+                  {
+                    icon: CalendarRange,
+                    label: t("colQuarter"),
+                    field: "quarter_id",
+                    kind: "quarter",
+                    value: project.quarter_id,
+                  },
+                  {
+                    icon: Tag,
+                    label: t("colCategory"),
+                    field: "category_id",
+                    kind: "category",
+                    value: project.category_id ?? null,
+                    display:
+                      categories.find((c) => c.id === project.category_id)
+                        ?.name ?? null,
+                  },
+                  {
+                    icon: Building2,
+                    label: t("factsClient"),
+                    field: "client_name",
+                    value: client?.name ?? null,
+                    readOnly: true,
+                    // Contact, email and phone on hover, not as rows.
+                    render: client && (
+                      <ClientContact
+                        name={client.name}
+                        contact={client.contact_name}
+                        email={client.email}
+                        phone={client.phone}
+                      />
+                    ),
+                  },
+                ]}
+              />
+              <DesignLinks projectId={projectId} />
+              <section className="border-border flex flex-col gap-2 border-t pt-4">
+                <h3 className="text-muted-foreground flex min-h-7 items-center gap-2 [&_svg]:size-4">
+                  <UsersRound aria-hidden="true" />
+                  <span className="flex-1">{t("colTeam")}</span>
+                  {canMove && (
+                    // Straight to the team (the project form), without the
+                    // trip to Pengaturan.
+                    <Button
+                      variant="ghost"
+                      size="icon-sm"
+                      aria-label={t("editProjectAndTeam")}
+                      title={t("editProjectAndTeam")}
+                      className="text-muted-foreground -my-1"
+                      onClick={() => setEditOpen(true)}
+                    >
+                      <Pencil />
+                    </Button>
+                  )}
+                </h3>
+                {team.length === 0 ? (
+                  <p className="text-muted-foreground">{t("noMembersYet")}</p>
+                ) : (
+                  team.map((m) => (
+                    <div
+                      key={m.assignmentId}
+                      className="flex items-center gap-2"
+                    >
+                      <Avatar className="size-6">
+                        <AvatarImage src={m.avatar_url || undefined} alt="" />
+                        <AvatarFallback className="text-[10px]">
+                          {initials(m.full_name, "U")}
+                        </AvatarFallback>
+                      </Avatar>
+                      <span className="min-w-0 flex-1 truncate">
+                        {m.full_name}
+                      </span>
+                      <span className="text-muted-foreground shrink-0 text-xs">
+                        {m.isLead ? t("lead") : m.role}
+                      </span>
+                    </div>
+                  ))
                 )}
-              </h3>
-              {team.length === 0 ? (
-                <p className="text-muted-foreground">{t("noMembersYet")}</p>
-              ) : (
-                team.map((m) => (
-                  <div key={m.assignmentId} className="flex items-center gap-2">
-                    <Avatar className="size-6">
-                      <AvatarImage src={m.avatar_url || undefined} alt="" />
-                      <AvatarFallback className="text-[10px]">
-                        {initials(m.full_name, "U")}
-                      </AvatarFallback>
-                    </Avatar>
-                    <span className="min-w-0 flex-1 truncate">
-                      {m.full_name}
-                    </span>
-                    <span className="text-muted-foreground shrink-0 text-xs">
-                      {m.isLead ? t("lead") : m.role}
-                    </span>
-                  </div>
-                ))
-              )}
-            </section>
+              </section>
+            </div>
           </aside>
         </div>
       </div>
@@ -1227,8 +1237,8 @@ function ProjectAbout({
   }
 
   return (
+    // Its title is the card's header (the aside around it).
     <section className="flex flex-col gap-1.5">
-      <h3 className="font-medium">{t("colProject")}</h3>
       {editing ? (
         <Textarea
           autoFocus

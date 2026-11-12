@@ -106,7 +106,8 @@ export function ProjectProperties({
   const icon = "text-muted-foreground size-4"
 
   return (
-    <div className="bleed gutter-x border-border flex flex-wrap items-center gap-x-6 gap-y-3 border-b pb-6 text-sm">
+    // On the content's edges like the cards under it (no bleed).
+    <div className="border-border flex flex-wrap items-center gap-x-6 gap-y-3 border-b pb-4 text-sm">
       {status && (
         <span className={item}>
           <span
