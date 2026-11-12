@@ -363,8 +363,9 @@ function TaskBody({
         <div
           ref={scrollRef}
           className={cn(
-            "scroll-pane pane-px-6 md:pane-px-8 flex min-h-0 flex-1 flex-col gap-6 pt-6 pb-6",
-            layout === "dialog" && "md:pt-7",
+            "scroll-pane pane-px-6 md:pane-px-8 flex min-h-0 flex-1 flex-col gap-6 pb-6",
+            // In a pane: 32px under its bar, the side panel the same.
+            layout === "dialog" ? "pt-6 md:pt-7" : "pt-8",
           )}
         >
           <div className="flex flex-col gap-1.5">
@@ -524,8 +525,8 @@ function TaskBody({
             "border-border bg-muted/70 dark:bg-foreground/[0.02] flex flex-col gap-4 border-t px-4 pt-5 pb-5",
             layout === "dialog"
               ? "md:border-t-0 md:border-l md:pt-14"
-              : // Level with the title beside it (24px under the bar).
-                "xl:border-t-0 xl:border-l xl:px-5 xl:pt-6",
+              : // Level with the title beside it (32px under the bar).
+                "xl:border-t-0 xl:border-l xl:px-6 xl:pt-8",
           )}
         >
           <dl className="text-meta grid grid-cols-[5rem_minmax(0,1fr)] items-center gap-x-2 gap-y-1.5">

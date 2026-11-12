@@ -384,9 +384,10 @@ export function ProjectTasks({ projectId }: { projectId: string }) {
           </>
         }
       />
-      {/* The list's filters as tabs on a hairline; the board has none. */}
+      {/* The list's filters as tabs on a hairline, 12px above the list
+          (not touching its header); the board has none. */}
       {!board && (
-        <div className="border-border border-b">
+        <div className="border-border mb-3 border-b">
           <TabNavigation plain>
             {(
               [

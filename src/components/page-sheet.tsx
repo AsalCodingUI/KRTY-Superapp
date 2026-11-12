@@ -17,7 +17,7 @@ const MAC_SHEET_RADIUS = "md:rounded-[10px]"
  * (--sbw). Phones: the page is a sheet on the chrome, top corners rounded.
  */
 export const pageSheetClassName =
-  "dark:bg-surface scroll-pane overscroll-contain max-md:rounded-t-dialog [--bleed:0.75rem] [--list-overhang:0px] [--page-gutter:max(var(--bleed),calc(1.25rem-var(--sbw,0px)))] md:z-20 md:[--page-gutter:calc(1.5rem-var(--sbw,0px))]"
+  "dark:bg-surface scroll-pane overscroll-contain max-md:rounded-t-dialog [--bleed:0.75rem] [--page-gutter:max(var(--bleed),calc(1.25rem-var(--sbw,0px)))] md:z-20 md:[--page-gutter:calc(1.5rem-var(--sbw,0px))]"
 
 /**
  * Exactly the room left in the page sheet: viewport minus the top bar, the

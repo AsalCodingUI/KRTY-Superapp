@@ -1,6 +1,9 @@
 "use client"
 
-import { ProjectBriefs } from "@/page-slices/briefs/ui/ProjectBriefs"
+import {
+  ProjectBriefs,
+  useCanManageBriefs,
+} from "@/page-slices/briefs/ui/ProjectBriefs"
 import { compressImage, isCompressible } from "@/shared/lib/compress-image"
 import { Switch } from "@/components/ui/switch"
 import {
@@ -122,11 +125,15 @@ const titleFromFile = (file: File) => file.name.replace(/\.[^.]+$/, "")
 /** Proposals, contracts and other files for the project, each with a status. */
 export function ProjectDocuments({ projectId }: { projectId: string }) {
   const t = useT("projects")
+  const tb = useT("briefs")
   const tc = useT("common")
   const tm = useT("ctxmenu")
   const dateLocale = useDateLocale()
   const { data: documents = [], isLoading } = useDocuments(projectId)
   const viewer = useViewer()
+  // Brief baru sits in the title row; its dialog is ProjectBriefs'.
+  const canManageBriefs = useCanManageBriefs()
+  const [briefOpen, setBriefOpen] = useState(false)
   const invalidate = useInvalidate(projectId)
   const [draft, setDraft] = useState<Draft | null>(null)
   const [saving, setSaving] = useState(false)
@@ -368,16 +375,30 @@ export function ProjectDocuments({ projectId }: { projectId: string }) {
       <PageHeader
         title={t("sectionDocuments")}
         actions={
-          viewer.isAdmin && (
-            <Button onClick={() => setDraft(NEW_DRAFT)}>
-              <RiAddLine data-icon="inline-start" />
-              {t("newDocument")}
-            </Button>
+          (canManageBriefs || viewer.isAdmin) && (
+            <>
+              {canManageBriefs && (
+                <Button variant="outline" onClick={() => setBriefOpen(true)}>
+                  <RiAddLine data-icon="inline-start" />
+                  {tb("newBrief")}
+                </Button>
+              )}
+              {viewer.isAdmin && (
+                <Button onClick={() => setDraft(NEW_DRAFT)}>
+                  <RiAddLine data-icon="inline-start" />
+                  {t("newDocument")}
+                </Button>
+              )}
+            </>
           )
         }
       />
-      <div className="flex flex-col gap-5">
-        <ProjectBriefs projectId={projectId} />
+      <div className="flex flex-col gap-8">
+        <ProjectBriefs
+          projectId={projectId}
+          createOpen={briefOpen}
+          onCreateOpenChange={setBriefOpen}
+        />
         {isLoading ? (
           <div className="flex justify-center py-12">
             <Spinner className="size-6" />

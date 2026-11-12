@@ -276,7 +276,9 @@ function SearchPanel({
         }
       />
 
-      <div className="border-border border-b px-3 pb-3">
+      {/* Lines on the glass: see-through white, not the solid dark
+          border (it read black). */}
+      <div className="border-b border-white/10 px-3 pb-3">
         <SegmentedControl
           fitContent
           value={scope}
@@ -342,7 +344,7 @@ function SearchPanel({
         )}
       </CommandList>
 
-      <footer className="bg-muted dark:bg-muted/40 border-border text-muted-foreground flex shrink-0 items-center gap-4 border-t px-4 py-2.5 text-xs">
+      <footer className="text-muted-foreground flex shrink-0 items-center gap-4 border-t border-white/10 bg-white/[0.03] px-4 py-2.5 text-xs">
         <span className="flex items-center gap-1.5">
           <KbdGroup>
             <Kbd>

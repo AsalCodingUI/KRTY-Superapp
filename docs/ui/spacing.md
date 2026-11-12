@@ -59,10 +59,9 @@ because the sheet is a `scroll-pane` that keeps that room on both sides.
   sets the gutter inside it to `--bleed`, so its `gutter-x` text still
   lines up with the page title. The stats strip and the tab line use it.
 - Lists and tables (`GroupedList`, `ui/table.tsx`) use `list-bleed`: on
-  the page they sit on the content edge, like cards, boards, the search
-  field and buttons, so switching list / grid / table / board keeps the
-  same width. The rows keep `--bleed` (12px) as room inside, so row text
-  sits 12px in from the title (the page sheet sets `--list-overhang: 0`).
+  the page they reach `--bleed` (12px) past the content edge on each side,
+  so the rows' text lines up with the page title (and the tabs) above;
+  the header fill and the hover highlight keep that 12px as room.
   Kanban scrollers are plain `overflow-x-auto` on the content edge.
 - Inside a padded box (panel, card, dialog, sheet) a list still reaches
   `--bleed` into the box's padding, so its highlight is inset and its
