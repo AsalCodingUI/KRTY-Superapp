@@ -131,6 +131,66 @@ fn keep_recent(app: &AppHandle, shown: &str) {
     }
 }
 
+/// The registrable part of a host, roughly (mail.google.com and
+/// accounts.google.com → google.com; two labels, three under a two-letter
+/// second level like co.uk / co.id).
+fn site_of(host: &str) -> String {
+    let parts: Vec<&str> = host.split('.').collect();
+    let keep = if parts.len() >= 3 && parts[parts.len() - 2].len() <= 3 && parts[parts.len() - 1].len() == 2 {
+        3
+    } else {
+        2
+    };
+    parts[parts.len().saturating_sub(keep)..].join(".")
+}
+
+/// Whether `link` is on the same site as the lead's own address.
+fn same_site(link: &url::Url, home: &url::Url) -> bool {
+    match (link.host_str(), home.host_str()) {
+        (Some(a), Some(b)) => site_of(a) == site_of(b),
+        _ => false,
+    }
+}
+
+/// A sign-in popup from a site, as a small window of the app sharing the
+/// site's web view configuration (its cookies and window.opener).
+fn popup(
+    app: &AppHandle,
+    link: &url::Url,
+    features: tauri::webview::NewWindowFeatures,
+) -> Option<tauri::WebviewWindow> {
+    use std::sync::atomic::{AtomicU32, Ordering};
+    static NEXT: AtomicU32 = AtomicU32::new(1);
+    let label = format!("leadpopup-{}", NEXT.fetch_add(1, Ordering::Relaxed));
+    tauri::WebviewWindowBuilder::new(app, label, WebviewUrl::External(link.clone()))
+        .window_features(features)
+        .user_agent(SAFARI_UA)
+        .title(link.host_str().unwrap_or("Kretya Flow"))
+        .build()
+        .ok()
+}
+
+/// ~/Downloads.
+fn downloads_dir() -> Option<std::path::PathBuf> {
+    std::env::var_os("HOME").map(|h| std::path::PathBuf::from(h).join("Downloads"))
+}
+
+/// `dir/name`, or `name (1)`, `name (2)` … when that's taken.
+fn free_path(dir: &std::path::Path, name: &str) -> std::path::PathBuf {
+    let first = dir.join(name);
+    if !first.exists() {
+        return first;
+    }
+    let (stem, ext) = match name.rsplit_once('.') {
+        Some((s, e)) if !s.is_empty() => (s.to_string(), format!(".{e}")),
+        _ => (name.to_string(), String::new()),
+    };
+    (1..1000)
+        .map(|i| dir.join(format!("{stem} ({i}){ext}")))
+        .find(|p| !p.exists())
+        .unwrap_or(first)
+}
+
 /// Shows the site `id` (`url`, https only) at the given rect of the app
 /// window (CSS pixels from the window's top left), making its web view on
 /// first use; every other lead is hidden.
@@ -170,14 +230,67 @@ pub fn lead_show(
         .get_window(crate::APP)
         .ok_or_else(|| "no app window".to_string())?;
     let opener = app.clone();
+    let home = parsed.clone();
+    let view_label = target.clone();
     let builder = WebviewBuilder::new(&target, WebviewUrl::External(parsed))
         .user_agent(SAFARI_UA)
-        // Links a site opens in a new window (Gmail's, Dribbble's shots)
-        // go to the browser; the site itself stays here.
-        .on_new_window(move |link, _| {
+        // A new window from the site: a sign-in popup stays in the app
+        // (sharing the site's session and opener, so the flow completes), a
+        // tab on the site's own domain opens in the site's view (Gmail's
+        // "Add account" on accounts.google.com), anything else goes to the
+        // browser (Dribbble's shots linking out).
+        .on_new_window(move |link, features| {
+            if features.size().is_some() {
+                return match popup(&opener, &link, features) {
+                    Some(window) => NewWindowResponse::Create { window },
+                    None => NewWindowResponse::Deny,
+                };
+            }
+            if same_site(&link, &home) {
+                let app = opener.clone();
+                let label = view_label.clone();
+                let _ = opener.run_on_main_thread(move || {
+                    if let Some(view) = app.get_webview(&label) {
+                        let _ = view.navigate(link);
+                    }
+                });
+                return NewWindowResponse::Deny;
+            }
             let _ = opener.opener().open_url(link.to_string(), None::<&str>);
             NewWindowResponse::Deny
         });
+    // Files a site downloads (Gmail's attachments) land in Downloads, under
+    // a name that doesn't overwrite one already there; a notification says
+    // when they're in.
+    let builder = builder.on_download(|_view, event| {
+        match event {
+            tauri::webview::DownloadEvent::Requested { url, destination } => {
+                if let Some(dir) = downloads_dir() {
+                    let name = destination
+                        .file_name()
+                        .map(|n| n.to_string_lossy().into_owned())
+                        .filter(|n| !n.is_empty())
+                        .or_else(|| {
+                            url.path_segments()
+                                .and_then(|mut s| s.next_back().map(str::to_string))
+                                .filter(|n| !n.is_empty())
+                        })
+                        .unwrap_or_else(|| "download".to_string());
+                    *destination = free_path(&dir, &name);
+                }
+            }
+            tauri::webview::DownloadEvent::Finished { success, .. } => {
+                #[cfg(target_os = "macos")]
+                if success {
+                    crate::mac_notify::show("Unduhan selesai", "Tersimpan di folder Downloads.", None, None);
+                }
+                #[cfg(not(target_os = "macos"))]
+                let _ = success;
+            }
+            _ => {}
+        }
+        true
+    });
     let view = window
         .add_child(builder, position, size)
         .map_err(|e| e.to_string())?;

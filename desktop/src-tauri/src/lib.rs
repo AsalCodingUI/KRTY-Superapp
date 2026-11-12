@@ -654,7 +654,7 @@ fn notify(
 /// macOS notifications through UserNotifications (the older API the
 /// notification plugin uses no longer shows anything on current macOS).
 #[cfg(target_os = "macos")]
-mod mac_notify {
+pub(crate) mod mac_notify {
     use block2::{DynBlock, RcBlock};
     use objc2::rc::Retained;
     use objc2::runtime::{Bool, NSObject, ProtocolObject};
