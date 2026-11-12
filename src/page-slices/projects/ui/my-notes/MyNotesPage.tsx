@@ -226,16 +226,17 @@ export function MyNotesPage() {
     // meet its edges; each scrolls on its own. Below lg they stack.
     <div className="flex max-lg:flex-col max-lg:gap-6 lg:mx-[calc((var(--page-gutter)+var(--sbw,0px))*-1)] lg:-mt-6 lg:-mb-6 lg:h-[calc(100svh-var(--app-topbar-height)-var(--app-tabs-height,0px)-var(--app-banner-height,0px)-0.375rem)]">
       <div className="border-border flex min-h-0 w-full shrink-0 flex-col lg:w-80 lg:border-r">
-        {/* The page's title, then the count with + Catatan baru, the
-            search. */}
-        <div className="flex flex-col gap-3 px-5 pt-6 pb-3">
-          <h1 className="text-heading text-page-title ms-[-0.04em] truncate font-normal">
-            {t("myNotesTitle")}
-          </h1>
-          <div className="flex min-h-8 items-center justify-between gap-2">
-            <span className="text-muted-foreground text-meta tabular-nums">
-              {t("notesCount", { n: notes.length })}
-            </span>
+        {/* The title row, level with the panel's "Kantor" and the note's
+            bar (32px, 12px from the sheet's top, 14px medium): the name and
+            the count, + Catatan baru (or read-only); then the search. */}
+        <div className="flex flex-col gap-3 px-5 pt-3 pb-3">
+          <div className="flex h-8 items-center justify-between gap-2">
+            <h1 className="text-foreground flex min-w-0 items-baseline gap-1.5 text-sm font-medium">
+              <span className="truncate">{t("myNotesTitle")}</span>
+              <span className="text-tertiary-foreground font-normal tabular-nums">
+                {notes.length}
+              </span>
+            </h1>
             {readOnly ? (
               <Badge variant="secondary">
                 <RiEyeLine data-icon="inline-start" />
@@ -700,8 +701,9 @@ function SheetBar({
   children?: React.ReactNode
 }) {
   return (
-    <div className="border-border flex shrink-0 flex-col gap-2 border-b px-6 pt-4 pb-3">
-      <div className="flex min-h-8 items-center gap-3">
+    <div className="border-border flex shrink-0 flex-col gap-2 border-b px-6 pt-3 pb-3">
+      {/* 32px, 12px from the top: level with the list's title row. */}
+      <div className="flex h-8 items-center gap-3">
         <nav
           aria-label={crumbs[0]}
           className="text-muted-foreground text-meta flex min-w-0 flex-1 items-center gap-1.5"
