@@ -78,7 +78,7 @@ Typography.
 | `text-title`      | 15 / 22        | −0.005em | Dialog / Sheet / Card titles, HomeCard             |
 | `text-section`    | 18 / 26        | −0.01em  | section titles, editor-dialog titles, empty states |
 | `text-stat`       | 20 / 26        | −0.02em  | StatStrip / StatTiles values (+ `tabular-nums`)    |
-| `text-page-title` | 24 / 30        | −0.02em  | PageHeader h1                                      |
+| `text-page-title` | 24 / 30        | −0.02em  | (unused: PageHeader's h1 is `text-sm font-medium`) |
 | `text-kpi`        | 28 / 34        | −0.025em | big KPI numbers (+ `tabular-nums`)                 |
 
 - Tracking is graded by size and lives in the token: don't add

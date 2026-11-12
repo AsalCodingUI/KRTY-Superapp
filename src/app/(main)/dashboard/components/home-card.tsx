@@ -22,10 +22,12 @@ import { useT } from "@/shared/i18n/client"
 
 /** Full-width column on the page gutter, like every other page. */
 export function HomeColumn({ children }: { children: React.ReactNode }) {
-  return <div className="flex w-full flex-col gap-4 pt-6">{children}</div>
+  // No top padding of its own: the title row sits where every page's does
+  // (the sheet's pt-3, level with "Kantor").
+  return <div className="flex w-full flex-col gap-4">{children}</div>
 }
 
-/** The page's h1 is PageHeader's; HomeColumn's pt-6 / gap-4 space it. */
+/** The page's h1 is PageHeader's; HomeColumn's gap-4 spaces it. */
 export function HomeGreeting({ title }: { title: React.ReactNode }) {
   return <PageHeader title={title} className="pt-0 pb-0" />
 }

@@ -14,7 +14,7 @@ touch targets, breakpoints and safe areas. Live examples: **/ui** → Spacing.
 | A scrolling pane with side padding     | `scroll-pane pane-px-<n>`                                     | `globals.css`                                                |
 | A scrolling pane inside a padded box   | `scroll-pane scroll-pane-bleed-<n>`                           | `globals.css`                                                |
 | A header/footer aligned to a bare pane | `scroll-gutter-match`                                         | `globals.css`                                                |
-| Page title block                       | `PageHeader className="pt-6 pb-4"`                            | `src/components/page-header.tsx`                             |
+| Page title block                       | `PageHeader` (32px row, the sheet's pt-3 above, pb-3 under)  | `src/components/page-header.tsx`                             |
 | Dialog padding                         | `DialogHeader` / body / `DialogFooter` (all `p-5`)            | `src/components/ui/dialog-sections.tsx`                      |
 | Sheet padding                          | `SheetHeader` / `scroll-pane pane-px-5` / `SheetFooter`       | `src/components/ui/sheet.tsx`                                |
 | Card                                   | `HomeCard` (`p-5 gap-4`) or `Panel` (`px-4` header)           | `dashboard/components/home-card.tsx`, `components/panel.tsx` |
@@ -48,8 +48,7 @@ Set once on the page sheet (`SidebarInset` in `src/app/(main)/layout.tsx`):
 | Width     | `--page-gutter`                            | Rendered (styled scrollbar, `--sbw` 12px) |
 | --------- | ------------------------------------------ | ----------------------------------------- |
 | phone     | `max(var(--bleed), calc(1.25rem - --sbw))` | 20px (no scrollbar room on phones)        |
-| md (768)  | `calc(2rem - --sbw)`                       | 32px from the sheet edge                  |
-| xl (1280) | `calc(3rem - --sbw)`                       | 48px                                      |
+| md (768)+ | `calc(1.5rem - --sbw)`                     | 24px from the sheet edge                  |
 
 `--bleed: 0.75rem` (12px). The scrollbar room (`--sbw`) is subtracted
 because the sheet is a `scroll-pane` that keeps that room on both sides.
@@ -81,7 +80,8 @@ because the sheet is a `scroll-pane` that keeps that room on both sides.
 ## Page section spacing
 
 ```
-PageHeader          pt-6 pb-4        (24px above the title, 16px under)
+PageHeader          sheet pt-3, pb-3 (12px above the title row, 12px under;
+                    the row level with the sidebar panel's "Kantor")
 TabNavigation       mb-4
 Toolbar / search    mb-4 (or pt-4 pb-3 under a stats strip)
 Content             lists, cards…    blocks gap-4
@@ -188,7 +188,7 @@ Defined in `src/app/globals.css` (`--spacing-*`), registered in
 | `gap-section`              | 32px  | section → section on a page                                            |
 | `p-surface` / `px-surface` | 20px  | card, dialog, sheet padding                                            |
 
-- `PageHeader` owns its spacing (`pt-6 pb-4`): don't pass it.
+- `PageHeader` owns its spacing (the sheet's `pt-3`, its own `pb-3`): don't pass it.
 - Pages add no bottom padding: the layout does (`md:pb-6`, and room for
   the phone tab bar).
 - `flex flex-col gap-*`, not `space-y-*` (a hidden child leaves no gap).
@@ -203,7 +203,8 @@ Defined in `src/app/globals.css` (`--spacing-*`), registered in
 - Side padding of page content comes only from `gutter-x`; overhang only
   from `bleed` (strips, separators). Lists and tables on the page don't
   overhang (`list-bleed`).
-- Every `PageHeader` is `pt-6 pb-4`; pages add no bottom padding.
+- Every `PageHeader` is the same 32px row 12px from the top, 14px medium
+  (like "Kantor"); pages add no bottom padding.
 - Scrolling panes use `scroll-pane pane-px-*`, not `overflow-y-auto px-*`.
 - Card, dialog and sheet padding is 20px (`p-5` / `pane-px-5`).
 

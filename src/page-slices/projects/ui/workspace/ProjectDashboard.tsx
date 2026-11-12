@@ -374,11 +374,12 @@ export function ProjectDashboard({ projectId }: { projectId: string }) {
     <div className="flex flex-col">
       <PageHeader
         title={
-          <span className="flex min-w-0 items-center gap-3">
+          // The 14px title's 20px tile, as beside a sidebar row's label.
+          <span className="flex min-w-0 items-center gap-2">
             <ProjectAvatar
               id={project.id}
               name={project.name}
-              className="text-micro size-7"
+              className="text-micro size-5"
             />
             <span className="min-w-0 truncate">{project.name}</span>
             <ProjectStageButton

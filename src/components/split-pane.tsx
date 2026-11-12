@@ -43,7 +43,7 @@ export function SplitPane({
  * room and doesn't scroll (globals.css). SplitPane, the calendar.
  */
 export const sheetFillClassName =
-  "lg:mx-[calc(var(--page-gutter)*-1)] lg:-mt-6 lg:-mb-6 lg:h-[calc(100svh-var(--app-topbar-height)-var(--app-tabs-height,0px)-var(--app-banner-height,0px)-0.375rem)]"
+  "lg:mx-[calc(var(--page-gutter)*-1)] lg:-mt-3 lg:-mb-6 lg:h-[calc(100svh-var(--app-topbar-height)-var(--app-tabs-height,0px)-var(--app-banner-height,0px)-0.375rem)]"
 
 /** The list column (320px, or `className` for another width). */
 export function SplitPaneList({
@@ -100,7 +100,7 @@ export function SplitPaneHead({
 }: React.ComponentProps<"div">) {
   return (
     <div
-      className={cn("flex flex-col gap-3 px-5 pt-3 pb-3", className)}
+      className={cn("flex flex-col gap-3 px-6 pt-3 pb-3", className)}
       {...props}
     />
   )
@@ -112,7 +112,8 @@ export const splitPaneSearchClassName =
   "border-chrome-border hover:border-chrome-border w-full border bg-transparent hover:bg-transparent"
 
 /** The list's rows, scrolling under the head (ends fade, scroll-fade).
- *  px-2 + a row's px-3: the rows' content on the head's 20px edge. */
+ *  px-3 + a row's px-3: the rows' content on the head's 24px edge, the
+ *  page gutter every other page has. */
 export function SplitPaneScroll({
   className,
   ...props
@@ -120,7 +121,7 @@ export function SplitPaneScroll({
   return (
     <div
       className={cn(
-        "scroll-fade flex min-h-0 flex-1 flex-col gap-1 overflow-y-auto px-2 pt-1 pb-3",
+        "scroll-fade flex min-h-0 flex-1 flex-col gap-1 overflow-y-auto px-3 pt-1 pb-3",
         className,
       )}
       {...props}

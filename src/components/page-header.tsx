@@ -30,35 +30,31 @@ export function PageHeader({
   className?: string
 }) {
   return (
-    <div
-      className={cn(
-        // pt-6 pb-4 is every page's header spacing (docs/ui/spacing.md).
-        "flex flex-wrap items-end justify-between gap-x-4 gap-y-3 pt-6 pb-4",
-        className,
-      )}
-    >
-      <div className="flex min-w-0 items-center gap-3">
-        {back && <BackButton back={back} />}
-        {/* ms-[-0.04em]: a 24px letter's side bearing is ~0.9px wider than
-            the 14px text under it, so the title would look indented
-            (optical letter alignment, docs/ui/optical.md). */}
-        {/* A control as the title (a segmented scope switch) is a flex
-            item, not inline text: on the text baseline it would make the
-            row taller and sit 2-3px lower than a text title. */}
-        <h1
-          className={cn(
-            "text-heading text-page-title ms-[-0.04em] min-w-0 font-normal",
-            typeof title === "string" || typeof title === "number"
-              ? "truncate"
-              : "flex items-center",
-          )}
-        >
-          {title}
-        </h1>
+    // 12px to the content under it (callers may drop it: pb-0).
+    <div className={cn("pb-3", className)}>
+      {/* The title row, as on the list | detail pages (SplitPaneTitle):
+          32px, its top 12px from the sheet's (the sheet's own pt-3), level
+          with the sidebar panel's "Kantor". */}
+      <div className="flex min-h-8 flex-wrap items-center justify-between gap-x-4 gap-y-3">
+        <div className="flex min-w-0 items-center gap-3">
+          {back && <BackButton back={back} />}
+          {/* 14px medium, like "Kantor" (and the list pages' titles). A
+              control as the title is a flex item, not inline text. */}
+          <h1
+            className={cn(
+              "text-foreground min-w-0 text-sm font-medium",
+              typeof title === "string" || typeof title === "number"
+                ? "truncate"
+                : "flex items-center",
+            )}
+          >
+            {title}
+          </h1>
+        </div>
+        {actions && (
+          <div className="flex shrink-0 items-center gap-2">{actions}</div>
+        )}
       </div>
-      {actions && (
-        <div className="flex shrink-0 items-center gap-2">{actions}</div>
-      )}
     </div>
   )
 }

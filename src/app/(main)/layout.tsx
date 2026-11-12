@@ -131,7 +131,8 @@ export default async function Layout({
                   mac={desktop}
                   // Phones: the sidebar is a sheet of its own (portal).
                   aside={<AppSidebar />}
-                  className="max-md:pt-2 md:pt-6"
+                  // pt-3: the title row 12px down, level with "Kantor".
+                  className="max-md:pt-2 md:pt-3"
                 >
                   <div
                     className={cn(

@@ -10,7 +10,7 @@ Windows apps, phones and print. Live examples: **/ui** → Layout.
 | Need                                    | Use                                                         | File                                                       |
 | --------------------------------------- | ----------------------------------------------------------- | ---------------------------------------------------------- |
 | The app around every signed-in page     | automatic (`(main)` layout)                                 | `src/app/(main)/layout.tsx`                                |
-| A page's title, ← back, actions         | `PageHeader title back actions className="pt-6 pb-4"`       | `src/components/page-header.tsx`                           |
+| A page's title, ← back, actions         | `PageHeader title back actions` (its own spacing)            | `src/components/page-header.tsx`                           |
 | Extra breadcrumb steps (Aturan › Edit)  | `useBreadcrumbs([{ label, href }])`                         | `src/components/page-breadcrumbs.ts`                       |
 | Headline numbers under the title / tabs | `StatStrip items aside orEmpty`                             | `src/components/stat-strip.tsx`                            |
 | The page sheet (app and client portal)  | `PageSheet mac` + `pageSheetContentClassName`               | `src/components/page-sheet.tsx`                            |
@@ -56,7 +56,8 @@ inside it (see overlay.md).
 **Page**
 
 - A page is `<div className="flex flex-col">` that starts with
-  `PageHeader className="pt-6 pb-4"`. Then, in this order when present:
+  `PageHeader` (a 32px title row, 14px medium, 12px from the sheet's top,
+  level with the sidebar panel's "Kantor"). Then, in this order when present:
   `TabNavigation`, `StatStrip`, a filter/search row (`pt-4 pb-3`), the
   content. Full width on the gutter; no `mx-auto max-w-*` page container
   (documents in dialogs read at `max-w-3xl`).
@@ -81,7 +82,8 @@ tracking-tight text-heading`). No description under the title
 
 **Gutter and bleed**
 
-- `--page-gutter`: 1.25rem on phones (never under `--bleed` 0.75rem),
+- `--page-gutter`: 1.25rem on phones (never under `--bleed` 0.75rem), 1.5rem
+  (24px, the list | detail panes' edge) from md;
   2.5rem from `md`, 4rem from `xl`, each minus the scrollbar width
   (`--sbw`), set once on `SidebarInset`. Use `gutter-x`; never hard-code
   `px-10` on a page.

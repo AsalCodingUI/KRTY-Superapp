@@ -17,7 +17,7 @@ const MAC_SHEET_RADIUS = "md:rounded-[10px]"
  * (--sbw). Phones: the page is a sheet on the chrome, top corners rounded.
  */
 export const pageSheetClassName =
-  "dark:bg-surface scroll-pane overscroll-contain max-md:rounded-t-dialog [--bleed:0.75rem] [--list-overhang:0px] [--page-gutter:max(var(--bleed),calc(1.25rem-var(--sbw,0px)))] md:z-20 md:[--page-gutter:calc(2rem-var(--sbw,0px))] xl:[--page-gutter:calc(3rem-var(--sbw,0px))]"
+  "dark:bg-surface scroll-pane overscroll-contain max-md:rounded-t-dialog [--bleed:0.75rem] [--list-overhang:0px] [--page-gutter:max(var(--bleed),calc(1.25rem-var(--sbw,0px)))] md:z-20 md:[--page-gutter:calc(1.5rem-var(--sbw,0px))]"
 
 /**
  * Exactly the room left in the page sheet: viewport minus the top bar, the
@@ -26,7 +26,7 @@ export const pageSheetClassName =
  * scrolls itself; its panes scroll inside (calendar, notes).
  */
 export const pageFillHeightClassName =
-  "h-[calc(100svh-var(--app-topbar-height)-var(--app-banner-height,0px)-4.5rem)] md:h-[calc(100svh-var(--app-topbar-height)-var(--app-tabs-height,0px)-var(--app-banner-height,0px)-3.5rem)]"
+  "h-[calc(100svh-var(--app-topbar-height)-var(--app-banner-height,0px)-4.5rem)] md:h-[calc(100svh-var(--app-topbar-height)-var(--app-tabs-height,0px)-var(--app-banner-height,0px)-2.625rem)]"
 
 /** The wrapper around the page inside the sheet (each shell adds its own
  *  bottom room for its tab bar). */
