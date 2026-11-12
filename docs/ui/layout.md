@@ -277,3 +277,18 @@ className="mb-8"` (other pages put content right under the tabs) → fine
   (`page-header.tsx:29`) and no caller passes it → remove it from the type.
 - `src/app/(fullscreen)/layout.tsx:6` — comment in Indonesian ("Layout
   tanpa sidebar…") → English like the rest of the code.
+
+## List | detail pages (SplitPane)
+
+`src/components/split-pane.tsx`: Catatan saya, Tugas saya. From lg the
+list column (320px; Tugas 384px) and the detail fill the page sheet edge
+to edge (the sheet's padding taken back, no scrollbar room kept: the
+sheet doesn't scroll, each pane does), a full-height hairline between.
+
+- The list: `SplitPaneHead` (`SplitPaneTitle`: 32px, 12px from the top,
+  14px medium like the sidebar panel's "Kantor", a quiet count, actions
+  right; then search `splitPaneSearchClassName` / filters), then
+  `SplitPaneScroll` (ends fade) with rows on `splitPaneItemClassName`
+  (the open one filled like the sidebar's active row, focus ring inside).
+- The detail: `SplitPaneDetail`, its own bar first. Below lg the panes
+  stack; a list whose detail is heavy (Tugas) opens the dialog instead.

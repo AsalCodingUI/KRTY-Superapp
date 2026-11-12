@@ -2,6 +2,16 @@
 
 import { useNewParam } from "@/shared/hooks/useNewParam"
 import { ConfirmDialog } from "@/components/confirm-dialog"
+import {
+  SplitPane,
+  SplitPaneDetail,
+  SplitPaneHead,
+  SplitPaneList,
+  SplitPaneScroll,
+  SplitPaneTitle,
+  splitPaneItemClassName,
+  splitPaneSearchClassName,
+} from "@/components/split-pane"
 import { EmptyValue } from "@/components/empty-value"
 import { RichTextField } from "@/components/rich-text-field"
 import { EmptyState } from "@/components/empty-state"
@@ -219,52 +229,44 @@ export function MyNotesPage() {
     )
   }
   return (
-    // Evernote-style, edge to edge of the page sheet from lg: the list
-    // column, a full-height hairline, the open note filling the rest. The
-    // sheet's own padding is taken back (gutter and the scrollbar's kept
-    // room, top, bottom) so the panes
-    // meet its edges; each scrolls on its own. Below lg they stack.
-    <div className="flex max-lg:flex-col max-lg:gap-6 lg:mx-[calc((var(--page-gutter)+var(--sbw,0px))*-1)] lg:-mt-6 lg:-mb-6 lg:h-[calc(100svh-var(--app-topbar-height)-var(--app-tabs-height,0px)-var(--app-banner-height,0px)-0.375rem)]">
-      <div className="border-border flex min-h-0 w-full shrink-0 flex-col lg:w-80 lg:border-r">
+    // List | note, edge to edge of the page sheet (SplitPane).
+    <SplitPane>
+      <SplitPaneList>
         {/* The title row, level with the panel's "Kantor" and the note's
             bar (32px, 12px from the sheet's top, 14px medium): the name and
             the count, + Catatan baru (or read-only); then the search. */}
-        <div className="flex flex-col gap-3 px-5 pt-3 pb-3">
-          <div className="flex h-8 items-center justify-between gap-2">
-            <h1 className="text-foreground flex min-w-0 items-baseline gap-1.5 text-sm font-medium">
-              <span className="truncate">{t("myNotesTitle")}</span>
-              <span className="text-tertiary-foreground font-normal tabular-nums">
-                {notes.length}
-              </span>
-            </h1>
-            {readOnly ? (
-              <Badge variant="secondary">
-                <RiEyeLine data-icon="inline-start" />
-                {t("notesReadOnly")}
-              </Badge>
-            ) : (
-              <Tooltip>
-                <TooltipTrigger
-                  render={
-                    <Button
-                      variant="ghost"
-                      size="icon-sm"
-                      aria-label={t("notesNew")}
-                      className="text-muted-foreground hover:text-foreground"
-                      onClick={createNote}
-                      disabled={writer.create.isPending}
-                    />
-                  }
-                >
-                  <RiAddLine />
-                </TooltipTrigger>
-                <TooltipContent>{t("notesNew")}</TooltipContent>
-              </Tooltip>
-            )}
-          </div>
-          {/* The same line as + Baru beside it (1px chrome line, no
-              fill), not the 1px field edge. */}
-          <InputGroup className="border-chrome-border hover:border-chrome-border w-full border bg-transparent hover:bg-transparent">
+        <SplitPaneHead>
+          <SplitPaneTitle
+            title={t("myNotesTitle")}
+            count={notes.length}
+            actions={
+              readOnly ? (
+                <Badge variant="secondary">
+                  <RiEyeLine data-icon="inline-start" />
+                  {t("notesReadOnly")}
+                </Badge>
+              ) : (
+                <Tooltip>
+                  <TooltipTrigger
+                    render={
+                      <Button
+                        variant="ghost"
+                        size="icon-sm"
+                        aria-label={t("notesNew")}
+                        className="text-muted-foreground hover:text-foreground"
+                        onClick={createNote}
+                        disabled={writer.create.isPending}
+                      />
+                    }
+                  >
+                    <RiAddLine />
+                  </TooltipTrigger>
+                  <TooltipContent>{t("notesNew")}</TooltipContent>
+                </Tooltip>
+              )
+            }
+          />
+          <InputGroup className={splitPaneSearchClassName}>
             <InputGroupAddon>
               <RiSearchLine />
             </InputGroupAddon>
@@ -275,11 +277,11 @@ export function MyNotesPage() {
               onChange={(e) => setQuery(e.target.value)}
             />
           </InputGroup>
-        </div>
+        </SplitPaneHead>
 
-        {/* The notes as cards: title, then when it was edited, the to-dos
-            and a preview; the open one is outlined. */}
-        <div className="scroll-fade flex min-h-0 flex-1 flex-col gap-1.5 overflow-y-auto px-3 pt-1 pb-3">
+        {/* The notes: title, a preview, when it was edited and the to-dos;
+            the open one filled. */}
+        <SplitPaneScroll className="gap-1.5">
           {isLoading ? (
             <div className="flex justify-center py-16">
               <Spinner className="size-6" />
@@ -318,11 +320,8 @@ export function MyNotesPage() {
                     aria-current={active || undefined}
                     onClick={() => setSelectedId(note.id)}
                     className={cn(
-                      // The open one filled like the sidebar's active row
-                      // (no outline); the focus ring drawn inside, so the
-                      // scroller never clips it.
-                      "focus-visible:ring-focus-ring flex w-full min-w-0 flex-col gap-1 rounded-lg px-4 py-3.5 text-left transition-colors outline-none focus-visible:ring-2 focus-visible:ring-inset",
-                      active ? "bg-sidebar-active" : "hover:bg-chrome-hover",
+                      splitPaneItemClassName(active),
+                      "flex-col gap-1 px-4 py-3.5",
                     )}
                   >
                     <span className="flex min-w-0 items-center gap-1.5 text-sm">
@@ -357,14 +356,11 @@ export function MyNotesPage() {
               )
             })
           )}
-        </div>
-      </div>
+        </SplitPaneScroll>
+      </SplitPaneList>
 
       {/* The open note, filling the rest: its bar, then the editor. */}
-      <section
-        aria-label={t("myNotesTitle")}
-        className="max-lg:rounded-card max-lg:border-border flex min-h-96 min-w-0 flex-1 flex-col text-sm max-lg:border"
-      >
+      <SplitPaneDetail aria-label={t("myNotesTitle")}>
         {selected ? (
           <NoteEditor
             key={selected.id}
@@ -396,7 +392,7 @@ export function MyNotesPage() {
             )}
           </div>
         )}
-      </section>
+      </SplitPaneDetail>
 
       <ConfirmDialog
         open={deleting !== null}
@@ -412,7 +408,7 @@ export function MyNotesPage() {
           setDeleting(null)
         }}
       />
-    </div>
+    </SplitPane>
   )
 }
 

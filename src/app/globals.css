@@ -1215,3 +1215,14 @@
       calc(100% - 24px) 100%;
   }
 }
+
+/* A list | detail page (components/split-pane.tsx) fills the page sheet
+   and never scrolls it, from lg: the sheet keeps no scrollbar room (its
+   kept gutter would clip the panes' right edge), so the panes reach both
+   sides. */
+@media (min-width: 1024px) {
+  [data-paper]:has([data-slot="split-pane"]) {
+    overflow-y: hidden;
+    scrollbar-gutter: auto;
+  }
+}

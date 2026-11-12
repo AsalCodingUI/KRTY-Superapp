@@ -17,3 +17,16 @@ export function useIsMobile() {
 
   return !!isMobile
 }
+
+/** lg and up (1024px): room for side-by-side panes (SplitPane). */
+export function useIsWide() {
+  const [wide, setWide] = React.useState(false)
+  React.useEffect(() => {
+    const mql = window.matchMedia("(min-width: 1024px)")
+    const onChange = () => setWide(mql.matches)
+    onChange()
+    mql.addEventListener("change", onChange)
+    return () => mql.removeEventListener("change", onChange)
+  }, [])
+  return wide
+}

@@ -177,6 +177,30 @@ export function TaskDialog({
   )
 }
 
+/**
+ * The same task in a page's detail pane instead of a dialog (Tugas saya):
+ * the main column (title, description, subtasks, comments) and the side
+ * panel (status, priority, assignees, due) side by side when there's room
+ * (xl), stacked and scrolling together otherwise.
+ */
+export function TaskPane({
+  task,
+  focus,
+  ...props
+}: Omit<
+  React.ComponentProps<typeof TaskDialog>,
+  "task" | "open" | "onOpenChange" | "focus"
+> & {
+  task: TaskRow
+  focus?: "due" | "subtask" | null
+}) {
+  return (
+    <div className="grid min-h-0 flex-1 max-xl:overflow-y-auto xl:grid-cols-[minmax(0,1fr)_17rem] xl:grid-rows-[minmax(0,1fr)] xl:overflow-hidden">
+      <TaskBody key={task.id} task={task} focus={focus ?? null} {...props} />
+    </div>
+  )
+}
+
 function TitleField({
   task,
   onSave,

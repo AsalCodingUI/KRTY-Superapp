@@ -1,13 +1,21 @@
 "use client"
 
-import { useIsMobile } from "@/hooks/use-mobile"
+import { useIsMobile, useIsWide } from "@/hooks/use-mobile"
 import { linkKey, projectHref } from "@/shared/lib/url-params"
 import { ConfirmDialog } from "@/components/confirm-dialog"
 import { EmptyState } from "@/components/empty-state"
-import { EmptyValue } from "@/components/empty-value"
 import { PageHeader } from "@/components/page-header"
 import { ProjectAvatar } from "@/components/project-avatar"
-import { TabNavigation, TabNavigationLink } from "@/components/tab-navigation"
+import { SegmentedControl } from "@/components/segmented-control"
+import {
+  SplitPane,
+  SplitPaneDetail,
+  SplitPaneHead,
+  SplitPaneList,
+  SplitPaneScroll,
+  SplitPaneTitle,
+  splitPaneItemClassName,
+} from "@/components/split-pane"
 import { Checkbox } from "@/components/ui/checkbox"
 import {
   Select,
@@ -19,11 +27,9 @@ import {
 import { Spinner } from "@/components/ui/spinner"
 import { ViewToggle, useViewMode } from "@/components/view-toggle"
 import { cn } from "@/lib/utils"
-import { GroupedList, listHeaderClassName } from "@/components/grouped-list"
 import { useDateLocale, useT } from "@/shared/i18n/client"
 import { RiCheckboxCircleLine, RiMessage3Line } from "@/shared/ui/lucide-icons"
 import { differenceInCalendarDays, isToday } from "date-fns"
-import Link from "next/link"
 import dynamic from "next/dynamic"
 import { useCallback, useMemo, useState } from "react"
 import { toast } from "sonner"
@@ -33,10 +39,9 @@ import {
   type TaskRow,
   type TeamMember,
 } from "../workspace/data"
-import { StatusDot, TaskBoard } from "../workspace/TaskBoard"
+import { TaskBoard } from "../workspace/TaskBoard"
 import { TaskContextTarget, type TaskMenuConfig } from "../workspace/task-menu"
 import {
-  STATUS_LABEL,
   byPosition,
   deleteTaskUndoable,
   duplicateTask,
@@ -55,9 +60,14 @@ import {
   type MyProject,
 } from "./my-tasks-data"
 
-// The task window (editor, comments) loads when a task is first opened.
+// The task window (editor, comments) loads when a task is first opened;
+// the split's pane, when the list first shows one.
 const TaskDialog = dynamic(
   () => import("../workspace/TaskDialog").then((m) => m.TaskDialog),
+  { loading: () => null },
+)
+const TaskPane = dynamic(
+  () => import("../workspace/TaskDialog").then((m) => m.TaskPane),
   { loading: () => null },
 )
 
@@ -66,9 +76,6 @@ const NO_TEAM: TeamMember[] = []
 
 type Filter = "all" | "todo" | "done"
 const ALL = "__all__"
-
-const ROW_GRID =
-  "grid grid-cols-[1.5rem_minmax(0,1fr)_5rem] items-center gap-x-4 md:grid-cols-[1.5rem_minmax(0,1fr)_12rem_9rem_7rem]"
 
 /**
  * Tugas saya: every task assigned to the viewer, across their running
@@ -83,7 +90,8 @@ export function MyTasksPage() {
   const viewer = useViewer()
   const { data, isLoading } = useMyTasks(viewer.id)
   const writer = useMyTaskWriter(viewer.id, () => toast.error(t("errSaveTask")))
-  const [view, setView] = useViewMode("my-tasks", "kanban")
+  // v2: the list is now the list | task split (the default).
+  const [view, setView] = useViewMode("my-tasks-split", "list")
   // Phones always get the list: a board doesn't fit.
   const isMobile = useIsMobile()
   const board = view !== "list" && !isMobile
@@ -94,6 +102,11 @@ export function MyTasksPage() {
   // Opened from the right-click menu: what the dialog starts on.
   const [focus, setFocus] = useState<"due" | "subtask" | null>(null)
   const [deleting, setDeleting] = useState<TaskRow | null>(null)
+  // The split: the task shown in the right pane (lg up), and a counter so
+  // a menu's "pick due" / "add subtask" reopens it focused.
+  const wide = useIsWide()
+  const [selectedId, setSelectedId] = useState<string | null>(null)
+  const [paneKey, setPaneKey] = useState(0)
 
   const projects = useMemo(
     () =>
@@ -216,6 +229,7 @@ export function MyTasksPage() {
 
   const remove = async (id: string) => {
     if (id === openId) setDialogOpen(false)
+    if (id === selectedId) setSelectedId(null)
     const row = everything.find((r) => r.id === id)
     const refresh = () => writer.refresh(row ? [row.project_id] : [])
     const error = await deleteTaskUndoable({
@@ -229,6 +243,12 @@ export function MyTasksPage() {
 
   const openTask = (id: string, start: "due" | "subtask" | null = null) => {
     setFocus(start)
+    // The split (lg up): in the right pane. Board, or narrower: the dialog.
+    if (!board && wide) {
+      setSelectedId(id)
+      setPaneKey((n) => n + 1)
+      return
+    }
     setOpenId(id)
     setDialogOpen(true)
   }
@@ -291,133 +311,42 @@ export function MyTasksPage() {
 
   const empty = !isLoading && allTasks.length === 0
 
-  return (
-    <div className="flex flex-col">
-      <PageHeader
-        title={t("myTasksTitle")}
-        actions={
-          !empty && (
-            <>
-              <Select
-                value={projectFilter}
-                onValueChange={(v) => v && setProjectFilter(v)}
-              >
-                <SelectTrigger className="w-44">
-                  <SelectValue>
-                    {(v: string) =>
-                      v === ALL
-                        ? t("myTasksAllProjects")
-                        : (data?.projects[v]?.name ?? t("myTasksAllProjects"))
-                    }
-                  </SelectValue>
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value={ALL}>{t("myTasksAllProjects")}</SelectItem>
-                  {projects.map((p) => (
-                    <SelectItem key={p.id} value={p.id}>
-                      {p.name}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-              {!isMobile && (
-                <ViewToggle
-                  value={board ? "kanban" : "list"}
-                  onValueChange={setView}
-                  modes={["kanban", "list"]}
-                />
-              )}
-            </>
-          )
-        }
-      />
+  const projectSelect = (
+    <Select
+      value={projectFilter}
+      onValueChange={(v) => v && setProjectFilter(v)}
+    >
+      <SelectTrigger className={board ? "w-44" : "min-w-0 flex-1"}>
+        <SelectValue>
+          {(v: string) =>
+            v === ALL
+              ? t("myTasksAllProjects")
+              : (data?.projects[v]?.name ?? t("myTasksAllProjects"))
+          }
+        </SelectValue>
+      </SelectTrigger>
+      <SelectContent>
+        <SelectItem value={ALL}>{t("myTasksAllProjects")}</SelectItem>
+        {projects.map((p) => (
+          <SelectItem key={p.id} value={p.id}>
+            {p.name}
+          </SelectItem>
+        ))}
+      </SelectContent>
+    </Select>
+  )
+  const viewToggle = !isMobile && (
+    <ViewToggle
+      value={board ? "kanban" : "list"}
+      onValueChange={setView}
+      modes={["kanban", "list"]}
+    />
+  )
 
-      {isLoading ? (
-        <div className="flex justify-center py-12">
-          <Spinner className="size-6" />
-        </div>
-      ) : empty ? (
-        <EmptyState
-          icon={<RiCheckboxCircleLine className="size-5" />}
-          title={t("myTasksEmpty")}
-          description={t("myTasksEmptyDesc")}
-        />
-      ) : board ? (
-        <div className="border-border border-t">
-          <TaskBoard
-            tasks={scoped}
-            subsOf={subsOf}
-            commentCounts={commentCounts}
-            team={NO_TEAM}
-            addSignal={0}
-            onOpen={(task) => openTask(task.id)}
-            onMove={move}
-            projectOf={projectOf}
-            wrapCard={(task, card) => (
-              <TaskContextTarget menu={menuFor(task)}>{card}</TaskContextTarget>
-            )}
-          />
-        </div>
-      ) : (
-        <>
-          <TabNavigation>
-            {(
-              [
-                ["all", tc("all")],
-                ["todo", t("filterTodo")],
-                ["done", t("statusCompleted")],
-              ] as const
-            ).map(([key, label]) => (
-              <TabNavigationLink
-                key={key}
-                active={filter === key}
-                onClick={() => setFilter(key)}
-                count={counts[key]}
-                showLeadingIcon={false}
-              >
-                {label}
-              </TabNavigationLink>
-            ))}
-          </TabNavigation>
-          <GroupedList className="text-sm">
-            <div className={cn(ROW_GRID, listHeaderClassName)}>
-              <span />
-              <span>{t("colTask")}</span>
-              <span className="hidden md:block">{t("colProject")}</span>
-              <span className="hidden md:block">{t("colStatus")}</span>
-              <span>{t("factsDeadline")}</span>
-            </div>
-            {visible.length === 0 ? (
-              <EmptyState
-                placement="inner"
-                icon={<RiCheckboxCircleLine className="size-5" />}
-                title={
-                  filter === "done"
-                    ? t("tasksEmptyDone")
-                    : t("myTasksEmptyTodo")
-                }
-              />
-            ) : (
-              visible.map((task) => (
-                <TaskContextTarget key={task.id} menu={menuFor(task)}>
-                  <MyTaskRow
-                    task={task}
-                    project={projectOf(task)}
-                    subtasks={subsOf.get(task.id) ?? []}
-                    comments={commentCounts[task.id] ?? 0}
-                    onToggle={() =>
-                      setStatus(task, task.done ? "todo" : "done")
-                    }
-                    onOpen={() => openTask(task.id)}
-                  />
-                </TaskContextTarget>
-              ))
-            )}
-          </GroupedList>
-        </>
-      )}
-
-      {/* Mounted from the first open on (openId stays set after). */}
+  // Mounted from the first open on (openId stays set after): the board's
+  // window, and the list's below lg.
+  const dialogs = (
+    <>
       {openId && (
         <TaskDialog
           task={openRow ?? null}
@@ -448,15 +377,232 @@ export function MyTasksPage() {
           setDeleting(null)
         }}
       />
-    </div>
+    </>
+  )
+
+  if (board)
+    return (
+      <div className="flex flex-col">
+        <PageHeader
+          title={t("myTasksTitle")}
+          actions={
+            !empty && (
+              <>
+                {projectSelect}
+                {viewToggle}
+              </>
+            )
+          }
+        />
+        {isLoading ? (
+          <div className="flex justify-center py-12">
+            <Spinner className="size-6" />
+          </div>
+        ) : empty ? (
+          <EmptyState
+            icon={<RiCheckboxCircleLine className="size-5" />}
+            title={t("myTasksEmpty")}
+            description={t("myTasksEmptyDesc")}
+          />
+        ) : (
+          <div className="border-border border-t">
+            <TaskBoard
+              tasks={scoped}
+              subsOf={subsOf}
+              commentCounts={commentCounts}
+              team={NO_TEAM}
+              addSignal={0}
+              onOpen={(task) => openTask(task.id)}
+              onMove={move}
+              projectOf={projectOf}
+              wrapCard={(task, card) => (
+                <TaskContextTarget menu={menuFor(task)}>
+                  {card}
+                </TaskContextTarget>
+              )}
+            />
+          </div>
+        )}
+        {dialogs}
+      </div>
+    )
+
+  // The list, grouped by when it's due (done ones last), and the open task
+  // beside it (lg up; narrower, a row opens the dialog).
+  const groups = groupByDue(visible)
+  const selected =
+    visible.find((task) => task.id === selectedId) ?? visible[0] ?? null
+
+  return (
+    <SplitPane>
+      <SplitPaneList className="lg:w-96">
+        <SplitPaneHead>
+          <SplitPaneTitle
+            title={t("myTasksTitle")}
+            count={counts.todo}
+            actions={viewToggle}
+          />
+          {!empty && (
+            <div className="flex min-w-0 items-center gap-2">
+              <SegmentedControl<Filter>
+                fitContent
+                value={filter}
+                onChange={setFilter}
+                items={[
+                  { value: "todo", label: t("filterTodo") },
+                  { value: "done", label: t("statusCompleted") },
+                  { value: "all", label: tc("all") },
+                ]}
+              />
+              {projectSelect}
+            </div>
+          )}
+        </SplitPaneHead>
+        <SplitPaneScroll>
+          {isLoading ? (
+            <div className="flex justify-center py-12">
+              <Spinner className="size-6" />
+            </div>
+          ) : empty ? (
+            <EmptyState
+              placement="inner"
+              icon={<RiCheckboxCircleLine className="size-5" />}
+              title={t("myTasksEmpty")}
+              description={t("myTasksEmptyDesc")}
+            />
+          ) : visible.length === 0 ? (
+            <EmptyState
+              placement="inner"
+              icon={<RiCheckboxCircleLine className="size-5" />}
+              title={
+                filter === "done" ? t("tasksEmptyDone") : t("myTasksEmptyTodo")
+              }
+            />
+          ) : (
+            groups.map((group) => (
+              <div key={group.key} className="flex flex-col gap-0.5">
+                {/* The group: a quiet label and its count, on the rows'
+                    text edge. */}
+                <h2 className="text-muted-foreground text-meta flex items-center gap-1.5 px-3 pt-3 pb-1 first:pt-1">
+                  {t(GROUP_LABEL[group.key])}
+                  <span className="text-tertiary-foreground tabular-nums">
+                    {group.tasks.length}
+                  </span>
+                </h2>
+                {group.tasks.map((task) => (
+                  <TaskContextTarget key={task.id} menu={menuFor(task)}>
+                    <SplitTaskRow
+                      task={task}
+                      project={projectOf(task)}
+                      subtasks={subsOf.get(task.id) ?? []}
+                      comments={commentCounts[task.id] ?? 0}
+                      active={wide && task.id === selected?.id}
+                      onToggle={() =>
+                        setStatus(task, task.done ? "todo" : "done")
+                      }
+                      onOpen={() => openTask(task.id)}
+                    />
+                  </TaskContextTarget>
+                ))}
+              </div>
+            ))
+          )}
+        </SplitPaneScroll>
+      </SplitPaneList>
+
+      {/* The open task, as in its window: title, description, subtasks
+          and comments, its details beside them. Below lg, the dialog. */}
+      <SplitPaneDetail aria-label={t("myTasksTitle")} className="max-lg:hidden">
+        {selected ? (
+          <TaskPane
+            key={`${selected.id}-${paneKey}`}
+            task={selected}
+            projectId={selected.project_id}
+            subtasks={subsOf.get(selected.id) ?? []}
+            team={data?.teams[selected.project_id] ?? []}
+            viewerId={viewer.id}
+            onPatch={writer.patch}
+            onStatus={setStatus}
+            onAddSub={addSubtask}
+            onRemove={remove}
+            menuFor={menuFor}
+            focus={focus}
+          />
+        ) : (
+          <div className="flex flex-1 items-center justify-center p-4">
+            <EmptyState
+              placement="inner"
+              icon={<RiCheckboxCircleLine className="size-5" />}
+              title={t("myTasksPick")}
+            />
+          </div>
+        )}
+      </SplitPaneDetail>
+      {dialogs}
+    </SplitPane>
   )
 }
 
-function MyTaskRow({
+type DueGroup = "overdue" | "today" | "week" | "later" | "none" | "done"
+const GROUP_ORDER: DueGroup[] = [
+  "overdue",
+  "today",
+  "week",
+  "later",
+  "none",
+  "done",
+]
+const GROUP_LABEL = {
+  overdue: "myTasksGroupOverdue",
+  today: "myTasksGroupToday",
+  week: "myTasksGroupWeek",
+  later: "myTasksGroupLater",
+  none: "myTasksGroupNoDue",
+  done: "myTasksGroupDone",
+} as const
+
+/** Open tasks by when they're due (past due first), done ones last; the
+ *  order inside a group is the list's (due date, then created). */
+function groupByDue(tasks: TaskRow[]) {
+  const map = new Map<DueGroup, TaskRow[]>()
+  const now = new Date()
+  for (const task of tasks) {
+    let key: DueGroup
+    if (task.done) key = "done"
+    else if (!task.due_date) key = "none"
+    else {
+      const days = differenceInCalendarDays(
+        new Date(`${task.due_date}T00:00:00`),
+        now,
+      )
+      key =
+        days < 0
+          ? "overdue"
+          : days === 0
+            ? "today"
+            : days <= 7
+              ? "week"
+              : "later"
+    }
+    map.set(key, [...(map.get(key) ?? []), task])
+  }
+  return GROUP_ORDER.filter((key) => map.has(key)).map((key) => ({
+    key,
+    tasks: map.get(key)!,
+  }))
+}
+
+/**
+ * One task in the split's list: the checkbox, the title, then its project,
+ * due date and counts. The whole row opens it (in the pane, or the dialog
+ * below lg); the open one is filled.
+ */
+function SplitTaskRow({
   task,
   project,
   subtasks,
   comments,
+  active,
   onToggle,
   onOpen,
   ...data
@@ -465,6 +611,7 @@ function MyTaskRow({
   project: MyProject | undefined
   subtasks: TaskRow[]
   comments: number
+  active: boolean
   onToggle: () => void
   onOpen: () => void
   /** data-* from the <TaskContextTarget> around it (right-click menu). */
@@ -473,104 +620,84 @@ function MyTaskRow({
   const t = useT("projects")
   const tc = useT("common")
   const dateLocale = useDateLocale()
-  const status = statusOf(task)
   const doneSubs = subtasks.filter((s) => s.done).length
   const due = task.due_date ? new Date(`${task.due_date}T00:00:00`) : null
   const overdue =
     due && !task.done && differenceInCalendarDays(due, new Date()) < 0
-
   return (
     <div
       {...data}
-      data-slot="list-row"
       className={cn(
-        ROW_GRID,
-        "group/task gutter-x relative min-h-12 py-2 text-sm max-md:min-h-14",
+        splitPaneItemClassName(active),
+        "focus-within:ring-focus-ring relative items-start gap-2.5 px-3 py-2.5 focus-within:ring-2 focus-within:ring-inset",
       )}
     >
       <Checkbox
-        className="relative z-10"
+        className="relative z-10 mt-0.5"
         checked={task.done}
         onCheckedChange={onToggle}
         aria-label={task.done ? t("markUndone") : t("markDone")}
       />
-      <div className="flex min-w-0 flex-col">
-        <div className="flex min-w-0 items-center gap-2">
-          {/* On a phone the whole row opens the task. */}
-          <button
-            type="button"
-            onClick={onOpen}
-            className={cn(
-              "min-w-0 truncate text-left hover:underline max-md:after:absolute max-md:after:inset-0",
-              task.done && "text-muted-foreground line-through",
-            )}
-          >
-            {task.title}
-          </button>
+      <div className="flex min-w-0 flex-1 flex-col gap-1">
+        {/* The title is the row's button; its hit area covers the row. */}
+        <button
+          type="button"
+          aria-current={active || undefined}
+          onClick={onOpen}
+          className={cn(
+            "min-w-0 truncate text-left text-sm outline-none after:absolute after:inset-0 after:rounded-lg",
+            task.done
+              ? "text-muted-foreground line-through"
+              : "text-foreground",
+          )}
+        >
+          {task.title}
+        </button>
+        <span className="text-muted-foreground text-meta flex min-w-0 items-center gap-1.5">
+          {project && (
+            <>
+              <ProjectAvatar
+                id={project.id}
+                name={project.name}
+                className="size-3.5 shrink-0"
+              />
+              <span className="truncate">{project.name}</span>
+            </>
+          )}
+          {due && (
+            <span
+              className={cn(
+                "shrink-0 tabular-nums",
+                overdue
+                  ? "text-destructive-ink"
+                  : isToday(due) && !task.done
+                    ? "text-warning-ink"
+                    : undefined,
+              )}
+            >
+              ·{" "}
+              {dueLabel(task.due_date!, dateLocale, {
+                today: tc("today"),
+                tomorrow: t("tomorrow"),
+              })}
+            </span>
+          )}
           {subtasks.length > 0 && (
-            <span className="text-muted-foreground text-meta shrink-0 tabular-nums">
-              {doneSubs}/{subtasks.length}
+            <span className="shrink-0 tabular-nums">
+              · {doneSubs}/{subtasks.length}
             </span>
           )}
           {comments > 0 && (
             <span
-              className="text-muted-foreground text-meta flex shrink-0 items-center gap-1 tabular-nums"
+              className="flex shrink-0 items-center gap-1 tabular-nums"
               aria-label={t("commentCount", { n: comments })}
             >
-              <RiMessage3Line className="size-3.5" />
+              · <RiMessage3Line className="size-3.5" />
               {comments}
             </span>
           )}
-        </div>
-        {/* Project and status get their own columns from md up. */}
-        {project && (
-          <span className="text-muted-foreground text-meta flex min-w-0 items-center gap-1.5 md:hidden">
-            <StatusDot status={status} />
-            <span className="truncate">{project.name}</span>
-          </span>
-        )}
+        </span>
       </div>
-      <div className="hidden min-w-0 md:block">
-        {project && (
-          <Link
-            prefetch={false}
-            href={projectHref(project, "tasks")}
-            className="text-muted-foreground hover:text-foreground text-meta flex min-w-0 items-center gap-1.5"
-          >
-            <ProjectAvatar
-              id={project.id}
-              name={project.name}
-              className="size-4 shrink-0"
-            />
-            <span className="truncate">{project.name}</span>
-          </Link>
-        )}
-      </div>
-      <span className="text-muted-foreground text-meta hidden items-center gap-1.5 md:flex">
-        <StatusDot status={status} />
-        {t(STATUS_LABEL[status])}
-      </span>
-      <span
-        className={cn(
-          "text-meta tabular-nums",
-          due
-            ? overdue
-              ? "text-destructive-ink"
-              : isToday(due) && !task.done
-                ? "text-warning-ink"
-                : "text-foreground"
-            : "text-muted-foreground",
-        )}
-      >
-        {due ? (
-          dueLabel(task.due_date!, dateLocale, {
-            today: tc("today"),
-            tomorrow: t("tomorrow"),
-          })
-        ) : (
-          <EmptyValue />
-        )}
-      </span>
     </div>
   )
 }
