@@ -1,5 +1,6 @@
 "use client"
 
+import { sheetFillClassName } from "@/components/split-pane"
 import { useNewParam } from "@/shared/hooks/useNewParam"
 import { useKeyboardShortcuts } from "@/shared/hooks/useKeyboardShortcuts"
 import { useT } from "@/shared/i18n/client"
@@ -196,24 +197,35 @@ function CalendarContent({
 
   return (
     <EventVisibilityProvider initialCategories={categories}>
-      {/* Fills the page sheet exactly; the grid scrolls inside. pt-6: the
-          toolbar sits where a PageHeader title would (docs/ui/layout.md). */}
+      {/* Fills the page sheet; the grid scrolls inside. From lg edge to
+          edge (sheetFill): one bar on top (the scopes' tabs, then the
+          toolbar), the grid under it with no card around it. Narrower:
+          the scopes, the toolbar and the grid as a card, as before. */}
       <div
+        data-sheet-fill=""
         className={cx(
           CALENDAR_HEIGHT,
-          "flex min-h-[520px] flex-col gap-4 pt-6",
+          sheetFillClassName,
+          "flex min-h-[520px] flex-col gap-4 pt-6 lg:gap-0 lg:pt-0",
         )}
       >
-        {header}
-        <CalendarToolbar
-          onAddEvent={() => setDialogOpen(true)}
-          showAddEvent={canAdd}
-          onViewChange={handleViewChange}
-          views={views}
-          showGoogleStatus={withGoogle}
-        />
+        {/* The bar: 44px (the tabs' height) 6px from the top, so its
+            controls centre on the sidebar panel's "Kantor"; the active
+            tab's underline sits on the hairline under it. */}
+        <div className="border-border flex flex-col gap-4 lg:flex-row lg:items-center lg:gap-x-6 lg:border-b lg:px-6 lg:pt-1.5">
+          {header && <div className="shrink-0 lg:self-end">{header}</div>}
+          <div className="min-w-0 flex-1 lg:py-1.5">
+            <CalendarToolbar
+              onAddEvent={() => setDialogOpen(true)}
+              showAddEvent={canAdd}
+              onViewChange={handleViewChange}
+              views={views}
+              showGoogleStatus={withGoogle}
+            />
+          </div>
+        </div>
 
-        <div className="bg-background dark:bg-surface flex min-h-0 flex-1 overflow-hidden rounded-xl border">
+        <div className="bg-background dark:bg-surface flex min-h-0 flex-1 overflow-hidden max-lg:rounded-xl max-lg:border">
           {waiting ? (
             <CalendarSkeleton />
           ) : (

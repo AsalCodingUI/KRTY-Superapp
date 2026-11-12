@@ -25,14 +25,25 @@ export function SplitPane({
   return (
     <div
       data-slot="split-pane"
+      data-sheet-fill=""
       className={cn(
-        "flex max-lg:flex-col max-lg:gap-6 lg:mx-[calc(var(--page-gutter)*-1)] lg:-mt-6 lg:-mb-6 lg:h-[calc(100svh-var(--app-topbar-height)-var(--app-tabs-height,0px)-var(--app-banner-height,0px)-0.375rem)]",
+        "flex max-lg:flex-col max-lg:gap-6",
+        sheetFillClassName,
         className,
       )}
       {...props}
     />
   )
 }
+
+/**
+ * From lg, the page fills the sheet edge to edge: the sheet's padding taken
+ * back (gutter, top, bottom), its full height. Pair it with
+ * `data-sheet-fill` on the same element, so the sheet keeps no scrollbar
+ * room and doesn't scroll (globals.css). SplitPane, the calendar.
+ */
+export const sheetFillClassName =
+  "lg:mx-[calc(var(--page-gutter)*-1)] lg:-mt-6 lg:-mb-6 lg:h-[calc(100svh-var(--app-topbar-height)-var(--app-tabs-height,0px)-var(--app-banner-height,0px)-0.375rem)]"
 
 /** The list column (320px, or `className` for another width). */
 export function SplitPaneList({

@@ -1217,12 +1217,12 @@
   }
 }
 
-/* A list | detail page (components/split-pane.tsx) fills the page sheet
-   and never scrolls it, from lg: the sheet keeps no scrollbar room (its
-   kept gutter would clip the panes' right edge), so the panes reach both
+/* A page that fills the page sheet from lg (data-sheet-fill: SplitPane,
+   the calendar) never scrolls it: the sheet keeps no scrollbar room (its
+   kept gutter would clip the page's right edge), so it reaches both
    sides. */
 @media (min-width: 1024px) {
-  [data-paper]:has([data-slot="split-pane"]) {
+  [data-paper]:has([data-sheet-fill]) {
     overflow-y: hidden;
     scrollbar-gutter: auto;
   }
