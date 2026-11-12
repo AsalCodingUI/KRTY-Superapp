@@ -1250,6 +1250,23 @@
   }
 }
 
+/* A Leads site's native view lies over the sheet, flush with the panel's
+   hairline (Kretya Flow): the panel's resize grip, which straddles that
+   hairline elsewhere, keeps to the panel's side, its line on the hairline
+   itself. */
+:root:has([data-lead-view]) [data-slot="sidebar-rail"] {
+  right: 0 !important;
+}
+:root:has([data-lead-view]) [data-slot="sidebar-rail"]::before,
+:root:has([data-lead-view]) [data-slot="sidebar-rail"]::after {
+  left: auto;
+  right: 0;
+  translate: 0 0;
+}
+:root:has([data-lead-view]) [data-slot="sidebar-rail"]::after {
+  translate: 0 -50%;
+}
+
 /* The same WebKit bug (bug 327003, fixed in WebKit 323487@main): a layer
    that gains or loses a clipping layer leaves its composited children at
    the old offset, so on hover parts of the page jump, vanish or are cut

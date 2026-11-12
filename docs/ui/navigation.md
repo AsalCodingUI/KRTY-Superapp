@@ -33,10 +33,8 @@ examples: **/ui** → Navigasi.
 
 ## App tabs
 
-The shell has no top bar from `md` up (the Mac app's 52pt strip: the
-traffic lights, the sidebar toggle and ‹ › over the rail and the panel, the
-tabs from where the page sheet starts). The sidebar is two parts, both on
-the chrome, the page sheet beside them (ChatGPT-style):
+The shell has no top bar from `md` up. The sidebar is two parts
+(Obvious-style):
 
 - **The rail** (`AppRail`, 60px, on the chrome): the sidebar toggle on
   top (level with the tab row; the Mac app's is by its traffic lights),
@@ -47,10 +45,10 @@ the chrome, the page sheet beside them (ChatGPT-style):
   dot on one with something new. Picking another shows its pages; picking
   the one shown folds the panel; picking one while folded opens it.
 - **The panel** (`AppSidebar`, 260px / 16.25rem, resizable 220–420),
-  on the chrome between the rail and the page sheet (no hairline: the
-  sheet's own edge parts them); it folds to nothing (⌘B, the rail's
-  toggle, the rail). The resize handle sits just inside its edge: hovering
-  shows a line and a grip there. From the top: the workspace's name,
+  *inside the page sheet* (`PageSheet aside`), a hairline between it and
+  the page; it folds to nothing (⌘B, the rail's toggle, the rail). The
+  resize handle sits across that hairline: hovering darkens the line
+  itself and shows a grip on it. From the top: the workspace's name,
   12px above "+ Baru" (`NewMenu`: an
   outline button, full width, label centred; a dropdown of what you can
   start — cuti, event, catatan, project for PMs up — each opening its

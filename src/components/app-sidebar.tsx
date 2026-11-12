@@ -403,10 +403,11 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
       </Sidebar>
     )
 
-  // From md up the panel sits on the chrome between the rail (AppRail)
-  // and the page sheet (ChatGPT-style). Collapsing folds it away.
+  // From md up the panel sits inside the page sheet (Obvious-style), the
+  // page beside it; the rail (AppRail) stays on the chrome. Collapsing
+  // folds the panel away.
   return (
-    <Sidebar inline className="on-chrome" data-chrome-dark="" {...props}>
+    <Sidebar inline className="on-chrome" {...props}>
       <SidebarRail />
       {panel}
     </Sidebar>
@@ -416,7 +417,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
 /**
  * The slim column on the chrome, md up (Obvious-style): the studio's mark,
  * the workspaces (Kantor, Project), the theme at the bottom. Everything
- * else is in the panel beside it.
+ * else is in the panel inside the sheet.
  */
 export function AppRail() {
   const desktop = useMacChrome()

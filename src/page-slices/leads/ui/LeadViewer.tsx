@@ -159,6 +159,9 @@ export function LeadViewer({ id }: { id: string }) {
     <div
       ref={area}
       data-sheet-fill=""
+      // The site's view lies over this, flush with the panel's hairline:
+      // the panel's resize grip keeps to the panel's side (globals.css).
+      data-lead-view={native ? "" : undefined}
       className={cn(sheetFillClassName, "relative flex min-h-[520px]")}
     >
       {native === false ? (

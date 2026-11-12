@@ -114,11 +114,9 @@ export default async function Layout({
                 "md:pr-1.5 md:pb-1.5",
               )}
             >
-              {/* On the chrome (ChatGPT-style): the rail (mark, Kantor /
-                  Project, theme), then the panel with the rest; the page
-                  sheet beside them. */}
+              {/* The rail on the chrome (mark, Kantor / Project, theme); the
+                  panel with the rest is inside the page sheet. */}
               <AppRail />
-              <AppSidebar />
               {/* The page sheet (components/page-sheet.tsx), shared with the
               client portal. */}
               {/* min-h-0: the sheet scrolls inside the column instead of
@@ -127,9 +125,14 @@ export default async function Layout({
                 {/* The tabs, on the chrome above the sheet (the Mac app
                     has them in its top strip). */}
                 {!desktop && (
-                  <Suspense>
-                    <SiteHeader />
-                  </Suspense>
+                  // ‹ › pulled 10px toward the rail's toggle, so the three
+                  // read as one row (the toggle's 40px box ends 10px in
+                  // from the rail's edge; no overlap).
+                  <div className="md:-ml-2.5">
+                    <Suspense>
+                      <SiteHeader />
+                    </Suspense>
+                  </div>
                 )}
                 {/* Banners (view-as, announcements): on the chrome between
                     the tabs and the page, as wide as the page. */}
@@ -139,6 +142,8 @@ export default async function Layout({
                 </AppBannerStack>
                 <PageSheet
                   mac={desktop}
+                  // Phones: the sidebar is a sheet of its own (portal).
+                  aside={<AppSidebar />}
                   // pt-3: the title row 12px down, level with "Kantor".
                   className="max-md:pt-2 md:pt-3"
                 >
