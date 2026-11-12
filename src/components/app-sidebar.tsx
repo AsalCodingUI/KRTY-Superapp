@@ -396,9 +396,9 @@ export function AppRail() {
       data-chrome-dark=""
       className={cn(
         "on-chrome hidden w-(--sidebar-width-icon) shrink-0 flex-col pb-1.5 md:flex",
-        // pt-1.5: the mark's 32px row centres on the tab row beside it
-        // (44px). In the Mac app, the top strip is above it.
-        desktop ? "pt-1" : "pt-1.5",
+        // pt-1: the mark (36px) centres on the tab row beside it (44px).
+        // In the Mac app, the top strip is above it.
+        desktop ? "pt-0.5" : "pt-1",
       )}
     >
       <div className="flex justify-center">
@@ -408,14 +408,15 @@ export function AppRail() {
               <PrefetchLink
                 href={siteConfig.baseLinks.dashboard}
                 aria-label={siteConfig.name}
-                className="flex size-8 items-center justify-center"
+                // The rail's buttons' size (36px), round like them.
+                className="flex size-9 items-center justify-center rounded-full"
               />
             }
           >
             <AppIcon
               variant="badge"
-              size={96}
-              className="size-5 shrink-0 rounded-[5px]"
+              size={192}
+              className="size-9 shrink-0 rounded-full"
             />
           </TooltipTrigger>
           <TooltipContent side="right">{siteConfig.name}</TooltipContent>
@@ -429,7 +430,7 @@ export function AppRail() {
       {/* Theme and the chrome's color (light / dark / system, tint); its
           bottom on the sheet's. */}
       <div className="flex justify-center">
-        <AppearancePopover className="blend-ink size-8" />
+        <AppearancePopover className="blend-ink size-9" />
       </div>
     </SidebarCompact>
   )
@@ -445,8 +446,9 @@ function WorkspaceRail() {
   const t = useT("nav")
   if (loading || visible.length < 2) return null
   return (
-    <SidebarGroup className="py-0">
-      <SidebarMenu>
+    // px-3: the 36px buttons centred on the 60px rail.
+    <SidebarGroup className="py-0 group-data-[collapsible=icon]:px-3">
+      <SidebarMenu className="gap-1">
         {visible.map((ws) => {
           const shown = open && ws.id === active?.id
           return (
@@ -457,7 +459,9 @@ function WorkspaceRail() {
                 aria-pressed={shown}
                 // Ink and fills (hover, the shown one) all blend into the
                 // chrome.
-                className="blend-ink relative"
+                // 36px, an 18px icon: bigger than the panel's rows, as the
+                // rail's only targets.
+                className="blend-ink relative group-data-[collapsible=icon]:size-9! group-data-[collapsible=icon]:p-[9px]! [&_svg]:size-[18px]"
                 // The one shown folds the panel away; another shows its
                 // pages (opening the panel when it's folded).
                 onClick={() => {
