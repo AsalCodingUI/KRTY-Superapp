@@ -13,10 +13,6 @@ import { useEffect, useRef, useState } from "react"
 import { hideLeads, inApp, showLead, snapshotLead } from "../lib/desktop"
 import { hostOf, useLeadSites } from "../model/data"
 
-/** Room left of the site for the panel's resize grip (half of it lies
- *  past the panel's hairline). */
-const GRIP = 3
-
 /** Overlays the native view would cover (it's always on top of the
  *  page): it steps aside while one of them overlaps it. */
 const OVERLAYS = [
@@ -78,11 +74,9 @@ export function LeadViewer({ id }: { id: string }) {
           typeof CSS !== "undefined" && CSS.supports("corner-shape", "squircle")
         setNative(
           await showLead(site.id, site.url, {
-            // A few px clear of the panel's edge: its resize grip straddles
-            // the hairline, as on every page, and stays in sight.
-            x: r.left + GRIP,
+            x: r.left,
             y: r.top,
-            width: r.width - GRIP,
+            width: r.width,
             height: r.height,
             radius: squircle ? css / 1.53 : css,
             roundLeft: sheetBox ? Math.abs(r.left - sheetBox.left) < 2 : false,
@@ -161,8 +155,7 @@ export function LeadViewer({ id }: { id: string }) {
     )
 
   return (
-    // The sheet, edge to edge: the app's web view lies over this (GRIP
-    // clear of the panel's edge).
+    // The sheet, edge to edge: the app's web view lies over exactly this.
     <div
       ref={area}
       data-sheet-fill=""

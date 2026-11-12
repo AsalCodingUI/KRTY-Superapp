@@ -7,7 +7,8 @@ import { useWorkspaceNav } from "@/components/workspace-nav"
 import { SegmentedControl } from "@/components/segmented-control"
 import type { WorkspaceId } from "@/shared/config/workspaces"
 import { useMacChrome } from "@/components/desktop-shell"
-import { SidebarTrigger } from "@/components/ui/sidebar"
+import { SidebarTrigger, useSidebar } from "@/components/ui/sidebar"
+import { TabHistoryButtons } from "@/widgets/app-tabs/ui/AppTabs"
 import { cn } from "@/lib/utils"
 import { createClient } from "@/shared/api/supabase/client"
 import { useUserProfile } from "@/shared/hooks/useUserProfile"
@@ -59,6 +60,8 @@ export function AccountMenu({
 
 export function AppTopbar() {
   const desktop = useMacChrome()
+  const { state } = useSidebar()
+  const open = state === "expanded"
 
   const account = (
     <div className="flex flex-1 items-center justify-end gap-1">
@@ -78,16 +81,22 @@ export function AppTopbar() {
         )}
         data-chrome-dark=""
       >
-        {/* Past the traffic lights: the toggle, then ‹ › and the tabs right
-            after it, 28pt apart like ‹ ›, one row centred in the 52pt bar
-            like the lights (the
-            tabs used to sit on the bar's bottom, lower than the rest). */}
-        <div className="flex shrink-0 items-center pl-[5.25rem]">
+        {/* ChatGPT-style: past the traffic lights the toggle and ‹ ›, over
+            the rail and the panel; the tabs start where the page sheet
+            does (the panel folded, right after ‹ ›). One row, centred in
+            the 52pt bar like the lights. */}
+        <div
+          className={cn(
+            "flex shrink-0 items-center gap-1 pl-[5.25rem] transition-[width] duration-200 ease-out group-data-[resizing=true]/sidebar-wrapper:transition-none motion-reduce:transition-none",
+            open && "w-[calc(var(--sidebar-width-icon)+var(--sidebar-width))]",
+          )}
+        >
           <SidebarTrigger className="text-muted-foreground" />
+          <TabHistoryButtons />
         </div>
         <div className="flex min-w-0 flex-1 items-center">
           <Suspense>
-            <SiteHeader />
+            <SiteHeader history={false} />
           </Suspense>
         </div>
       </header>

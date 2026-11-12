@@ -300,8 +300,9 @@ function Sidebar({
           <div
             data-sidebar="sidebar"
             data-slot="sidebar-inner"
-            // A hairline between it and the page, as between list and detail.
-            className="border-border flex h-full w-(--sidebar-width) flex-col border-r"
+            // On the chrome beside the page sheet: the sheet's own edge
+            // parts them, no hairline.
+            className="flex h-full w-(--sidebar-width) flex-col"
           >
             {children}
           </div>
@@ -453,10 +454,6 @@ function SidebarRail({ className, ...props }: React.ComponentProps<"div">) {
         // page sheet) and a small grip pill fade in. Both are ink blended
         // into the chrome (darken / lighten), so they carry the tint.
         "absolute inset-y-0 right-0 z-20 hidden w-3 cursor-col-resize md:block",
-        // In the page sheet: centred on the panel's hairline (z over the
-        // page), the line its full height, so hovering darkens the edge
-        // itself instead of drawing a second line beside it.
-        "group-data-[inline=true]:-right-[5.5px] group-data-[inline=true]:z-30 group-data-[inline=true]:before:inset-y-0",
         "before:bg-foreground/0 before:absolute before:inset-y-3 before:left-1/2 before:w-px before:-translate-x-1/2 before:rounded-full before:mix-blend-darken before:transition-colors before:duration-200 dark:before:mix-blend-lighten",
         "after:bg-foreground/0 after:absolute after:top-1/2 after:left-1/2 after:h-9 after:w-1 after:-translate-1/2 after:rounded-full after:mix-blend-darken after:transition-[background-color,height] after:duration-200 dark:after:mix-blend-lighten",
         "hover:before:bg-foreground/12 hover:after:bg-foreground/30",

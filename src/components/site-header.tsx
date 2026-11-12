@@ -67,7 +67,12 @@ function navItemFor(href: string) {
  * useBreadcrumbs). Phones have neither: their tab bar and the page title.
  * The Mac app puts it in its 52pt strip, beside the traffic lights.
  */
-export function SiteHeader() {
+export function SiteHeader({
+  history = true,
+}: {
+  /** ‹ › before the tabs (the Mac app has them by its sidebar toggle). */
+  history?: boolean
+} = {}) {
   const t = useT("nav")
   const section = useSection()
   const pathname = usePathname()
@@ -128,9 +133,11 @@ export function SiteHeader() {
     >
       {/* ‹ › lead the tabs (the sidebar toggle is in the sidebar's
           workspace row; the Mac app's by its traffic lights). */}
-      <div className="flex items-center pr-1">
-        <TabHistoryButtons />
-      </div>
+      {history && (
+        <div className="flex items-center pr-1">
+          <TabHistoryButtons />
+        </div>
+      )}
       <TabStrip navIcon={navIcon} describe={describe} />
     </header>
   )
