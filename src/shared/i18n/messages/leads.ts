@@ -35,6 +35,11 @@ const id = {
   webDesc:
     "{name} nggak bisa dibuka di dalam halaman web. Di app Kretya Flow, situs ini terbuka langsung di sini dengan login yang tersimpan.",
   webOpen: "Buka {name} di tab baru",
+  oldAppTitle: "Perbarui Kretya Flow",
+  oldAppDesc:
+    "Versi app ini belum bisa membuka {name} di sini. Setelah diperbarui, situs ini terbuka langsung di sini dengan login yang tersimpan.",
+  oldAppUpdate: "Periksa pembaruan",
+  oldAppBrowser: "Buka di browser",
   loadFailed: "Gagal memuat Leads. Migrasi lead_sources sudah dijalankan?",
   saveFailed: "Gagal menyimpan",
   notFound: "Situs ini tidak ada (lagi)",
@@ -76,6 +81,11 @@ const en: Record<keyof typeof id, string> = {
   webDesc:
     "{name} can't open inside a web page. In the Kretya Flow app it opens right here, signed in.",
   webOpen: "Open {name} in a new tab",
+  oldAppTitle: "Update Kretya Flow",
+  oldAppDesc:
+    "This version of the app can't open {name} here yet. Once updated, it opens right here, signed in.",
+  oldAppUpdate: "Check for updates",
+  oldAppBrowser: "Open in browser",
   loadFailed: "Couldn't load Leads. Has the lead_sources migration run?",
   saveFailed: "Couldn't save",
   notFound: "This site doesn't exist (any more)",

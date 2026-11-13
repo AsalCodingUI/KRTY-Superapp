@@ -15,6 +15,7 @@ import { Spinner } from "@/components/ui/spinner"
 import { cn } from "@/lib/utils"
 import { useT } from "@/shared/i18n/client"
 import { RiExternalLinkLine, RiInboxLine } from "@/shared/ui/lucide-icons"
+import { PrefetchLink } from "@/components/prefetch-link"
 import { useEffect, useRef, useState } from "react"
 import {
   focusLead,
@@ -274,7 +275,9 @@ export function LeadViewer({ id }: { id: string }) {
       />
     )
 
-  if (native === false)
+  if (native === false) {
+    // In Kretya Flow, but a build before Leads (it can't show the site).
+    const oldApp = inApp()
     return (
       // A browser: the site opens in a tab of its own.
       <div
@@ -284,24 +287,51 @@ export function LeadViewer({ id }: { id: string }) {
         <div className="m-auto flex max-w-sm flex-col items-center gap-4 p-6 text-center">
           <ProjectAvatar id={site.id} name={site.name} className="size-12" />
           <div className="flex flex-col gap-1">
-            <h2 className="text-sm font-medium">{t("webTitle")}</h2>
+            <h2 className="text-sm font-medium">
+              {oldApp ? t("oldAppTitle") : t("webTitle")}
+            </h2>
             <p className="text-muted-foreground text-meta">
-              {t("webDesc", { name: site.name })}
+              {oldApp
+                ? t("oldAppDesc", { name: site.name })
+                : t("webDesc", { name: site.name })}
             </p>
           </div>
-          <Button
-            nativeButton={false}
-            render={<a href={site.url} target="_blank" rel="noreferrer" />}
-          >
-            <RiExternalLinkLine data-icon="inline-start" />
-            {t("webOpen", { name: site.name })}
-          </Button>
+          {oldApp ? (
+            // The app, from before Leads: update it (the site in the
+            // browser meanwhile).
+            <div className="flex flex-wrap justify-center gap-2">
+              {/* Setelan app: the check, the download and Restart. */}
+              <Button
+                nativeButton={false}
+                render={<PrefetchLink href="/settings/app" />}
+              >
+                {t("oldAppUpdate")}
+              </Button>
+              <Button
+                variant="outline"
+                nativeButton={false}
+                render={<a href={site.url} target="_blank" rel="noreferrer" />}
+              >
+                <RiExternalLinkLine data-icon="inline-start" />
+                {t("oldAppBrowser")}
+              </Button>
+            </div>
+          ) : (
+            <Button
+              nativeButton={false}
+              render={<a href={site.url} target="_blank" rel="noreferrer" />}
+            >
+              <RiExternalLinkLine data-icon="inline-start" />
+              {t("webOpen", { name: site.name })}
+            </Button>
+          )}
           <span className="text-tertiary-foreground text-meta">
             {hostOf(site.url)}
           </span>
         </div>
       </div>
     )
+  }
 
   return (
     // The sheet, edge to edge: a browser pane (Claude's / ChatGPT's): the

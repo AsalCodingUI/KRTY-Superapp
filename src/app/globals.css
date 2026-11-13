@@ -1317,6 +1317,18 @@
   }
 }
 
+/* WebKit (Kretya Flow, Safari) drops the shadow and the rounded edge of a
+   floating sheet or a dialog that clips (overflow: hidden) once a long
+   list scrolls inside it (the notifications' "All", Settings →
+   Notifikasi: measured, the shadow there was flat). There they don't
+   clip: their parts keep inside the rounded box by their own padding. */
+@supports (font: -apple-system-body) {
+  [data-slot="sheet-content"],
+  [data-slot="dialog-content"]:has(.scroll-pane) {
+    overflow: visible !important;
+  }
+}
+
 /* The mouse is away on a Leads site (Kretya Flow sets data-pointer-away):
    the page never sees it leave, so the panel's resize grip it last
    hovered stays plain. */
