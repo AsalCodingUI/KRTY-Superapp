@@ -243,6 +243,7 @@ export function PropCell({
   onChange,
   onAddOption,
   quiet = false,
+  readOnly = false,
 }: {
   prop: WikiProp
   value: PropValue | undefined
@@ -250,9 +251,23 @@ export function PropCell({
   onAddOption: (option: PropOption) => void
   /** A table cell: empty reads as nothing (not "Kosong"). */
   quiet?: boolean
+  /** Locked or view only: shown as it is, nothing reacts to the pointer. */
+  readOnly?: boolean
 }) {
   const t = useT("wiki")
   const emptyText = quiet ? "" : t("emptyValue")
+  if (readOnly)
+    return (
+      <div inert>
+        <PropCell
+          prop={prop}
+          value={value}
+          onChange={onChange}
+          onAddOption={onAddOption}
+          quiet={quiet}
+        />
+      </div>
+    )
   switch (prop.type) {
     case "checkbox":
       return (

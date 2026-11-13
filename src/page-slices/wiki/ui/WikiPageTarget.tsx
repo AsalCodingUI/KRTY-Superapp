@@ -6,6 +6,7 @@ import { RiAddLine, RiDeleteBinLine } from "@/shared/ui/lucide-icons"
 import { usePathname, useRouter } from "next/navigation"
 import type { ReactElement } from "react"
 import {
+  canEditPage,
   trailOf,
   useWikiPages,
   useWikiWriter,
@@ -39,35 +40,40 @@ export function WikiPageTarget({
       id={page.id}
       label={page.title || t("untitled")}
       href={wikiHref(page)}
-      items={() => [
-        {
-          id: "wiki-new-subpage",
-          label: t("newSubpage"),
-          icon: RiAddLine,
-          onSelect: async () => {
-            router.push(wikiHref(await writer.create(page.id)))
-          },
-        },
-        {
-          id: "wiki-delete",
-          label: t("delete"),
-          icon: RiDeleteBinLine,
-          destructive: true,
-          confirm: true,
-          onSelect: async () => {
-            const param = pathname.startsWith("/wiki/")
-              ? pathname.slice("/wiki/".length).split("/")[0]
-              : null
-            const openId = param ? wikiIdOf(param, pages) : null
-            const above = openId
-              ? trailOf(pages, openId).some((p) => p.id === page.id)
-              : false
-            const parent = pages.find((p) => p.id === page.parent_id)
-            await writer.remove(page.id)
-            if (above) router.push(parent ? wikiHref(parent) : "/wiki")
-          },
-        },
-      ]}
+      // Locked or view only: only Buka / Salin link.
+      items={() =>
+        !canEditPage(page)
+          ? []
+          : [
+              {
+                id: "wiki-new-subpage",
+                label: t("newSubpage"),
+                icon: RiAddLine,
+                onSelect: async () => {
+                  router.push(wikiHref(await writer.create(page.id)))
+                },
+              },
+              {
+                id: "wiki-delete",
+                label: t("delete"),
+                icon: RiDeleteBinLine,
+                destructive: true,
+                confirm: true,
+                onSelect: async () => {
+                  const param = pathname.startsWith("/wiki/")
+                    ? pathname.slice("/wiki/".length).split("/")[0]
+                    : null
+                  const openId = param ? wikiIdOf(param, pages) : null
+                  const above = openId
+                    ? trailOf(pages, openId).some((p) => p.id === page.id)
+                    : false
+                  const parent = pages.find((p) => p.id === page.parent_id)
+                  await writer.remove(page.id)
+                  if (above) router.push(parent ? wikiHref(parent) : "/wiki")
+                },
+              },
+            ]
+      }
     >
       {children}
     </ContextTarget>

@@ -33,6 +33,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react"
 import { toast } from "sonner"
 import {
   WIKI_FILES_FOLDER,
+  canEditPage,
   childrenOf,
   newPropId,
   rememberPage,
@@ -50,6 +51,8 @@ import { WikiCrumbs } from "./WikiCrumbs"
 import { useWikiPageLinks } from "./WikiPageLink"
 import { RowProps, WikiDatabase } from "./WikiDatabase"
 import { WikiPageRows } from "./WikiPageRows"
+import { WikiShare } from "./WikiShare"
+import { Lock } from "@/components/icons"
 
 /** Typing pauses this long before the page saves itself. */
 const AUTOSAVE_MS = 800
@@ -160,6 +163,14 @@ function WikiPageEditor({
     locale,
   })
 
+  // Locked, or shared with the viewer to read only: nothing edits here.
+  const editable = canEditPage(meta)
+  const canManage = meta.access === "edit"
+  const toggleLock = () =>
+    void flush()
+      .then(() => writer.setLocked(page.id, !meta.locked))
+      .catch(() => toast.error(t("lockFailed")))
+
   const isDatabase = meta.kind === "database"
   // A row of a database: its properties under the title.
   const database = parent?.kind === "database" ? parent : null
@@ -221,6 +232,18 @@ function WikiPageEditor({
         }
         actions={
           <>
+            {meta.locked && (
+              <span className="text-muted-foreground text-meta flex items-center gap-1.5">
+                <Lock className="size-3.5" />
+                {t("locked")}
+              </span>
+            )}
+            {!canManage && (
+              <span className="text-muted-foreground text-meta">
+                {t("viewOnly")}
+              </span>
+            )}
+            <WikiShare page={meta} pages={pages} />
             <DropdownMenu>
               <DropdownMenuTrigger
                 render={
@@ -228,14 +251,19 @@ function WikiPageEditor({
                     variant="outline"
                     size="icon"
                     aria-label={t("more")}
-                    className="text-muted-foreground"
+                    className={canManage ? "text-muted-foreground" : "hidden"}
                   />
                 }
               >
                 <RiMoreFill />
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end" className="min-w-48">
+                <DropdownMenuItem onClick={toggleLock}>
+                  <Lock />
+                  {meta.locked ? t("unlock") : t("lock")}
+                </DropdownMenuItem>
                 <DropdownMenuItem
+                  disabled={!editable}
                   onClick={() => void createSubpage("database")}
                 >
                   <RiTableLine />
@@ -244,6 +272,7 @@ function WikiPageEditor({
                 <DropdownMenuSeparator />
                 <DropdownMenuItem
                   variant="destructive"
+                  disabled={!editable}
                   onClick={() => setDeleting(true)}
                 >
                   <RiDeleteBinLine />
@@ -256,7 +285,7 @@ function WikiPageEditor({
               onClick={() => void createSubpage()}
               disabled={creating}
               // A database adds rows from its table (+ Baru).
-              className={isDatabase ? "hidden" : undefined}
+              className={isDatabase || !editable ? "hidden" : undefined}
             >
               {creating ? (
                 <Spinner data-icon="inline-start" />
@@ -275,11 +304,13 @@ function WikiPageEditor({
           cover={meta.cover}
           kind={meta.kind}
           onChange={saveNow}
+          readOnly={!editable}
         >
           <textarea
             rows={1}
             maxLength={200}
-            autoFocus={!page.title}
+            autoFocus={!page.title && editable}
+            readOnly={!editable}
             placeholder={t("titlePlaceholder")}
             aria-label={t("titlePlaceholder")}
             value={title}
@@ -306,21 +337,27 @@ function WikiPageEditor({
                 ? t("editedBy", { time: edited, name: meta.updated_by_name })
                 : t("edited", { time: edited })}
           </p>
-          {database && <RowProps db={database} row={meta} />}
+          {database && (
+            <RowProps db={database} row={meta} readOnly={!editable} />
+          )}
         </PageHead>
 
         {isDatabase ? (
           // The table is wider than the text column, as in Notion.
           <div className="mx-auto mt-6 w-full max-w-5xl px-6 sm:px-16">
-            <WikiDatabase db={meta} pages={pages} />
+            <WikiDatabase db={meta} pages={pages} readOnly={!editable} />
           </div>
         ) : (
           <div data-wiki-body className="mt-6">
             {/* Links to pages read as chips, databases as tables. */}
             <PageLinkContext.Provider value={pageLinks}>
               <MarkdownDocEditor
+                // Its extensions are set at start: locking or unlocking
+                // starts it again (from the saved text: toggleLock flushes).
+                key={editable ? "edit" : "read"}
                 value={page.body}
                 ariaLabel={t("bodyLabel")}
+                readOnly={!editable}
                 onChange={(markdown) => queue({ body: markdown })}
                 onBlur={() => void flush()}
                 // Pictures and files in the wiki's own folder (public links,

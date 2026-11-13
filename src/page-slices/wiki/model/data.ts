@@ -53,6 +53,14 @@ export type WikiPageMeta = {
   schema: WikiProp[]
   /** A row's values, by property id. */
   props: Record<string, PropValue>
+  /** Only its creator and its members see it (and the pages under it,
+   *  unless one of them is restricted itself): wiki_pages_access.sql. */
+  restricted: boolean
+  /** Nobody edits it until it's unlocked (an accidental-edit guard). */
+  locked: boolean
+  created_by: string | null
+  /** What the viewer may do with it (the nearest restricted page decides). */
+  access: "edit" | "view"
 }
 
 export type WikiPage = WikiPageMeta & { body: string }
@@ -68,7 +76,7 @@ export const WIKI_FILES_FOLDER = "00000000-0000-0000-0000-00000000a1c1"
 const supabase = () => createClient()
 
 const META =
-  "id, parent_id, title, position, updated_at, icon, cover, kind, schema, props, editor:profiles!wiki_pages_updated_by_fkey(full_name)"
+  "id, parent_id, title, position, updated_at, icon, cover, kind, schema, props, restricted, locked, created_by, access:my_access, editor:profiles!wiki_pages_updated_by_fkey(full_name)"
 
 type Row = Omit<WikiPageMeta, "updated_by_name"> & {
   body?: string
@@ -130,14 +138,80 @@ function useWikiLive(enabled: boolean) {
             ? [WIKI_PAGES_KEY, wikiPageKey(String(row.id))]
             : [WIKI_PAGES_KEY],
       },
+      // Someone given or losing a page: the list (what's visible) too.
+      {
+        table: "wiki_page_members",
+        keys: (row) =>
+          row?.page_id
+            ? [WIKI_PAGES_KEY, wikiMembersKey(String(row.page_id))]
+            : [WIKI_PAGES_KEY],
+      },
     ],
     enabled,
   )
 }
 
-/** The pages under `parentId` (null: the top level), in order. */
-export const childrenOf = (pages: WikiPageMeta[], parentId: string | null) =>
-  pages.filter((p) => p.parent_id === parentId)
+/** The pages under `parentId` (null: the top level), in order. A page
+ *  whose parent the viewer can't see (restricted) sits at the top. */
+export function childrenOf(pages: WikiPageMeta[], parentId: string | null) {
+  if (parentId !== null) return pages.filter((p) => p.parent_id === parentId)
+  const ids = new Set(pages.map((p) => p.id))
+  return pages.filter((p) => p.parent_id === null || !ids.has(p.parent_id))
+}
+
+/** Whether the viewer may change the page now (edit access, not locked). */
+export const canEditPage = (page: Pick<WikiPageMeta, "access" | "locked">) =>
+  page.access === "edit" && !page.locked
+
+/** The page whose members decide who sees `id`: itself or the nearest
+ *  restricted page above it. Null: open to everyone. */
+export function accessGate(pages: WikiPageMeta[], id: string) {
+  const trail = trailOf(pages, id)
+  for (let i = trail.length - 1; i >= 0; i--)
+    if (trail[i].restricted) return trail[i]
+  return null
+}
+
+const MEMBERS = "wiki_page_members"
+export const wikiMembersKey = (pageId: string) =>
+  ["wiki-members", pageId] as const
+
+export type WikiMember = {
+  profile_id: string
+  can_edit: boolean
+  name: string | null
+  avatar_url: string | null
+}
+
+/** Who's on a restricted page's list. */
+export function useWikiMembers(pageId: string | null) {
+  return useQuery({
+    queryKey: wikiMembersKey(pageId ?? ""),
+    enabled: Boolean(pageId),
+    queryFn: async (): Promise<WikiMember[]> => {
+      const { data, error } = await supabase()
+        .from(MEMBERS)
+        .select("profile_id, can_edit, profile:profiles(full_name, avatar_url)")
+        .eq("page_id", pageId!)
+        .order("created_at")
+      if (error) throw error
+      return (
+        (data ?? []) as unknown as {
+          profile_id: string
+          can_edit: boolean
+          profile: {
+            full_name: string | null
+            avatar_url: string | null
+          } | null
+        }[]
+      ).map(({ profile, ...m }) => ({
+        ...m,
+        name: profile?.full_name ?? null,
+        avatar_url: profile?.avatar_url ?? null,
+      }))
+    },
+  })
+}
 
 /** `id` and its parents, top first (a breadcrumb). */
 export function trailOf(pages: WikiPageMeta[], id: string) {
@@ -223,6 +297,10 @@ export function useWikiWriter() {
       mark(id)
       const { error } = await supabase().from(TABLE).update(patch).eq("id", id)
       if (error) throw error
+      // The page's own copy too (an editor opened again starts from it).
+      queryClient.setQueryData<WikiPage | null>(wikiPageKey(id), (p) =>
+        p ? { ...p, ...patch } : p,
+      )
       // The list shows it at once (no refetch: it's ours); the body isn't
       // in the list.
       const { body: _body, ...listed } = patch
@@ -249,6 +327,78 @@ export function useWikiWriter() {
         .update({ props })
         .eq("id", rowId)
       if (error) throw error
+    },
+    /** Lock / unlock the page. */
+    setLocked: async (id: string, locked: boolean) => {
+      mark(id)
+      const { error } = await supabase()
+        .from(TABLE)
+        .update({ locked })
+        .eq("id", id)
+      if (error) throw error
+      queryClient.setQueryData<WikiPageMeta[]>(WIKI_PAGES_KEY, (pages) =>
+        pages?.map((p) => (p.id === id ? { ...p, locked } : p)),
+      )
+    },
+    /**
+     * Only invited people (`restricted`), or everyone again. Restricting
+     * starts the list with whoever had it already (`members`: the list of
+     * the restricted page above it, if any) and the viewer, so nobody who
+     * restricts a page loses it.
+     */
+    setRestricted: async (
+      id: string,
+      restricted: boolean,
+      members: { profile_id: string; can_edit: boolean }[] = [],
+      me?: string | null,
+    ) => {
+      if (restricted) {
+        const rows = new Map(
+          members.map((m) => [m.profile_id, { ...m, page_id: id }]),
+        )
+        if (me) rows.set(me, { profile_id: me, can_edit: true, page_id: id })
+        if (rows.size) {
+          const { error } = await supabase()
+            .from(MEMBERS)
+            .upsert([...rows.values()], { onConflict: "page_id,profile_id" })
+          if (error) throw error
+        }
+      }
+      mark(id)
+      const { error } = await supabase()
+        .from(TABLE)
+        .update({ restricted })
+        .eq("id", id)
+      if (error) throw error
+      await Promise.all([
+        refresh(),
+        queryClient.invalidateQueries({ queryKey: wikiMembersKey(id) }),
+      ])
+    },
+    /** Add someone to a restricted page, or change what they may do. */
+    setMember: async (pageId: string, profileId: string, canEdit: boolean) => {
+      const { error } = await supabase()
+        .from(MEMBERS)
+        .upsert(
+          { page_id: pageId, profile_id: profileId, can_edit: canEdit },
+          { onConflict: "page_id,profile_id" },
+        )
+      if (error) throw error
+      await queryClient.invalidateQueries({
+        queryKey: wikiMembersKey(pageId),
+      })
+    },
+    removeMember: async (pageId: string, profileId: string) => {
+      const { error } = await supabase()
+        .from(MEMBERS)
+        .delete()
+        .eq("page_id", pageId)
+        .eq("profile_id", profileId)
+      if (error) throw error
+      await Promise.all([
+        refresh(),
+        queryClient.invalidateQueries({ queryKey: wikiMembersKey(pageId) }),
+      ])
     },
     /** The page and everything under it. */
     remove: async (id: string) => {

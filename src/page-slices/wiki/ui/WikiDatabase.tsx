@@ -43,6 +43,7 @@ import {
   type PropValue,
   type WikiPageMeta,
   type WikiProp,
+  canEditPage,
 } from "../model/data"
 import { PROP_TYPE_LABEL, PropCell, cellValue } from "./props"
 import { WikiIcon } from "./wiki-icon"
@@ -65,14 +66,17 @@ function PropHeader({
   prop,
   onChange,
   onDelete,
+  readOnly = false,
 }: {
   prop: WikiProp
   onChange: (prop: WikiProp) => void
   onDelete: () => void
+  readOnly?: boolean
 }) {
   const t = useT("wiki")
   const [name, setName] = useState(prop.name)
   const [formula, setFormula] = useState(prop.formula ?? "")
+  if (readOnly) return <span className="block truncate">{prop.name}</span>
   return (
     <DropdownMenu
       onOpenChange={(open) => {
@@ -158,9 +162,12 @@ function PropHeader({
 export function WikiDatabase({
   db,
   pages,
+  readOnly = false,
 }: {
   db: WikiPageMeta
   pages: WikiPageMeta[]
+  /** Locked or view only (the database page): no columns, rows or edits. */
+  readOnly?: boolean
 }) {
   const t = useT("wiki")
   const writer = useWikiWriter()
@@ -200,6 +207,7 @@ export function WikiDatabase({
                 className="text-muted-foreground font-medium"
               >
                 <PropHeader
+                  readOnly={readOnly}
                   prop={prop}
                   onChange={(next) =>
                     saveSchema(schema.map((p) => (p.id === prop.id ? next : p)))
@@ -214,6 +222,7 @@ export function WikiDatabase({
               <Button
                 variant="ghost"
                 size="icon-sm"
+                hidden={readOnly}
                 aria-label={t("addProp")}
                 className="text-muted-foreground"
                 onClick={() =>
@@ -252,6 +261,7 @@ export function WikiDatabase({
                     onChange={(value) => void setValue(row, prop, value)}
                     onAddOption={(option) => void addOption(prop, option)}
                     quiet
+                    readOnly={readOnly || !canEditPage(row)}
                   />
                 </TableCell>
               ))}
@@ -266,7 +276,7 @@ export function WikiDatabase({
           {t("noRows")}
         </p>
       )}
-      <div>
+      <div hidden={readOnly}>
         <Button
           variant="ghost"
           size="sm"
@@ -296,7 +306,15 @@ export function WikiDatabase({
 }
 
 /** A row page's properties (its database's columns), under its title. */
-export function RowProps({ db, row }: { db: WikiPageMeta; row: WikiPageMeta }) {
+export function RowProps({
+  db,
+  row,
+  readOnly = false,
+}: {
+  db: WikiPageMeta
+  row: WikiPageMeta
+  readOnly?: boolean
+}) {
   const t = useT("wiki")
   const writer = useWikiWriter()
   const schema = db.schema ?? []
@@ -308,6 +326,7 @@ export function RowProps({ db, row }: { db: WikiPageMeta; row: WikiPageMeta }) {
           <dt className="text-muted-foreground truncate px-1">{prop.name}</dt>
           <dd className="min-w-0">
             <PropCell
+              readOnly={readOnly}
               prop={prop}
               value={cellValue(prop, row.props, schema)}
               onChange={(value) =>

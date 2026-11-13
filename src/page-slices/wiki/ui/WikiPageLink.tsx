@@ -6,6 +6,7 @@ import { useT } from "@/shared/i18n/client"
 import { useCallback } from "react"
 import { wikiHref, wikiIdOf, type WikiPageMeta } from "../model/data"
 import { WikiDatabase } from "./WikiDatabase"
+import { canEditPage } from "../model/data"
 import { WikiIcon } from "./wiki-icon"
 import { WikiPageTarget } from "./WikiPageTarget"
 
@@ -39,7 +40,7 @@ function InlineDatabase({
   const t = useT("wiki")
   return (
     // The document's link style (dotted, blue) stays off the table.
-    <div className="my-3 flex flex-col gap-2 [&_a]:text-foreground! [&_a]:no-underline!">
+    <div className="[&_a]:text-foreground! my-3 flex flex-col gap-2 [&_a]:no-underline!">
       <WikiPageTarget page={db}>
         <PrefetchLink
           href={wikiHref(db)}
@@ -49,7 +50,7 @@ function InlineDatabase({
           {db.title || t("untitled")}
         </PrefetchLink>
       </WikiPageTarget>
-      <WikiDatabase db={db} pages={pages} />
+      <WikiDatabase db={db} pages={pages} readOnly={!canEditPage(db)} />
     </div>
   )
 }

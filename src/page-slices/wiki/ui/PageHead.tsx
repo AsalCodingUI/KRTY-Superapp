@@ -110,12 +110,15 @@ export function PageHead({
   cover,
   kind,
   onChange,
+  readOnly = false,
   children,
 }: {
   icon: string | null
   cover: string | null
   kind: "page" | "database"
   onChange: (patch: WikiPatch) => void
+  /** Locked or view only: the icon and cover show, nothing changes them. */
+  readOnly?: boolean
   /** The title and what follows it. */
   children: React.ReactNode
 }) {
@@ -126,7 +129,10 @@ export function PageHead({
         <div className="group/cover relative mt-2 h-48 overflow-hidden rounded-lg sm:h-56">
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img src={cover} alt="" className="size-full object-cover" />
-          <div className="absolute right-3 bottom-3 opacity-0 transition-opacity group-hover/cover:opacity-100 focus-within:opacity-100">
+          <div
+            hidden={readOnly}
+            className="absolute right-3 bottom-3 opacity-0 transition-opacity group-hover/cover:opacity-100 focus-within:opacity-100"
+          >
             <CoverPicker
               trigger={
                 <Button size="sm" variant="outline" className="bg-background">
@@ -140,7 +146,18 @@ export function PageHead({
         </div>
       )}
       <div className="mx-auto w-full max-w-3xl px-6 sm:px-16">
-        {icon && (
+        {icon && readOnly && (
+          <div
+            className={
+              cover
+                ? "relative isolate z-10 -mt-10 -ml-2 grid size-20 place-items-center"
+                : "mt-6 -ml-2 grid size-20 place-items-center"
+            }
+          >
+            <WikiIcon icon={icon} kind={kind} className="size-16 text-6xl" />
+          </div>
+        )}
+        {icon && !readOnly && (
           <EmojiPicker
             trigger={
               <button
@@ -170,7 +187,7 @@ export function PageHead({
               : "mt-6 flex h-9 items-center gap-1 opacity-0 transition-opacity group-hover/head:opacity-100 focus-within:opacity-100"
           }
         >
-          {!icon && (
+          {!icon && !readOnly && (
             <EmojiPicker
               trigger={
                 <Button
@@ -185,7 +202,7 @@ export function PageHead({
               onPick={(emoji) => onChange({ icon: emoji })}
             />
           )}
-          {!cover && (
+          {!cover && !readOnly && (
             <CoverPicker
               trigger={
                 <Button
