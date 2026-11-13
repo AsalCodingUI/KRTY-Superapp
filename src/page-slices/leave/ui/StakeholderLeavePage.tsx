@@ -127,7 +127,11 @@ type PendingConfirm = {
 interface StakeholderLeavePageProps {
   requests: LeaveRequestWithProfile[]
   profiles: Profile[]
-  attendanceLogs?: AttendanceLogWithProfile[]
+  /** Each log's person comes from `profiles` (the server leaves it out:
+   *  250 copies of a name and avatar otherwise). */
+  attendanceLogs?: (Omit<AttendanceLogWithProfile, "profiles"> & {
+    profiles?: AttendanceLogWithProfile["profiles"]
+  })[]
   overviewStats?: {
     onLeaveToday: number
     pendingRequests: number
@@ -144,13 +148,30 @@ interface StakeholderLeavePageProps {
 export function StakeholderLeavePage({
   requests,
   profiles,
-  attendanceLogs = [],
+  attendanceLogs: logsIn = [],
   overviewStats,
   page,
   pageSize,
   totalCount,
   role,
 }: StakeholderLeavePageProps) {
+  const attendanceLogs = useMemo(() => {
+    const byId = new Map(profiles.map((p) => [p.id, p]))
+    return logsIn.map((log): AttendanceLogWithProfile => {
+      if (log.profiles !== undefined) return log as AttendanceLogWithProfile
+      const p = byId.get(log.user_id)
+      return {
+        ...log,
+        profiles: p
+          ? {
+              full_name: p.full_name ?? "",
+              avatar_url: p.avatar_url,
+              job_title: p.job_title,
+            }
+          : null,
+      }
+    })
+  }, [logsIn, profiles])
   const t = useT("leave")
   const isMobile = useIsMobile()
   const tc = useT("common")

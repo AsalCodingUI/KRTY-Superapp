@@ -24,6 +24,18 @@ const nextConfig = {
     // Security Headers
     headers: async () => {
         return [
+            // The notification sounds and the emoji list: fetched once, then
+            // kept a month (public/ files are max-age=0 otherwise). A changed
+            // file gets a new name.
+            {
+                source: "/:dir(sounds|emoji)/:file*",
+                headers: [
+                    {
+                        key: "Cache-Control",
+                        value: "public, max-age=2592000, stale-while-revalidate=86400",
+                    },
+                ],
+            },
             {
                 source: "/:path*",
                 headers: [

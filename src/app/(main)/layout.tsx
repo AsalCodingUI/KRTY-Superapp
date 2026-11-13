@@ -1,3 +1,4 @@
+import { IdlePrefetch } from "@/components/idle-prefetch"
 import { WorkspaceTransition } from "@/components/page-transition"
 import { AppRail, AppSidebar } from "@/components/app-sidebar"
 import { AppTopbar } from "@/components/app-topbar"
@@ -91,6 +92,8 @@ export default async function Layout({
         <NotificationsLive />
         {/* Kretya Flow: Leads' sites load in the background (notifications). */}
         <LeadsPreloader />
+        {/* The sidebar's pages, prefetched while idle (instant changes). */}
+        <IdlePrefetch />
         <Suspense>
           <SettingsHost />
         </Suspense>

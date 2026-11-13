@@ -129,7 +129,8 @@ export default async function LeaveRoute({
       supabase
         .from("attendance_logs")
         .select(
-          "id,user_id,date,clock_in,clock_out,is_break,break_total,break_start,status,notes,profiles(full_name, avatar_url, job_title)",
+          // The person comes from the profiles list on the page.
+          "id,user_id,date,clock_in,clock_out,is_break,break_total,break_start,status,notes",
         )
         .gte("date", attendanceStartDate)
         .order("date", { ascending: false })
