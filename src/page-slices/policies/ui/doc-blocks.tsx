@@ -13,6 +13,7 @@ import {
 import type { BlockItem } from "./slash-command"
 import { TOGGLE_NODES, TOGGLE_SLASH_ITEM } from "./toggle"
 import { COLUMN_NODES } from "./columns"
+import { PageLink } from "./page-link"
 
 /*
  * The richer blocks of documents with pictures (reports, notes, rules):
@@ -26,6 +27,8 @@ export const DOC_BLOCK_NODES = [
   ...TOGGLE_NODES,
   Gallery,
   ...COLUMN_NODES,
+  // A /wiki/ link alone on its line: a chip, or a database in place.
+  PageLink,
 ]
 
 /** Their "/" items; the gallery's opens `pick`. */

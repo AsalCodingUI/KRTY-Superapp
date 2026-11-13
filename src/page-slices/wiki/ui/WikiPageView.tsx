@@ -14,6 +14,7 @@ import {
 } from "@/components/ui/dropdown-menu"
 import { Spinner } from "@/components/ui/spinner"
 import { MarkdownDocEditor } from "@/page-slices/policies/ui/doc-editor-lazy"
+import { PageLinkContext } from "@/page-slices/policies/ui/page-link-context"
 import {
   uploadDocFile,
   uploadReportImage,
@@ -46,6 +47,7 @@ import {
 } from "../model/data"
 import { PageHead } from "./PageHead"
 import { WikiCrumbs } from "./WikiCrumbs"
+import { useWikiPageLinks } from "./WikiPageLink"
 import { RowProps, WikiDatabase } from "./WikiDatabase"
 import { WikiPageRows } from "./WikiPageRows"
 
@@ -189,6 +191,8 @@ function WikiPageEditor({
     }
   }
 
+  const pageLinks = useWikiPageLinks(pages)
+
   // Home's "Baru dibuka".
   useEffect(() => rememberPage(page.id), [page.id])
   // The readable address (an older full-id link, or a new title): swapped
@@ -312,20 +316,23 @@ function WikiPageEditor({
           </div>
         ) : (
           <div data-wiki-body className="mt-6">
-            <MarkdownDocEditor
-              value={page.body}
-              ariaLabel={t("bodyLabel")}
-              onChange={(markdown) => queue({ body: markdown })}
-              onBlur={() => void flush()}
-              // Pictures and files in the wiki's own folder (public links,
-              // like the rules').
-              onUploadImage={(file, original) =>
-                uploadReportImage(WIKI_FILES_FOLDER, file, original)
-              }
-              onUploadFile={(file) => uploadDocFile(WIKI_FILES_FOLDER, file)}
-              columns
-              toolbar={false}
-            />
+            {/* Links to pages read as chips, databases as tables. */}
+            <PageLinkContext.Provider value={pageLinks}>
+              <MarkdownDocEditor
+                value={page.body}
+                ariaLabel={t("bodyLabel")}
+                onChange={(markdown) => queue({ body: markdown })}
+                onBlur={() => void flush()}
+                // Pictures and files in the wiki's own folder (public links,
+                // like the rules').
+                onUploadImage={(file, original) =>
+                  uploadReportImage(WIKI_FILES_FOLDER, file, original)
+                }
+                onUploadFile={(file) => uploadDocFile(WIKI_FILES_FOLDER, file)}
+                columns
+                toolbar={false}
+              />
+            </PageLinkContext.Provider>
           </div>
         )}
 

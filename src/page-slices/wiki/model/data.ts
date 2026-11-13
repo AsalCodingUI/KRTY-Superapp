@@ -18,6 +18,7 @@ export const PROP_TYPES = [
   "select",
   "multi_select",
   "url",
+  "formula",
 ] as const
 export type PropType = (typeof PROP_TYPES)[number]
 
@@ -29,6 +30,8 @@ export type WikiProp = {
   name: string
   type: PropType
   options?: PropOption[]
+  /** A formula column's expression (model/formula.ts). */
+  formula?: string
 }
 
 export type PropValue = string | number | boolean | string[] | null

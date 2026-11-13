@@ -44,7 +44,7 @@ import {
   type WikiPageMeta,
   type WikiProp,
 } from "../model/data"
-import { PROP_TYPE_LABEL, PropCell } from "./props"
+import { PROP_TYPE_LABEL, PropCell, cellValue } from "./props"
 import { WikiIcon } from "./wiki-icon"
 
 /** A select's options grow as people type new ones (in any row). */
@@ -72,11 +72,22 @@ function PropHeader({
 }) {
   const t = useT("wiki")
   const [name, setName] = useState(prop.name)
+  const [formula, setFormula] = useState(prop.formula ?? "")
   return (
     <DropdownMenu
       onOpenChange={(open) => {
-        if (!open && name.trim() && name.trim() !== prop.name)
-          onChange({ ...prop, name: name.trim() })
+        if (open) return
+        const nextName = name.trim() || prop.name
+        const nextFormula = formula.trim()
+        if (
+          nextName !== prop.name ||
+          (prop.type === "formula" && nextFormula !== (prop.formula ?? ""))
+        )
+          onChange({
+            ...prop,
+            name: nextName,
+            ...(prop.type === "formula" ? { formula: nextFormula } : {}),
+          })
       }}
     >
       <DropdownMenuTrigger
@@ -99,6 +110,18 @@ function PropHeader({
             className="h-8"
           />
         </div>
+        {prop.type === "formula" && (
+          <div className="flex flex-col gap-1 p-1">
+            <Input
+              value={formula}
+              aria-label={t("formula")}
+              placeholder={t("formulaHint")}
+              onChange={(e) => setFormula(e.target.value)}
+              onKeyDown={(e) => e.stopPropagation()}
+              className="h-8 font-mono text-xs"
+            />
+          </div>
+        )}
         <DropdownMenuSub>
           <DropdownMenuSubTrigger>
             {t("propType")}: {t(PROP_TYPE_LABEL[prop.type])}
@@ -225,7 +248,7 @@ export function WikiDatabase({
                 <TableCell key={prop.id} className="px-0 py-0.5">
                   <PropCell
                     prop={prop}
-                    value={row.props?.[prop.id]}
+                    value={cellValue(prop, row.props, schema)}
                     onChange={(value) => void setValue(row, prop, value)}
                     onAddOption={(option) => void addOption(prop, option)}
                     quiet
@@ -286,7 +309,7 @@ export function RowProps({ db, row }: { db: WikiPageMeta; row: WikiPageMeta }) {
           <dd className="min-w-0">
             <PropCell
               prop={prop}
-              value={row.props?.[prop.id]}
+              value={cellValue(prop, row.props, schema)}
               onChange={(value) =>
                 void writer
                   .setProp(row.id, prop.id, value)

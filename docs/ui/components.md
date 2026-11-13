@@ -239,3 +239,11 @@ Duplicates and drift:
   (`MarkdownDocEditor columns`).
 - `MarkdownDocEditor toolbar={false}`: no formatting bar (the wiki, as
   Notion); the selection menu and "/" do the same.
+- Page link (`policies/ui/page-link.tsx`): a `/wiki/` link alone on its
+  line. A page provides `PageLinkContext` to draw it; the wiki draws a chip
+  (the page's icon + title) or, for a database, its table in place
+  (`useWikiPageLinks`). Without a provider it's a plain link. The block
+  keeps the editor out of its events (the table's inputs work as usual).
+- Wiki database columns may be `formula` (`wiki/model/formula.ts`):
+  `prop("Qty") * prop("Harga")`, + − × ÷ %, round / min / max / abs / sum;
+  parsed by hand (no eval), read only in cells.

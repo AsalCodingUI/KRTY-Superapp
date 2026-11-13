@@ -15,6 +15,7 @@ import type { MessageKey } from "@/shared/i18n/messages"
 import { RiCheckLine } from "@/shared/ui/lucide-icons"
 import { useEffect, useState } from "react"
 import type { PropOption, PropType, PropValue, WikiProp } from "../model/data"
+import { evaluateFormula } from "../model/formula"
 
 /** Notion's option colors on the app's badge tones. */
 const COLOR_TONE: Record<string, BadgeVariant> = {
@@ -41,6 +42,28 @@ export const PROP_TYPE_LABEL: Record<PropType, MessageKey<"wiki">> = {
   select: "propSelect",
   multi_select: "propMultiSelect",
   url: "propUrl",
+  formula: "propFormula",
+}
+
+/**
+ * A row's value for a column: stored, or computed for a formula (other
+ * formula columns it names are computed too; a loop reads as null).
+ */
+export function cellValue(
+  prop: WikiProp,
+  props: Record<string, PropValue> | undefined,
+  schema: WikiProp[],
+  seen: Set<string> = new Set(),
+): PropValue {
+  if (prop.type !== "formula") return props?.[prop.id] ?? null
+  if (seen.has(prop.id)) return null
+  const next = new Set(seen).add(prop.id)
+  return evaluateFormula(prop.formula ?? "", (name) => {
+    const target = schema.find(
+      (p) => p.name.toLowerCase() === name.toLowerCase(),
+    )
+    return target ? cellValue(target, props, schema, next) : null
+  })
 }
 
 /** A value read as text (search, sort, the row's line). */
@@ -291,6 +314,19 @@ export function PropCell({
         />
       )
     }
+    case "formula":
+      // Computed (cellValue): read only, a number as the others.
+      return (
+        <div className="text-foreground flex h-8 items-center px-2.5 tabular-nums">
+          {typeof value === "number"
+            ? new Intl.NumberFormat("id-ID", {
+                maximumFractionDigits: 2,
+              }).format(value)
+            : quiet
+              ? ""
+              : "—"}
+        </div>
+      )
     case "url":
       return (
         <div className="group/url relative">
