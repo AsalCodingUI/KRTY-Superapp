@@ -210,6 +210,12 @@ export function StakeholderLeavePage({
   const refreshForProfiles = useRealtimeRefresh(3_000, (payload) =>
     isShownChange(profiles, payload),
   )
+  // A request's change re-renders the page from the server only when the
+  // list on screen doesn't show it yet (our own approve / reject is shown
+  // by its own refresh: its echo is skipped); a burst refreshes once.
+  const refreshForLeave = useRealtimeRefresh(1_000, (payload) =>
+    isShownChange(requests, payload),
+  )
 
   // --- Realtime: debounce refresh to avoid UI thrashing on burst updates ---
   useEffect(() => {
@@ -224,7 +230,7 @@ export function StakeholderLeavePage({
 
     // The app's shared per-table channels.
     const unsubscribes = [
-      subscribeTable("leave_requests", undefined, scheduleRefresh),
+      subscribeTable("leave_requests", undefined, refreshForLeave),
       // Any profile edit fires this (presence, settings…): refresh only when
       // a field this page shows (name, photo, title, join date, type) moved.
       subscribeTable("profiles", undefined, (payload) => {
@@ -245,7 +251,7 @@ export function StakeholderLeavePage({
       }
       for (const unsubscribe of unsubscribes) unsubscribe()
     }
-  }, [router, refreshForProfiles])
+  }, [router, refreshForProfiles, refreshForLeave])
 
   const handlePageChange = (newPage: number) => {
     const params = new URLSearchParams(searchParams)

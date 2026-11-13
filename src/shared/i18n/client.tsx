@@ -75,6 +75,44 @@ const routeLoaders: Record<RouteNamespace, () => Promise<Dictionary>> = {
     import("./messages/dashboard").then(
       (m) => m.dashboard as unknown as Dictionary,
     ),
+  briefs: () =>
+    import("./messages/briefs").then((m) => m.briefs as unknown as Dictionary),
+  calendar: () =>
+    import("./messages/calendar").then(
+      (m) => m.calendar as unknown as Dictionary,
+    ),
+  clients: () =>
+    import("./messages/clients").then(
+      (m) => m.clients as unknown as Dictionary,
+    ),
+  contracts: () =>
+    import("./messages/contracts").then(
+      (m) => m.contracts as unknown as Dictionary,
+    ),
+  finance: () =>
+    import("./messages/finance").then(
+      (m) => m.finance as unknown as Dictionary,
+    ),
+  invoices: () =>
+    import("./messages/invoices").then(
+      (m) => m.invoices as unknown as Dictionary,
+    ),
+  leads: () =>
+    import("./messages/leads").then((m) => m.leads as unknown as Dictionary),
+  processes: () =>
+    import("./messages/processes").then(
+      (m) => m.processes as unknown as Dictionary,
+    ),
+  santuy: () =>
+    import("./messages/santuy").then((m) => m.santuy as unknown as Dictionary),
+  settings: () =>
+    import("./messages/settings").then(
+      (m) => m.settings as unknown as Dictionary,
+    ),
+  whatsNew: () =>
+    import("./messages/whatsNew").then(
+      (m) => m.whatsNew as unknown as Dictionary,
+    ),
 }
 
 const lazyMessages = new Map<string, Record<string, string>>()

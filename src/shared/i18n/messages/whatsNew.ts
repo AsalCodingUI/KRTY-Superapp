@@ -71,7 +71,6 @@ const id = {
   copyTitle: "Salin judul",
   copied: "Disalin",
 
-
   // Writing (stakeholders)
   write: "Tulis update",
   edit: "Ubah",
@@ -194,7 +193,6 @@ const en: Record<keyof typeof id, string> = {
     "The link may be wrong, or the note isn't for your access level.",
   copyTitle: "Copy title",
   copied: "Copied",
-
 
   write: "Write an update",
   edit: "Edit",

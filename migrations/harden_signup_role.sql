@@ -5,7 +5,7 @@
 -- else starts as an employee, and a stakeholder promotes them in Tim.
 -- Same function as profile_merge_on_signin.sql otherwise. Idempotent.
 --
--- NOT APPLIED YET: run it in the Supabase SQL editor after reviewing.
+-- Applied 2026-11-13.
 -- Also worth doing there (settings, not SQL): turn off open email sign-up
 -- (Auth → Providers → Email → "Allow new users to sign up") so only invited
 -- people get in.

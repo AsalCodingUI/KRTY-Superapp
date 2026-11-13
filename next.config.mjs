@@ -104,13 +104,16 @@ const nextConfig = {
     experimental: {
         // Only packages actually imported from src (barrel imports rewritten
         // to per-module imports so unused exports never reach the bundle).
+        // Not @tanstack/react-query: split per module, its QueryClient
+        // context could load twice after a dev reload ("No QueryClient
+        // set" from the (main) layout's HydrationBoundary); it's small and
+        // side-effect free anyway.
         optimizePackageImports: [
             'motion',
             'radix-ui',
             '@base-ui/react',
             '@dnd-kit/core',
             '@dnd-kit/sortable',
-            '@tanstack/react-query',
             '@tanstack/react-table',
             'lucide-react',
             'recharts',

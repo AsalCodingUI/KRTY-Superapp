@@ -15,6 +15,19 @@ export const SERVER_ONLY_NAMESPACES = ["api"] as const satisfies Namespace[]
 export const ROUTE_NAMESPACES = [
   // src/app/(main)/dashboard/layout.tsx
   "dashboard",
+  // Each from its routes' layout.tsx (<RouteMessages>), found by following
+  // the imports from every page that uses them (no shared component does):
+  "briefs",
+  "calendar",
+  "clients",
+  "contracts",
+  "finance",
+  "invoices",
+  "leads",
+  "processes",
+  "santuy",
+  "settings",
+  "whatsNew",
 ] as const satisfies Namespace[]
 
 export type RouteNamespace = (typeof ROUTE_NAMESPACES)[number]
