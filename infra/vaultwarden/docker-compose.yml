@@ -12,7 +12,7 @@ services:
       DOMAIN: "https://vault.kretyastudio.com"
       # Open only until the first (owner) account exists; then false, and
       # people join by an organization invite (INVITATIONS_ALLOWED).
-      SIGNUPS_ALLOWED: "true"
+      SIGNUPS_ALLOWED: "false"
       INVITATIONS_ALLOWED: "true"
       SHOW_PASSWORD_HINT: "false"
       # No ADMIN_TOKEN: the /admin page stays off.

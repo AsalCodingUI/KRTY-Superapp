@@ -14,6 +14,7 @@ import { NavMain } from "@/components/nav-main"
 import { NewMenu } from "@/components/new-menu"
 import { useProjectTree } from "@/components/nav-project"
 import { useLeadTree } from "@/page-slices/leads/ui/lead-tree"
+import { WikiNewButton } from "@/page-slices/wiki/ui/WikiNewButton"
 import { useWikiTree } from "@/page-slices/wiki/ui/wiki-tree"
 import { PrefetchLink } from "@/components/prefetch-link"
 import { SidebarNotices } from "@/components/sidebar-notices"
@@ -171,6 +172,9 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   // The wiki's pages (its panel), loaded only while the wiki is open.
   const wikiOpen = active?.id === "wiki"
   const wikiTree = useWikiTree(wikiOpen)
+  // Leads, the wiki and Password are panels of their own: no + Baru,
+  // search or the always-there pages (the wiki has its own + Halaman baru).
+  const ownPanel = leadsOpen || wikiOpen || active?.id === "vault"
 
   // The top block, for whoever can open each page.
   const topItems = React.useMemo(() => {
@@ -380,20 +384,23 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         // px-3: the same 12px edge as the menu rows below. In the sheet,
         // pt-3: 12px from its top edge.
         className={cn(
-          // Leads (its title alone): the sites start right under it.
+          // A panel of its own (its title alone): its rows start right
+          // under it; the wiki's + Halaman baru gets the usual room.
           "gap-1 px-3",
-          leadsOpen ? "pb-1" : "pb-4",
+          ownPanel && !wikiOpen ? "pb-1" : "pb-4",
           isMobile ? "pt-1.5" : "pt-3",
         )}
       >
         {titleRow}
-        {/* Leads is its sites alone: no + Baru, search or top pages. */}
-        {!leadsOpen && (
+        {/* Leads, the wiki and Password are their own: no + Baru,
+            search or top pages (the wiki: its + Halaman baru). */}
+        {!ownPanel && (
           <>
             <div className="mb-2">{newMenu}</div>
             <div className="-mx-3">{topBlock}</div>
           </>
         )}
+        {wikiOpen && <WikiNewButton />}
         {/* Phones: Kantor | Project as tabs (the rail is md up). */}
         {isMobile && <WorkspaceTabs className="mt-3" />}
       </SidebarHeader>
