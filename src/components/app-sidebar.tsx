@@ -53,7 +53,7 @@ import { accessLevel, canOpenPage } from "@/shared/config/access"
 import { useUserProfile } from "@/shared/hooks/useUserProfile"
 import { useT } from "@/shared/i18n/client"
 import { ChevronDown, Settings, Sparkles } from "@/components/icons"
-import { usePathname } from "next/navigation"
+import { usePathname, useRouter } from "next/navigation"
 import { replaceUrl } from "@/shared/lib/url-params"
 
 /** A 32px icon button in the sidebar's bottom row, named on hover. */
@@ -157,7 +157,23 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   const pathname = usePathname()
   const { profile } = useUserProfile()
   const { loading, active, badges } = useWorkspaceNav()
-  const { isMobile } = useSidebar()
+  const { isMobile, open, setOpen } = useSidebar()
+  // A workspace without a panel (Password): the panel folds while it's
+  // shown and comes back when another one is.
+  const folded = React.useRef(false)
+  const direct = Boolean(active?.direct)
+  React.useEffect(() => {
+    if (isMobile) return
+    if (direct && open) {
+      folded.current = true
+      setOpen(false)
+    } else if (!direct && folded.current) {
+      folded.current = false
+      if (!open) setOpen(true)
+    }
+    // Only when the workspace changes (a hand toggle on it stays).
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [direct, isMobile])
   const [closed, toggleSection] = useClosedSections()
   const t = useT("nav")
   const tPrefs = useT("prefs")
@@ -484,6 +500,7 @@ export function AppRail() {
 function WorkspaceRail() {
   const { loading, visible, active, select, hasBadge } = useWorkspaceNav()
   const { open, setOpen } = useSidebar()
+  const router = useRouter()
   const t = useT("nav")
   return (
     // ChatGPT's rail (measured): 36px buttons, 8px either side on the
@@ -493,7 +510,10 @@ function WorkspaceRail() {
         {!loading &&
           visible.length > 1 &&
           visible.map((ws) => {
-            const shown = open && ws.id === active?.id
+            // A panel-less one (Password) is shown while its page is.
+            const shown = ws.direct
+              ? ws.id === active?.id
+              : open && ws.id === active?.id
             return (
               <SidebarMenuItem key={ws.id}>
                 <SidebarMenuButton
@@ -508,6 +528,11 @@ function WorkspaceRail() {
                   // The one shown folds the panel away; another shows its
                   // pages (opening the panel when it's folded).
                   onClick={() => {
+                    if (ws.direct) {
+                      const href = ws.items[0]?.href
+                      if (href && !shown) router.push(href)
+                      return
+                    }
                     if (shown) return setOpen(false)
                     select(ws.id)
                     if (!open) setOpen(true)

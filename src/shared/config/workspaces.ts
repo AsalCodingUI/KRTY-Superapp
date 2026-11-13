@@ -84,6 +84,9 @@ export interface Workspace {
   activeIcon?: RemixiconComponentType
   /** Whether the workspace exists for this profile at all. */
   can?: (profile: WorkspaceProfile) => boolean
+  /** No panel of its own: the rail opens its (first) page straight away
+   *  and the panel folds while it's shown (Password: the vault alone). */
+  direct?: boolean
   items: (profile: WorkspaceProfile) => WorkspaceItem[]
 }
 
@@ -277,6 +280,7 @@ export const workspaces: Workspace[] = [
     icon: RiLockLine,
     activeIcon: LockSolid,
     can: isPmUp,
+    direct: true,
     items: () => [{ name: "vaultOpen", href: links.vault, icon: RiLockLine }],
   },
 ]
