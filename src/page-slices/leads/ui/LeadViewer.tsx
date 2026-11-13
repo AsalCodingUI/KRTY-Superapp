@@ -204,6 +204,10 @@ export function LeadViewer({ id }: { id: string }) {
       })
     }
     const overlays = new MutationObserver(recheck)
+    // A panel sliding in is measured again once it has arrived (mid-slide
+    // it's 1.5rem short, and the site was laid over its edge).
+    document.addEventListener("transitionend", recheck, true)
+    document.addEventListener("animationend", recheck, true)
     // Opened, closed or moved (popovers reposition through style).
     overlays.observe(document.body, {
       childList: true,
@@ -244,6 +248,8 @@ export function LeadViewer({ id }: { id: string }) {
       cancelAnimationFrame(check)
       sizes.disconnect()
       overlays.disconnect()
+      document.removeEventListener("transitionend", recheck, true)
+      document.removeEventListener("animationend", recheck, true)
       window.removeEventListener("resize", place)
       window.removeEventListener("focus", place)
       document.removeEventListener("visibilitychange", back)
