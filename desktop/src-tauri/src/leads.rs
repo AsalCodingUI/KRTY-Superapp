@@ -77,6 +77,35 @@ const REPORTER: &str = r#"(() => {
 
 
 
+/// The sites' page zoom (WKWebView's pageZoom: text and layout together,
+/// as Safari's ⌘−).
+const SITE_ZOOM: f64 = 0.9;
+
+/// Small changes to a site's own page, by host (a style added before it
+/// draws). Their own classes are hashed per build, so these hold to the
+/// structure:
+/// - Telegram Web A: the chat folder tabs (All, Penting, Tak terbaca …) are
+///   hidden; the list starts at the top (its usual 8px).
+const SITE_TWEAKS: &str = r#"(() => {
+  const css = {
+    "web.telegram.org": `
+      #LeftColumn-main .ChatFolders-content.with-tabs > :not(.Transition) { display: none !important; }
+      #LeftColumn-main .ChatFolders-content.with-tabs > .Transition { margin-top: 0 !important; }
+      #LeftColumn-main .ChatFolders-content.with-tabs .chat-list { padding-top: .5rem !important; }
+    `,
+  }[location.hostname];
+  if (!css) return;
+  const add = () => {
+    if (document.getElementById("krty-site-tweaks")) return;
+    const style = document.createElement("style");
+    style.id = "krty-site-tweaks";
+    style.textContent = css;
+    (document.head || document.documentElement).appendChild(style);
+  };
+  if (document.documentElement) add();
+  else document.addEventListener("DOMContentLoaded", add);
+})()"#;
+
 /// A web view label from the source's id (labels allow a-z, 0-9, - …).
 fn label(id: &str) -> String {
     let safe: String = id
@@ -398,6 +427,7 @@ pub fn lead_show(
     let builder = WebviewBuilder::new(&target, WebviewUrl::External(parsed))
         .user_agent(SAFARI_UA)
         .initialization_script(REPORTER)
+        .initialization_script(SITE_TWEAKS)
         // Loading starts / ends: the toolbar's reload ↔ stop and its bar.
         .on_page_load(move |view, _payload| {
             let app = page_app.clone();
@@ -485,6 +515,8 @@ pub fn lead_show(
     let view = window
         .add_child(builder, position, size)
         .map_err(|e| e.to_string())?;
+    // Every site a step smaller (90%): more of it fits beside the panel.
+    let _ = view.set_zoom(SITE_ZOOM);
     place(&view, rect, corners);
     focus(&view);
     fit_page(&app);
