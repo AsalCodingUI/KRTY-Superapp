@@ -274,7 +274,7 @@ export const workspaces: Workspace[] = [
     name: "workspaceWiki",
     icon: RiBookClosedLine,
     activeIcon: BookClosedSolid,
-    items: () => [{ name: "wikiAll", href: links.wiki, icon: RiBookOpenLine }],
+    items: () => [{ name: "wikiAll", href: links.wiki, icon: RiHome2Line }],
   },
   {
     // Password: the studio's password manager (Vaultwarden, end-to-end

@@ -232,3 +232,24 @@ export function useWikiWriter() {
     },
   }
 }
+
+const RECENT_KEY = "wiki-recent"
+
+/** The pages opened lately on this device, newest first (Home's row). */
+export function readRecentPages(): string[] {
+  try {
+    const list = JSON.parse(localStorage.getItem(RECENT_KEY) ?? "[]")
+    return Array.isArray(list)
+      ? list.filter((id) => typeof id === "string")
+      : []
+  } catch {
+    return []
+  }
+}
+
+export function rememberPage(id: string) {
+  try {
+    const next = [id, ...readRecentPages().filter((p) => p !== id)].slice(0, 12)
+    localStorage.setItem(RECENT_KEY, JSON.stringify(next))
+  } catch {}
+}

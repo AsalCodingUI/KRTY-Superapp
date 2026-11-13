@@ -17,6 +17,7 @@ import { leadHref, useLeadTree } from "@/page-slices/leads/ui/lead-tree"
 import { useLeadSites } from "@/page-slices/leads/model/data"
 import { WikiNewButton } from "@/page-slices/wiki/ui/WikiNewButton"
 import { useWikiTree } from "@/page-slices/wiki/ui/wiki-tree"
+import { WikiTreeNav } from "@/page-slices/wiki/ui/WikiTreeNav"
 import { PrefetchLink } from "@/components/prefetch-link"
 import { SidebarNotices } from "@/components/sidebar-notices"
 import { useWorkspaceNav } from "@/components/workspace-nav"
@@ -306,11 +307,9 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
       <div className="[&>[data-sidebar=group]]:py-0">
         <NavMain items={navItems} />
       </div>
-      {wikiTree.length > 0 && (
-        <div className="[&>[data-sidebar=group]]:py-0">
-          <NavMain items={wikiTree} />
-        </div>
-      )}
+      <div className="[&>[data-sidebar=group]]:py-0">
+        <WikiTreeNav />
+      </div>
     </>
   ) : (
     <>
@@ -505,7 +504,9 @@ function WorkspaceRail() {
   const router = useRouter()
   const pathname = usePathname()
   // Leads opens on its first site (Gmail) the first time.
-  const { data: leadSites } = useLeadSites(visible.some((w) => w.id === "leads"))
+  const { data: leadSites } = useLeadSites(
+    visible.some((w) => w.id === "leads"),
+  )
   /** Where a workspace opens: its last page, else its home. */
   const targetOf = (ws: (typeof visible)[number]) =>
     lastPathOf(ws.id) ??

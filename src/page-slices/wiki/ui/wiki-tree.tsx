@@ -1,38 +1,23 @@
 "use client"
 
 import type { NavMainItem } from "@/components/nav-main"
-import { useT } from "@/shared/i18n/client"
-import { usePathname } from "next/navigation"
 import { useMemo } from "react"
-import { childrenOf, trailOf, useWikiPages, wikiHref } from "../model/data"
-import { WikiIcon } from "./wiki-icon"
+import { useWikiPages, wikiHref } from "../model/data"
 
 /**
- * The wiki's pages for its panel: the top-level ones, each listing its
- * subpages while it (or one of them) is open, like a project's pages.
- * Deeper pages are reached from their parent page.
+ * Every wiki page as a link, flat: the panel's active-row matching (a page
+ * at any depth wins over Home's /wiki). The panel draws them with
+ * WikiTreeNav.
  */
 export function useWikiTree(enabled: boolean): NavMainItem[] {
-  const pathname = usePathname()
-  const t = useT("wiki")
   const { data: pages } = useWikiPages(enabled)
-  return useMemo(() => {
-    if (!pages) return []
-    const openId = pathname.startsWith("/wiki/")
-      ? pathname.slice("/wiki/".length).split("/")[0]
-      : null
-    const trail = openId ? trailOf(pages, openId).map((p) => p.id) : []
-    return childrenOf(pages, null).map((page) => ({
-      title: page.title || t("untitled"),
-      url: wikiHref(page.id),
-      icon: <WikiIcon icon={page.icon} kind={page.kind} />,
-      isActive: trail[0] === page.id,
-      nestOne: true,
-      items: childrenOf(pages, page.id).map((child) => ({
-        title: child.title || t("untitled"),
-        url: wikiHref(child.id),
-        isActive: trail[1] === child.id,
+  return useMemo(
+    () =>
+      (pages ?? []).map((page) => ({
+        title: page.title,
+        url: wikiHref(page.id),
+        icon: null,
       })),
-    }))
-  }, [pages, pathname, t])
+    [pages],
+  )
 }

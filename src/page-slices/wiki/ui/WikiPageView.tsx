@@ -34,6 +34,7 @@ import {
   WIKI_FILES_FOLDER,
   childrenOf,
   newPropId,
+  rememberPage,
   trailOf,
   useWikiPage,
   useWikiPages,
@@ -43,6 +44,7 @@ import {
   type WikiPatch,
 } from "../model/data"
 import { PageHead } from "./PageHead"
+import { WikiCrumbs } from "./WikiCrumbs"
 import { RowProps, WikiDatabase } from "./WikiDatabase"
 import { WikiPageRows } from "./WikiPageRows"
 
@@ -183,6 +185,9 @@ function WikiPageEditor({
     }
   }
 
+  // Home's "Baru dibuka".
+  useEffect(() => rememberPage(page.id), [page.id])
+
   const name = title.trim() || t("untitled")
   // The tab is named after the page (as it's typed).
   useBreadcrumbs([{ label: name }])
@@ -190,14 +195,14 @@ function WikiPageEditor({
   return (
     <div className="flex flex-col">
       <PageHeader
-        title={name}
-        back={
-          parent
-            ? {
-                href: wikiHref(parent.id),
-                label: parent.title || t("untitled"),
-              }
-            : { href: "/wiki", label: t("title") }
+        // Stays on top while the page scrolls (a solid bar, no blur: the
+        // sheet's own fill), the breadcrumb in it as Notion's.
+        className="dark:bg-surface bg-background sticky -top-3 z-20 mx-[calc(var(--page-gutter)*-1)] -mt-3 px-(--page-gutter) pt-3"
+        title={
+          <WikiCrumbs
+            trail={trail.slice(0, -1)}
+            current={{ icon: meta.icon, kind: meta.kind, title: name }}
+          />
         }
         actions={
           <>

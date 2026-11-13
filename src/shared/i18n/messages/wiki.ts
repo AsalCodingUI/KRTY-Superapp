@@ -58,6 +58,14 @@ const id = {
   rows: "{count} baris",
   noRows: "Belum ada baris",
   properties: "Properti",
+  greetMorning: "Selamat pagi",
+  greetNoon: "Selamat siang",
+  greetAfternoon: "Selamat sore",
+  greetEvening: "Selamat malam",
+  greetName: "{greet}, {name}",
+  recent: "Baru dibuka",
+  topPages: "Halaman",
+  lastEdited: "Terakhir diubah",
 }
 
 const en: Record<keyof typeof id, string> = {
@@ -119,6 +127,14 @@ const en: Record<keyof typeof id, string> = {
   rows: "{count} rows",
   noRows: "No rows yet",
   properties: "Properties",
+  greetMorning: "Good morning",
+  greetNoon: "Good afternoon",
+  greetAfternoon: "Good afternoon",
+  greetEvening: "Good evening",
+  greetName: "{greet}, {name}",
+  recent: "Recently visited",
+  topPages: "Pages",
+  lastEdited: "Recently edited",
 }
 
 export const wiki = { id, en }

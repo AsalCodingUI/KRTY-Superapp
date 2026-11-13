@@ -29,14 +29,20 @@ function countUnder(pages: WikiPageMeta[], id: string) {
  *  (and by whom), and how many pages are under it. */
 export function WikiPageRows({
   pages,
-  parentId,
+  parentId = null,
+  list,
 }: {
   pages: WikiPageMeta[]
-  parentId: string | null
+  parentId?: string | null
+  /** These rows instead of `parentId`'s children (Home's latest edits). */
+  list?: WikiPageMeta[]
 }) {
   const t = useT("wiki")
   const locale = useDateLocale()
-  const rows = useMemo(() => childrenOf(pages, parentId), [pages, parentId])
+  const rows = useMemo(
+    () => list ?? childrenOf(pages, parentId),
+    [list, pages, parentId],
+  )
   return (
     <GroupedList className="text-sm">
       {rows.map((page) => {

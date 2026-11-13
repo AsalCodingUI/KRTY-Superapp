@@ -175,6 +175,10 @@ tabular-nums`, hidden at 0; badge.md).
   tab. Going up a level is the page's own back link (`PageHeader back`).
 - Pages add steps only for what's below the section (a folder, an edited
   item); don't repeat the section. The client portal keeps its crumbs.
+- Exception: Kretya Wiki (nested pages, as Notion) draws its trail in the
+  page's sticky title bar (`WikiCrumbs` in `PageHeader title`: Home ›
+  parents › the page; first parent, …, last two when deep), instead of
+  the ← back button.
 
 **Sidebar**
 

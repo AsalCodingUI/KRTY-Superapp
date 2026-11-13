@@ -97,6 +97,9 @@ export function BlockHandle({
   const t = useT("policies")
   const box = useRef<HTMLDivElement>(null)
   const [block, setBlock] = useState<Block | null>(null)
+  // The block the handle is on, for the move handler.
+  const shown = useRef<Block | null>(null)
+  shown.current = block
   const dragging = useRef(false)
   // Leaving hides the handle after a beat, so a slanted move toward it
   // (across a few pixels outside) doesn't make it vanish first.
@@ -115,6 +118,18 @@ export function BlockHandle({
       if (dragging.current || !editor.isEditable) return
       // On the handle itself: keep it where it is.
       if ((e.target as Element | null)?.closest?.("[data-block-handle]")) return
+      // Heading left toward the handle, level with the block it's on: keep
+      // that block (the pointer crosses the padding of what holds it, a
+      // callout or a column, which would take the handle up to it).
+      const current = shown.current
+      if (current) {
+        const node = editor.view.nodeDOM(current.pos)
+        if (node instanceof HTMLElement) {
+          const r = node.getBoundingClientRect()
+          if (e.clientY >= r.top && e.clientY <= r.bottom && e.clientX < r.left)
+            return
+        }
+      }
       // Probe a bit right of the text's left edge so the gutter still finds
       // the line the pointer is level with.
       const left = dom.getBoundingClientRect().left + 24
