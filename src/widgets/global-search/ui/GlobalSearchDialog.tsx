@@ -432,9 +432,7 @@ function HitIcon({
       return (
         <Avatar size="xs">
           <AvatarImage src={hit.avatarUrl || undefined} alt="" />
-          <AvatarFallback>
-            {initials(hit.title)}
-          </AvatarFallback>
+          <AvatarFallback>{initials(hit.title)}</AvatarFallback>
         </Avatar>
       )
     case "tasks":

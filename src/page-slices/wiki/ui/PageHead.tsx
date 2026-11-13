@@ -148,7 +148,7 @@ export function PageHead({
                 aria-label={t("changeIcon")}
                 className={
                   cover
-                    ? "rounded-card hover:bg-muted relative -mt-10 -ml-2 grid size-20 place-items-center"
+                    ? "rounded-card hover:bg-muted relative isolate z-10 -mt-10 -ml-2 grid size-20 place-items-center"
                     : "rounded-card hover:bg-muted mt-6 -ml-2 grid size-20 place-items-center"
                 }
               >

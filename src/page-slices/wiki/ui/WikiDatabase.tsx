@@ -214,7 +214,7 @@ export function WikiDatabase({
             <TableRow key={row.id} className="group/row">
               <TableCell className="py-0">
                 <PrefetchLink
-                  href={wikiHref(row.id)}
+                  href={wikiHref(row)}
                   className="flex min-h-9 items-center gap-2 font-medium"
                 >
                   <WikiIcon icon={row.icon} kind={row.kind} />

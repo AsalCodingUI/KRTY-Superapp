@@ -57,7 +57,7 @@ export function WikiCrumbs({
               {page ? (
                 <BreadcrumbLink
                   className="flex min-w-0 items-center gap-1.5"
-                  render={<PrefetchLink href={wikiHref(page.id)} />}
+                  render={<PrefetchLink href={wikiHref(page)} />}
                 >
                   {crumb(page.icon, page.kind, page.title)}
                 </BreadcrumbLink>

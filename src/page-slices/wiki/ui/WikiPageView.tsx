@@ -40,6 +40,7 @@ import {
   useWikiPages,
   useWikiWriter,
   wikiHref,
+  wikiIdOf,
   type WikiPage,
   type WikiPatch,
 } from "../model/data"
@@ -55,22 +56,25 @@ const AUTOSAVE_MS = 800
  * One wiki page: its title and body edited in place (saved as you type, for
  * everyone), its subpages under it. ← goes to the parent page.
  */
-export function WikiPageView({ id }: { id: string }) {
+export function WikiPageView({ id: param }: { id: string }) {
   const t = useT("wiki")
-  const { data: page, isLoading, isError } = useWikiPage(id)
-  const { data: pages = [] } = useWikiPages()
+  const list = useWikiPages()
+  const pages = useMemo(() => list.data ?? [], [list.data])
+  // The address: "<slug>-<8 of the id>", or a full id (older links).
+  const id = wikiIdOf(param, pages)
+  const { data: page, isLoading, isError } = useWikiPage(id ?? "", Boolean(id))
 
-  if (isLoading)
+  if (list.isLoading || (id && isLoading))
     return (
       <div className="flex justify-center py-16">
         <Spinner className="size-6" />
       </div>
     )
-  if (isError || !page)
+  if (isError || list.isError || !page)
     return (
       <EmptyState
         icon={<RiBookClosedLine className="size-5" />}
-        title={isError ? t("loadFailed") : t("notFound")}
+        title={isError || list.isError ? t("loadFailed") : t("notFound")}
       />
     )
   // Keyed: another page starts from its own saved text.
@@ -187,6 +191,13 @@ function WikiPageEditor({
 
   // Home's "Baru dibuka".
   useEffect(() => rememberPage(page.id), [page.id])
+  // The readable address (an older full-id link, or a new title): swapped
+  // in place, no navigation (the editor stays as it is).
+  const href = wikiHref({ id: page.id, title: meta.title })
+  useEffect(() => {
+    if (window.location.pathname !== href)
+      window.history.replaceState(window.history.state, "", href)
+  }, [href])
 
   const name = title.trim() || t("untitled")
   // The tab is named after the page (as it's typed).
@@ -346,7 +357,7 @@ function WikiPageEditor({
           pending.current = {}
           try {
             await writer.remove(page.id)
-            router.push(parent ? wikiHref(parent.id) : "/wiki")
+            router.push(parent ? wikiHref(parent) : "/wiki")
           } catch {
             toast.error(t("deleteFailed"))
           }

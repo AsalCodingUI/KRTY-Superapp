@@ -15,7 +15,7 @@ export function useWikiTree(enabled: boolean): NavMainItem[] {
     () =>
       (pages ?? []).map((page) => ({
         title: page.title,
-        url: wikiHref(page.id),
+        url: wikiHref(page),
         icon: null,
       })),
     [pages],

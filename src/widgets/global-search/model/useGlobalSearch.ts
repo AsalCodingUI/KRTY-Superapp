@@ -4,6 +4,7 @@ import { createClient } from "@/shared/api/supabase/client"
 import { useLocale, useT } from "@/shared/i18n/client"
 import { employeeHref, linkKey, projectHref } from "@/shared/lib/url-params"
 import { useQuery } from "@tanstack/react-query"
+import { wikiHref } from "@/page-slices/wiki/model/data"
 import { useEffect, useMemo, useState } from "react"
 
 export type SearchScope =
@@ -196,7 +197,7 @@ export function useRecordSearch(query: string, options: { people: boolean }) {
           kind: "wiki",
           title: w.title || t("searchUnnamed"),
           meta: tNav("workspaceWiki"),
-          href: `/wiki/${w.id}`,
+          href: wikiHref(w),
         })
       }
       for (const u of people.data ?? []) {

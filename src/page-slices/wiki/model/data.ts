@@ -6,6 +6,7 @@ import {
   useRealtimeRefresh,
 } from "@/shared/hooks/useRealtimeRefresh"
 import { useQuery, useQueryClient } from "@tanstack/react-query"
+import { slugify } from "@/shared/lib/storage-names"
 import { useCallback } from "react"
 
 /** A database's property types (wiki_pages_notion.sql). */
@@ -96,9 +97,10 @@ export function useWikiPages(enabled = true) {
 }
 
 /** One page with its body. */
-export function useWikiPage(id: string) {
+export function useWikiPage(id: string, enabled = true) {
   return useQuery({
     queryKey: wikiPageKey(id),
+    enabled,
     staleTime: 30_000,
     queryFn: async (): Promise<WikiPage | null> => {
       const { data, error } = await supabase()
@@ -148,7 +150,30 @@ export function trailOf(pages: WikiPageMeta[], id: string) {
   return trail
 }
 
-export const wikiHref = (id: string) => `/wiki/${id}`
+const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
+
+/**
+ * A page's address, readable as Notion's: its title as a slug and its id's
+ * first 8 characters ("/wiki/liburan-archive-678787b3"), so a new title
+ * doesn't break links (the id part finds it). With only an id (a page not
+ * titled yet): "/wiki/<id>".
+ */
+export function wikiHref(page: string | Pick<WikiPageMeta, "id" | "title">) {
+  if (typeof page === "string") return `/wiki/${page}`
+  const slug = slugify(page.title || "", 60)
+  const short = page.id.slice(0, 8)
+  return page.title?.trim() ? `/wiki/${slug}-${short}` : `/wiki/${short}`
+}
+
+/** The page an address points at: a full id (older links), or the 8
+ *  characters after the slug. Null when no page matches. */
+export function wikiIdOf(param: string, pages: WikiPageMeta[]) {
+  const value = decodeURIComponent(param)
+  if (UUID.test(value)) return value.toLowerCase()
+  const short = /(?:^|-)([0-9a-f]{8})$/i.exec(value)?.[1]?.toLowerCase()
+  if (!short) return null
+  return pages.find((p) => p.id.startsWith(short))?.id ?? null
+}
 
 /** What a save may change. */
 export type WikiPatch = Partial<

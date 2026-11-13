@@ -15,6 +15,7 @@ import {
 import { cn } from "@/lib/utils"
 import { useT } from "@/shared/i18n/client"
 import { ChevronRight } from "@/components/icons"
+import { RiHome2Line } from "@/shared/ui/lucide-icons"
 import { usePathname } from "next/navigation"
 import { useEffect, useMemo, useState } from "react"
 import {
@@ -22,11 +23,18 @@ import {
   trailOf,
   useWikiPages,
   wikiHref,
+  wikiIdOf,
   type WikiPageMeta,
 } from "../model/data"
 import { WikiIcon } from "./wiki-icon"
+import { WikiPageTarget } from "./WikiPageTarget"
 
 const OPEN_KEY = "wiki-tree-open"
+
+/** The rows' ink as NavMain's (blended on the chrome); the emoji, which is
+ *  aria-hidden, keeps its colors. */
+const INK =
+  "not-data-active:[&>svg]:blend-ink not-data-active:[&>span:not([aria-hidden])]:blend-ink"
 
 /** Which pages are open in the panel (remembered on this device). */
 function useOpenPages(trail: string[]) {
@@ -110,10 +118,12 @@ function Toggle({
 export function WikiTreeNav() {
   const pathname = usePathname()
   const t = useT("wiki")
+  const tn = useT("nav")
   const { data: pages = [] } = useWikiPages()
-  const openId = pathname.startsWith("/wiki/")
+  const param = pathname.startsWith("/wiki/")
     ? pathname.slice("/wiki/".length).split("/")[0]
     : null
+  const openId = param ? wikiIdOf(param, pages) : null
   const trail = useMemo(
     () => (openId ? trailOf(pages, openId).map((p) => p.id) : []),
     [pages, openId],
@@ -121,7 +131,6 @@ export function WikiTreeNav() {
   // Not the open page itself: only its parents open with it.
   const { open, toggle } = useOpenPages(trail.slice(0, -1))
   const top = childrenOf(pages, null)
-  if (!top.length) return null
 
   const name = (p: WikiPageMeta) => p.title || t("untitled")
 
@@ -137,18 +146,20 @@ export function WikiTreeNav() {
             return (
               <SidebarMenuSubItem key={page.id}>
                 <div className="relative">
-                  <SidebarMenuSubButton
-                    isActive={page.id === openId}
-                    className={cn(hasKids && "pr-8")}
-                    render={<PrefetchLink href={wikiHref(page.id)} />}
-                  >
-                    <WikiIcon
-                      icon={page.icon}
-                      kind={page.kind}
-                      className="size-3.5 text-[12px]"
-                    />
-                    <span className="truncate">{name(page)}</span>
-                  </SidebarMenuSubButton>
+                  <WikiPageTarget page={page}>
+                    <SidebarMenuSubButton
+                      isActive={page.id === openId}
+                      className={cn(INK, hasKids && "pr-8")}
+                      render={<PrefetchLink href={wikiHref(page)} />}
+                    >
+                      <WikiIcon
+                        icon={page.icon}
+                        kind={page.kind}
+                        className="size-3.5 text-[12px]"
+                      />
+                      <span className="truncate">{name(page)}</span>
+                    </SidebarMenuSubButton>
+                  </WikiPageTarget>
                   {hasKids && (
                     <Toggle
                       sub
@@ -170,23 +181,37 @@ export function WikiTreeNav() {
   return (
     <SidebarGroup>
       <SidebarMenu>
+        {/* Home first, the pages under it: one list, one look. */}
+        <SidebarMenuItem className="mb-2">
+          <SidebarMenuButton
+            tooltip={tn("wikiAll")}
+            isActive={pathname === "/wiki"}
+            className={INK}
+            render={<PrefetchLink href="/wiki" />}
+          >
+            <RiHome2Line />
+            <span className="truncate">{tn("wikiAll")}</span>
+          </SidebarMenuButton>
+        </SidebarMenuItem>
         {top.map((page) => {
           const hasKids = childrenOf(pages, page.id).length > 0
           return (
             <SidebarMenuItem key={page.id}>
-              <SidebarMenuButton
-                tooltip={name(page)}
-                isActive={page.id === openId}
-                className={cn(hasKids && "pr-8")}
-                render={<PrefetchLink href={wikiHref(page.id)} />}
-              >
-                <WikiIcon
-                  icon={page.icon}
-                  kind={page.kind}
-                  className="size-3.5 text-[12px]"
-                />
-                <span className="truncate">{name(page)}</span>
-              </SidebarMenuButton>
+              <WikiPageTarget page={page}>
+                <SidebarMenuButton
+                  tooltip={name(page)}
+                  isActive={page.id === openId}
+                  className={cn(INK, hasKids && "pr-8")}
+                  render={<PrefetchLink href={wikiHref(page)} />}
+                >
+                  <WikiIcon
+                    icon={page.icon}
+                    kind={page.kind}
+                    className="size-3.5 text-[12px]"
+                  />
+                  <span className="truncate">{name(page)}</span>
+                </SidebarMenuButton>
+              </WikiPageTarget>
               {hasKids && (
                 <Toggle
                   page={page}

@@ -302,15 +302,10 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
       </div>
     </>
   ) : wikiOpen ? (
-    // Wiki: all pages, then the top-level pages (their subpages under them).
-    <>
-      <div className="[&>[data-sidebar=group]]:py-0">
-        <NavMain items={navItems} />
-      </div>
-      <div className="[&>[data-sidebar=group]]:py-0">
-        <WikiTreeNav />
-      </div>
-    </>
+    // Wiki: Home, then the pages (every level opens), one list.
+    <div className="[&>[data-sidebar=group]]:py-0">
+      <WikiTreeNav />
+    </div>
   ) : (
     <>
       <div className="[&>[data-sidebar=group]]:py-0">
