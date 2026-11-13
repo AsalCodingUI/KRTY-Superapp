@@ -6,6 +6,12 @@ Password workspace (`/vault`, PMs and stakeholders). Bitwarden's own clients
 (web vault, apps, browser extension) encrypt everything on the device with
 the master password; the server only stores ciphertext.
 
+DNS: `vault` A → 100.126.169.218 (the VPS's Tailscale address, like `app`
+and `supabase`), so the vault is reachable only on the studio's VPN. The
+certificate comes through Traefik's Hostinger DNS challenge (works on a
+private address). Records via the Hostinger DNS API
+(`developers.hostinger.com/api/dns/v1/zones/kretyastudio.com`).
+
 On the VPS (`ssh sumopod`), outside Coolify:
 
 - `/data/vaultwarden/docker-compose.yml` (this folder's copy): behind
