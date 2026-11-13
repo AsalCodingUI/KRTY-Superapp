@@ -1,6 +1,6 @@
 [package]
 name = "krty-desktop"
-version = "0.3.3"
+version = "0.3.4"
 description = "Kretya Flow"
 edition = "2021"
 
