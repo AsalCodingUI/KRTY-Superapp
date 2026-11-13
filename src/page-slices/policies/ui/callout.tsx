@@ -35,6 +35,7 @@ import type { BlockItem } from "./slash-command"
  */
 
 const TONE_LABEL = {
+  neutral: "toneNeutral",
   info: "toneInfo",
   success: "toneSuccess",
   warning: "toneWarning",
@@ -43,9 +44,9 @@ const TONE_LABEL = {
 
 /** "> [!NOTE]" and the "> " lines after it, up to the first other line. */
 const CALLOUT_START =
-  /(?:^|\n) {0,3}> ?\[!(?:NOTE|TIP|IMPORTANT|WARNING|CAUTION)\][ \t]*(?:\n|$)/i
+  /(?:^|\n) {0,3}> ?\[!(?:NEUTRAL|NOTE|TIP|IMPORTANT|WARNING|CAUTION)\][ \t]*(?:\n|$)/i
 const CALLOUT_HEAD =
-  /^ {0,3}> ?\[!(NOTE|TIP|IMPORTANT|WARNING|CAUTION)\][ \t]*(?:\n|$)/i
+  /^ {0,3}> ?\[!(NEUTRAL|NOTE|TIP|IMPORTANT|WARNING|CAUTION)\][ \t]*(?:\n|$)/i
 
 function CalloutView({ node, editor, getPos }: NodeViewProps) {
   const t = useT("policies")

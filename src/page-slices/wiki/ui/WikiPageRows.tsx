@@ -3,10 +3,10 @@
 import { GroupedList, ListRow } from "@/components/grouped-list"
 import { PrefetchLink } from "@/components/prefetch-link"
 import { useDateLocale, useT } from "@/shared/i18n/client"
-import { RiFileTextLine } from "@/shared/ui/lucide-icons"
 import { formatDistanceToNow } from "date-fns"
 import { useMemo } from "react"
 import { childrenOf, wikiHref, type WikiPageMeta } from "../model/data"
+import { WikiIcon } from "./wiki-icon"
 
 /** How many pages lie under `id`, at any depth. */
 function countUnder(pages: WikiPageMeta[], id: string) {
@@ -50,7 +50,7 @@ export function WikiPageRows({
             key={page.id}
             className="flex min-h-14 items-center gap-3 py-2"
           >
-            <RiFileTextLine className="text-muted-foreground size-4 shrink-0" />
+            <WikiIcon icon={page.icon} kind={page.kind} />
             <PrefetchLink
               href={wikiHref(page.id)}
               className="flex min-w-0 flex-1 flex-col after:absolute after:inset-0"

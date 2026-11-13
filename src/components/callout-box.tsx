@@ -3,6 +3,7 @@ import type { CalloutTone } from "@/shared/lib/doc-blocks"
 import {
   CircleCheck,
   Info,
+  MessageCircle,
   OctagonAlert,
   TriangleAlert,
   type LucideIcon,
@@ -15,6 +16,12 @@ export const CALLOUT_STYLE: Record<
   CalloutTone,
   { icon: LucideIcon; box: string; ink: string }
 > = {
+  // Outline only, no tint (Notion's default callout).
+  neutral: {
+    icon: MessageCircle,
+    box: "border border-border bg-transparent",
+    ink: "text-muted-foreground",
+  },
   info: { icon: Info, box: "bg-blue-3 dark:bg-blue-9/10", ink: "text-blue-11" },
   success: {
     icon: CircleCheck,

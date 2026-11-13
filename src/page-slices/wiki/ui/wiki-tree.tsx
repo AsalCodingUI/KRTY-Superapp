@@ -2,10 +2,10 @@
 
 import type { NavMainItem } from "@/components/nav-main"
 import { useT } from "@/shared/i18n/client"
-import { RiFileTextLine } from "@/shared/ui/lucide-icons"
 import { usePathname } from "next/navigation"
 import { useMemo } from "react"
 import { childrenOf, trailOf, useWikiPages, wikiHref } from "../model/data"
+import { WikiIcon } from "./wiki-icon"
 
 /**
  * The wiki's pages for its panel: the top-level ones, each listing its
@@ -25,7 +25,7 @@ export function useWikiTree(enabled: boolean): NavMainItem[] {
     return childrenOf(pages, null).map((page) => ({
       title: page.title || t("untitled"),
       url: wikiHref(page.id),
-      icon: <RiFileTextLine />,
+      icon: <WikiIcon icon={page.icon} kind={page.kind} />,
       isActive: trail[0] === page.id,
       nestOne: true,
       items: childrenOf(pages, page.id).map((child) => ({

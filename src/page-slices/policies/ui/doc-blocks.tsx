@@ -12,6 +12,7 @@ import {
 } from "./gallery"
 import type { BlockItem } from "./slash-command"
 import { TOGGLE_NODES, TOGGLE_SLASH_ITEM } from "./toggle"
+import { COLUMN_NODES } from "./columns"
 
 /*
  * The richer blocks of documents with pictures (reports, notes, rules):
@@ -19,7 +20,13 @@ import { TOGGLE_NODES, TOGGLE_SLASH_ITEM } from "./toggle"
  * shared/lib/doc-blocks.
  */
 
-export const DOC_BLOCK_NODES = [Callout, ...TOGGLE_NODES, Gallery]
+// Columns parse in every document; only the wiki offers them in "/".
+export const DOC_BLOCK_NODES = [
+  Callout,
+  ...TOGGLE_NODES,
+  Gallery,
+  ...COLUMN_NODES,
+]
 
 /** Their "/" items; the gallery's opens `pick`. */
 export const docBlockSlashItems = (pick: GalleryPicker): BlockItem[] => [

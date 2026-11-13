@@ -53,6 +53,7 @@ Live examples: **/ui** → Components.
 | `MarkdownDocEditor` (lazy)     | The Tiptap document editor (reports, notes, rules, tasks)                                              | `src/page-slices/policies/ui/doc-editor-lazy.tsx` | see `doc-editor.tsx`                                                      | Short text (`Textarea` / `RichTextField`)  |
 | `RichTextField`                | A plain-text field that reads as text and edits as a textarea, with bullet / numbered lists            | `src/components/rich-text-field.tsx`              | `value onChange onBlur placeholder readOnly`                              | Documents (editor)                         |
 | `InlineText`                   | Click-to-edit a single line (a title)                                                                  | `src/components/inline-text.tsx`                  | `value onSave required placeholder`                                       | Forms                                      |
+| `EmojiPicker`                  | Pick an emoji (a wiki page's icon): search, groups, Acak, Hapus; data loads on open                     | `src/components/emoji-picker.tsx`                 | `trigger onPick onRemove align`                                           | Plain icons (`components/icons`)           |
 | `CalloutBox` (`CALLOUT_STYLE`) | A tinted note box in documents (info / success / warning / danger)                                     | `src/components/callout-box.tsx`                  | `tone icon children`                                                      | App messages (feedback.md: alerts, toasts) |
 | `EmbedBlock`                   | A link as a card or a live preview (YouTube, Figma…)                                                   | `src/components/embed-block.tsx`                  | `url title view: card \| preview-small \| preview-wide`, `editing footer` | Plain links                                |
 | `GalleryStrip`                 | Several pictures in one sideways row, each its own shape                                               | `src/components/gallery-strip.tsx`                | `images: {src alt w h}[]`, `editing` + edit callbacks                     | One picture (`ZoomableImage`)              |
@@ -227,3 +228,14 @@ Duplicates and drift:
 - `src/components/charts/*` keep their own `colorMap` with legacy names (`indigo`, `emerald`, `blue`…) → if kept, chart tokens only.
 - `src/page-slices/finance/ui/OverviewTab.tsx:174` warning note (`bg-warning-subtle text-amber-11 rounded-lg px-4 py-2.5`) is a hand-made callout → the shared alert (feedback.md) or `CalloutBox tone="warning"`.
 - `src/components/table-section.tsx` is used only by DataTable (layout.md).
+
+## Document blocks (wiki additions)
+
+- Callout tones: `neutral` (outline only, `> [!NEUTRAL]`, Notion's default
+  callout), `info`, `success`, `warning`, `danger` (`shared/lib/doc-blocks`).
+- Columns (`policies/ui/columns.tsx`): `<div data-columns>` / `<div
+  data-column>` around Markdown; equal widths, stacked on phones. Every
+  editor reads them; only the wiki offers "/2 kolom" and "/3 kolom"
+  (`MarkdownDocEditor columns`).
+- `MarkdownDocEditor toolbar={false}`: no formatting bar (the wiki, as
+  Notion); the selection menu and "/" do the same.

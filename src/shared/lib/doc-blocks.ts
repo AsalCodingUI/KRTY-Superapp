@@ -10,6 +10,7 @@
  *   > [!TIP]         sukses
  *   > [!WARNING]     peringatan
  *   > [!CAUTION]     bahaya
+ *   > [!NEUTRAL]     netral (outline only; ours, not GitHub's)
  *   > Isi callout, any blocks.
  *
  *   ([!IMPORTANT] reads as info.)
@@ -38,10 +39,17 @@
  * its space before it loads.
  */
 
-export const CALLOUT_TONES = ["info", "success", "warning", "danger"] as const
+export const CALLOUT_TONES = [
+  "neutral",
+  "info",
+  "success",
+  "warning",
+  "danger",
+] as const
 export type CalloutTone = (typeof CALLOUT_TONES)[number]
 
 const TONE_MARKER: Record<CalloutTone, string> = {
+  neutral: "NEUTRAL",
   info: "NOTE",
   success: "TIP",
   warning: "WARNING",
@@ -49,6 +57,7 @@ const TONE_MARKER: Record<CalloutTone, string> = {
 }
 
 const MARKER_TONE: Record<string, CalloutTone> = {
+  NEUTRAL: "neutral",
   NOTE: "info",
   IMPORTANT: "info",
   TIP: "success",
@@ -70,7 +79,7 @@ export function toneOfMarker(marker: string): CalloutTone | null {
 
 /** "[!NOTE]" at the start of a callout's text, and the line break after. */
 export const CALLOUT_MARKER =
-  /^\[!(NOTE|TIP|IMPORTANT|WARNING|CAUTION)\][ \t]*(?:\r?\n|$)/i
+  /^\[!(NEUTRAL|NOTE|TIP|IMPORTANT|WARNING|CAUTION)\][ \t]*(?:\r?\n|$)/i
 
 const GALLERY = /#gallery(?:&w=(\d+)&h=(\d+))?$/
 

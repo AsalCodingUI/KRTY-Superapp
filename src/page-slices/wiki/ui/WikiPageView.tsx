@@ -9,6 +9,7 @@ import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
+  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 import { Spinner } from "@/components/ui/spinner"
@@ -23,6 +24,7 @@ import {
   RiBookClosedLine,
   RiDeleteBinLine,
   RiMoreFill,
+  RiTableLine,
 } from "@/shared/ui/lucide-icons"
 import { formatDistanceToNow } from "date-fns"
 import { useRouter } from "next/navigation"
@@ -31,13 +33,17 @@ import { toast } from "sonner"
 import {
   WIKI_FILES_FOLDER,
   childrenOf,
+  newPropId,
   trailOf,
   useWikiPage,
   useWikiPages,
   useWikiWriter,
   wikiHref,
   type WikiPage,
+  type WikiPatch,
 } from "../model/data"
+import { PageHead } from "./PageHead"
+import { RowProps, WikiDatabase } from "./WikiDatabase"
 import { WikiPageRows } from "./WikiPageRows"
 
 /** Typing pauses this long before the page saves itself. */
@@ -146,11 +152,31 @@ function WikiPageEditor({
     locale,
   })
 
-  const createSubpage = async () => {
+  const isDatabase = meta.kind === "database"
+  // A row of a database: its properties under the title.
+  const database = parent?.kind === "database" ? parent : null
+  const saveNow = (patch: WikiPatch) =>
+    void writer.save(page.id, patch).catch(() => toast.error(t("saveFailed")))
+
+  const createSubpage = async (kind: "page" | "database" = "page") => {
     setCreating(true)
     try {
       await flush()
-      router.push(wikiHref(await writer.create(page.id)))
+      router.push(
+        wikiHref(
+          await writer.create(
+            page.id,
+            kind === "database"
+              ? {
+                  kind,
+                  schema: [
+                    { id: newPropId(), name: t("propText"), type: "text" },
+                  ],
+                }
+              : {},
+          ),
+        ),
+      )
     } catch {
       toast.error(t("createFailed"))
       setCreating(false)
@@ -190,6 +216,13 @@ function WikiPageEditor({
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end" className="min-w-48">
                 <DropdownMenuItem
+                  onClick={() => void createSubpage("database")}
+                >
+                  <RiTableLine />
+                  {t("newDatabase")}
+                </DropdownMenuItem>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem
                   variant="destructive"
                   onClick={() => setDeleting(true)}
                 >
@@ -202,6 +235,8 @@ function WikiPageEditor({
               variant="outline"
               onClick={() => void createSubpage()}
               disabled={creating}
+              // A database adds rows from its table (+ Baru).
+              className={isDatabase ? "hidden" : undefined}
             >
               {creating ? (
                 <Spinner data-icon="inline-start" />
@@ -215,7 +250,12 @@ function WikiPageEditor({
       />
 
       <div className="flex w-full flex-col pb-24">
-        <div className="mx-auto w-full max-w-3xl px-6 pt-6 sm:px-16">
+        <PageHead
+          icon={meta.icon}
+          cover={meta.cover}
+          kind={meta.kind}
+          onChange={saveNow}
+        >
           <textarea
             rows={1}
             maxLength={200}
@@ -246,24 +286,34 @@ function WikiPageEditor({
                 ? t("editedBy", { time: edited, name: meta.updated_by_name })
                 : t("edited", { time: edited })}
           </p>
-        </div>
+          {database && <RowProps db={database} row={meta} />}
+        </PageHead>
 
-        <div data-wiki-body className="mt-6">
-          <MarkdownDocEditor
-            value={page.body}
-            ariaLabel={t("bodyLabel")}
-            onChange={(markdown) => queue({ body: markdown })}
-            onBlur={() => void flush()}
-            // Pictures and files in the wiki's own folder (public links,
-            // like the rules').
-            onUploadImage={(file, original) =>
-              uploadReportImage(WIKI_FILES_FOLDER, file, original)
-            }
-            onUploadFile={(file) => uploadDocFile(WIKI_FILES_FOLDER, file)}
-          />
-        </div>
+        {isDatabase ? (
+          // The table is wider than the text column, as in Notion.
+          <div className="mx-auto mt-6 w-full max-w-5xl px-6 sm:px-16">
+            <WikiDatabase db={meta} pages={pages} />
+          </div>
+        ) : (
+          <div data-wiki-body className="mt-6">
+            <MarkdownDocEditor
+              value={page.body}
+              ariaLabel={t("bodyLabel")}
+              onChange={(markdown) => queue({ body: markdown })}
+              onBlur={() => void flush()}
+              // Pictures and files in the wiki's own folder (public links,
+              // like the rules').
+              onUploadImage={(file, original) =>
+                uploadReportImage(WIKI_FILES_FOLDER, file, original)
+              }
+              onUploadFile={(file) => uploadDocFile(WIKI_FILES_FOLDER, file)}
+              columns
+              toolbar={false}
+            />
+          </div>
+        )}
 
-        {subpages.length > 0 && (
+        {!isDatabase && subpages.length > 0 && (
           <section className="mx-auto mt-4 flex w-full max-w-3xl flex-col gap-2 px-6 sm:px-16">
             <h2 className="text-muted-foreground text-meta font-medium">
               {t("subpages")}

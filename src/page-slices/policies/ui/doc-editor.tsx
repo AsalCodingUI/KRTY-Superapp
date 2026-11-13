@@ -1,5 +1,7 @@
 "use client"
 
+import { useRouter } from "next/navigation"
+import { COLUMNS_SLASH_ITEMS } from "./columns"
 import { TaskItem, TaskList } from "@tiptap/extension-list"
 import { cn } from "@/lib/utils"
 import { useT } from "@/shared/i18n/client"
@@ -252,9 +254,12 @@ export function ImageMenu({ editor }: { editor: Editor }) {
 export function useDocUploads({
   onUploadImage,
   onUploadFile,
+  extraBlocks,
 }: {
   onUploadImage?: (file: File, original: boolean) => Promise<string>
   onUploadFile?: (file: File) => Promise<string>
+  /** More "/" items for this editor only (the wiki's columns). */
+  extraBlocks?: BlockItem[]
 }) {
   const t = useT("policies")
   const tRef = useRef(t)
@@ -435,6 +440,7 @@ export function useDocUploads({
           attachInput.current?.click()
         },
       })
+    if (extraBlocks) items.push(...extraBlocks)
     return items
   })
 
@@ -520,6 +526,8 @@ export function MarkdownDocEditor({
   onReady,
   onUploadImage,
   onUploadFile,
+  columns = false,
+  toolbar = true,
   compact = false,
   placeholder,
   onBlur,
@@ -549,6 +557,11 @@ export function MarkdownDocEditor({
   /** Turns attachments on: any other file dropped, pasted or picked from
    *  "/" uploads and goes in as a link with its name. */
   onUploadFile?: (file: File) => Promise<string>
+  /** "/" offers 2 and 3 columns (the wiki; they read back everywhere). */
+  columns?: boolean
+  /** The formatting bar on top; off, as Notion (the selection menu and
+   *  "/" do the same). */
+  toolbar?: boolean
 }) {
   const t = useT("policies")
   const tRef = useRef(t)
@@ -557,9 +570,16 @@ export function MarkdownDocEditor({
   onChangeRef.current = onChange
   const onBlurRef = useRef(onBlur)
   onBlurRef.current = onBlur
+  const router = useRouter()
+  const routerRef = useRef(router)
+  routerRef.current = router
   const placeholderRef = useRef(placeholder)
   placeholderRef.current = placeholder
-  const uploads = useDocUploads({ onUploadImage, onUploadFile })
+  const uploads = useDocUploads({
+    onUploadImage,
+    onUploadFile,
+    extraBlocks: columns ? COLUMNS_SLASH_ITEMS : undefined,
+  })
   const [slash] = useState(createSlashBridge)
   const [mention] = useState(createMentionBridge)
 
@@ -598,6 +618,11 @@ export function MarkdownDocEditor({
         const href = link.getAttribute("href")
         if (!href) return false
         event.preventDefault()
+        // The app's own pages (a wiki page linking another) open in place.
+        if (href.startsWith("/") && !href.startsWith("//")) {
+          routerRef.current.push(href)
+          return true
+        }
         window.open(href, "_blank", "noopener,noreferrer")
         return true
       },
@@ -659,9 +684,11 @@ export function MarkdownDocEditor({
     // Pictures open large (EditorLightbox), stepping through all of them.
     <EditorLightbox editor={editor}>
       <div className={cn("flex min-h-0 flex-col", className)}>
-        <div className="border-border flex h-12 shrink-0 items-center overflow-x-auto border-b px-3">
-          {editor && <DocToolbar editor={editor} />}
-        </div>
+        {toolbar && (
+          <div className="border-border flex h-12 shrink-0 items-center overflow-x-auto border-b px-3">
+            {editor && <DocToolbar editor={editor} />}
+          </div>
+        )}
         <div className="scroll-pane min-h-0 flex-1">
           <div className="relative mx-auto w-full max-w-3xl px-6 pt-8 pb-24 sm:px-16">
             {editor && <AiPreview editor={editor} slot="top" />}

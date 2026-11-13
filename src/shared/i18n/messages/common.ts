@@ -4,6 +4,10 @@
  * a missing English string is a type error.
  */
 const id = {
+  emojiSearch: "Cari emoji…",
+  emojiRandom: "Acak",
+  remove: "Hapus",
+  noResults: "Tidak ada hasil",
   translate: "Terjemahkan",
   translatePage: "Terjemahkan halaman ke",
   translateOriginal: "Asli (Bahasa Indonesia)",
@@ -79,6 +83,10 @@ const id = {
 }
 
 const en: Record<keyof typeof id, string> = {
+  emojiSearch: "Search emoji…",
+  emojiRandom: "Random",
+  remove: "Remove",
+  noResults: "No results",
   translate: "Translate",
   translatePage: "Translate this page to",
   translateOriginal: "Original (Indonesian)",
