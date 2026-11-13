@@ -26,6 +26,7 @@ import { canManageByRole } from "@/shared/lib/roles"
 import {
   RiArrowDownLine,
   RiArrowUpLine,
+  RiBookClosedLine,
   RiBookOpenLine,
   RiCheckboxBlankCircleLine,
   RiCheckboxCircleLine,
@@ -57,6 +58,7 @@ const SCOPES: { value: SearchScope; label: ShellKey; admin?: boolean }[] = [
   { value: "tasks", label: "searchScopeTasks" },
   { value: "files", label: "searchScopeFiles" },
   { value: "policies", label: "searchScopePolicies" },
+  { value: "wiki", label: "searchScopeWiki" },
   { value: "people", label: "searchScopePeople", admin: true },
 ]
 
@@ -66,6 +68,7 @@ const GROUPS: { kind: SearchHit["kind"]; label: ShellKey }[] = [
   { kind: "tasks", label: "searchScopeTasks" },
   { kind: "files", label: "searchGroupFiles" },
   { kind: "policies", label: "searchScopePolicies" },
+  { kind: "wiki", label: "searchScopeWiki" },
   { kind: "people", label: "searchScopePeople" },
 ]
 
@@ -444,6 +447,8 @@ function HitIcon({
       return <RiFileTextLine className="text-muted-foreground" />
     case "policies":
       return <RiBookOpenLine className="text-muted-foreground" />
+    case "wiki":
+      return <RiBookClosedLine className="text-muted-foreground" />
     default:
       return <RiTimeLine className="text-muted-foreground" />
   }

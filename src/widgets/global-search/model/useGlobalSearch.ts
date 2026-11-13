@@ -13,6 +13,7 @@ export type SearchScope =
   | "tasks"
   | "files"
   | "policies"
+  | "wiki"
   | "people"
 
 export type SearchHit = {
@@ -69,7 +70,7 @@ export function useRecordSearch(query: string, options: { people: boolean }) {
     placeholderData: (prev) => prev,
     queryFn: async (): Promise<SearchHit[]> => {
       const like = likePattern(q)
-      const [projects, tasks, docs, files, policies, people] =
+      const [projects, tasks, docs, files, policies, wiki, people] =
         await Promise.all([
           supabase
             .from("projects")
@@ -101,6 +102,13 @@ export function useRecordSearch(query: string, options: { people: boolean }) {
             .is("archived_at", null)
             .order("title")
             .limit(LIMIT),
+          // Kretya Wiki: everyone reads every page.
+          supabase
+            .from("wiki_pages")
+            .select("id, title, parent_id")
+            .ilike("title", like)
+            .order("title")
+            .limit(LIMIT),
           options.people
             ? supabase
                 .from("profiles")
@@ -114,7 +122,7 @@ export function useRecordSearch(query: string, options: { people: boolean }) {
         ])
 
       // One failing source shouldn't hide the others.
-      for (const r of [projects, tasks, docs, files, policies, people])
+      for (const r of [projects, tasks, docs, files, policies, wiki, people])
         if (r.error) console.warn("[search]", r.error.message)
 
       const hits: SearchHit[] = []
@@ -180,6 +188,15 @@ export function useRecordSearch(query: string, options: { people: boolean }) {
           title: p.title,
           meta: `${tNav("policies")} · ${p.category}`,
           href: `/policies?policy=${encodeURIComponent(p.slug)}`,
+        })
+      }
+      for (const w of wiki.data ?? []) {
+        hits.push({
+          id: `wiki:${w.id}`,
+          kind: "wiki",
+          title: w.title || t("searchUnnamed"),
+          meta: tNav("workspaceWiki"),
+          href: `/wiki/${w.id}`,
         })
       }
       for (const u of people.data ?? []) {

@@ -75,6 +75,7 @@ export const RiEyeOffFill = /*#__PURE__*/ filled(A.EyeOff, "RiEyeOffFill")
 export const RiEyeOffLine = A.EyeOff
 export const RiFileCopyLine = A.Copy
 export const RiFileList3Line = A.ListChecks
+export const RiBookClosedLine = A.BookClosed
 export const RiBookOpenLine = A.BookOpen
 export const RiBuildingLine = A.Building2
 export const RiFlowLine = A.Workflow

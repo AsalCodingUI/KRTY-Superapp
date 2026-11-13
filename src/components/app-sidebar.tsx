@@ -14,6 +14,7 @@ import { NavMain } from "@/components/nav-main"
 import { NewMenu } from "@/components/new-menu"
 import { useProjectTree } from "@/components/nav-project"
 import { useLeadTree } from "@/page-slices/leads/ui/lead-tree"
+import { useWikiTree } from "@/page-slices/wiki/ui/wiki-tree"
 import { PrefetchLink } from "@/components/prefetch-link"
 import { SidebarNotices } from "@/components/sidebar-notices"
 import { useWorkspaceNav } from "@/components/workspace-nav"
@@ -167,6 +168,9 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   // Leads' sites (its panel), loaded only while Leads is open.
   const leadsOpen = active?.id === "leads"
   const leadTree = useLeadTree(leadsOpen)
+  // The wiki's pages (its panel), loaded only while the wiki is open.
+  const wikiOpen = active?.id === "wiki"
+  const wikiTree = useWikiTree(wikiOpen)
 
   // The top block, for whoever can open each page.
   const topItems = React.useMemo(() => {
@@ -191,15 +195,15 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         (!best || project.url.length > best.length)
       )
         best = { href: project.url, length: project.url.length }
-    // A Leads site's row too (not Kelola situs' /leads).
-    for (const site of leadTree)
+    // A Leads site's row too (not Kelola situs' /leads), and a wiki page's.
+    for (const site of [...leadTree, ...wikiTree])
       if (
         matchesRoute(pathname, site.url) &&
         (!best || site.url.length > best.length)
       )
         best = { href: site.url, length: site.url.length }
     return best?.href
-  }, [active, topItems, projectTree, leadTree, pathname])
+  }, [active, topItems, projectTree, leadTree, wikiTree, pathname])
 
   const toNav = React.useCallback(
     (item: WorkspaceItem) => {
@@ -274,6 +278,18 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
       <div className="[&>[data-sidebar=group]]:py-0">
         <NavMain items={navItems} />
       </div>
+    </>
+  ) : wikiOpen ? (
+    // Wiki: all pages, then the top-level pages (their subpages under them).
+    <>
+      <div className="[&>[data-sidebar=group]]:py-0">
+        <NavMain items={navItems} />
+      </div>
+      {wikiTree.length > 0 && (
+        <div className="[&>[data-sidebar=group]]:py-0">
+          <NavMain items={wikiTree} />
+        </div>
+      )}
     </>
   ) : (
     <>

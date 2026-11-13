@@ -249,6 +249,11 @@ export const BriefcaseSolid = solidGlyph("BriefcaseSolid", {
   line: "M9.279 6.831V5.199a2.176 2.176 0 0 1 2.176 -2.176h1.088a2.176 2.176 0 0 1 2.176 2.176v1.632",
   cutLine: "M2.75 13.088h18.5",
 })
+/** BookClosed, solid: the cover filled, the pages under it a line. */
+export const BookClosedSolid = solidGlyph("BookClosedSolid", {
+  body: "M7.103 2.75h9.794a3.265 3.265 0 0 1 3.265 3.265V15.809H6.559a2.721 2.721 0 0 0 -2.721 2.721V6.015a3.265 3.265 0 0 1 3.265 -3.265Z",
+  line: "M20.162 15.809V18.529a2.721 2.721 0 0 1 -2.721 2.721H6.559a2.721 2.721 0 0 1 0 -5.441h13.603",
+})
 /** Inbox (Inbox01), solid: the tray filled, its notched line cut out. */
 export const InboxSolid = solidGlyph("InboxSolid", {
   body: "M6.015 3.294H17.985A3.265 3.265 0 0 1 21.25 6.559V17.441A3.265 3.265 0 0 1 17.985 20.706H6.015A3.265 3.265 0 0 1 2.75 17.441V6.559A3.265 3.265 0 0 1 6.015 3.294Z",

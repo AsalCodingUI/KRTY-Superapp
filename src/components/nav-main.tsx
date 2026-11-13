@@ -69,6 +69,9 @@ export type NavMainItem = {
   badge?: number
   /** Something new here, without a count (e.g. Yang baru). */
   dot?: boolean
+  /** Listed under it even when there's only one (a wiki page's subpages;
+   *  a project's single tab is the project itself, so it isn't). */
+  nestOne?: boolean
   /** Page tabs (or a project's pages); listed under it while it's open. */
   items?: {
     title: string
@@ -107,7 +110,7 @@ export const NavMain = memo(function NavMain({
           className="bg-sidebar-active rounded-full"
         />
         {items.map((item, index) => {
-          const nested = (item.items?.length ?? 0) > 1
+          const nested = (item.items?.length ?? 0) > (item.nestOne ? 0 : 1)
           const childActive = item.items?.some((sub) => sub.isActive) ?? false
           const here = Boolean(item.isActive) || childActive
           const open =

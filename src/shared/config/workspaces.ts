@@ -1,4 +1,9 @@
-import { BriefcaseSolid, HouseWindowSolid, InboxSolid } from "@/components/icons"
+import {
+  BookClosedSolid,
+  BriefcaseSolid,
+  HouseWindowSolid,
+  InboxSolid,
+} from "@/components/icons"
 import { siteConfig } from "@/app/siteConfig"
 import type { MessageKey } from "@/shared/i18n/messages"
 import { accessLevel } from "@/shared/config/access"
@@ -7,6 +12,7 @@ import {
   RemixiconComponentType,
   RiBankCardLine,
   RiBarChartBoxLine,
+  RiBookClosedLine,
   RiBookOpenLine,
   RiBriefcaseLine,
   RiFlowLine,
@@ -33,7 +39,7 @@ import {
  * personal view for employees and the approval center for stakeholders).
  */
 
-export type WorkspaceId = "personal" | "project" | "leads"
+export type WorkspaceId = "personal" | "project" | "leads" | "wiki"
 
 /** Page and workspace names are "nav" message keys, translated where shown. */
 export type NavKey = MessageKey<"nav">
@@ -245,6 +251,15 @@ export const workspaces: Workspace[] = [
     items: () => [
       { name: "leadsManage", href: links.leads, icon: RiSettings3Line },
     ],
+  },
+  {
+    // Kretya Wiki: the studio's shared pages, nested (everyone reads and
+    // writes). The panel lists the pages (useWikiTree), then all of them.
+    id: "wiki",
+    name: "workspaceWiki",
+    icon: RiBookClosedLine,
+    activeIcon: BookClosedSolid,
+    items: () => [{ name: "wikiAll", href: links.wiki, icon: RiBookOpenLine }],
   },
 ]
 

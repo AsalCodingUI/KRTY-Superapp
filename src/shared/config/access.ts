@@ -54,6 +54,8 @@ export const PAGE_ACCESS: Record<string, AccessLevel[]> = {
   // Leads: the sites PMs and stakeholders find clients on (Kretya Flow
   // shows them in the app).
   "/leads": PM_UP,
+  // Kretya Wiki: the studio's shared pages; everyone reads and writes.
+  "/wiki": EVERYONE,
   // PMs manage their projects' invoices.
   "/invoice-print": PM_UP,
   "/settings": STAKEHOLDER,

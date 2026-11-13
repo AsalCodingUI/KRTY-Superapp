@@ -18,6 +18,7 @@ export const siteConfig = {
     teams: "/teams",
     calendar: "/calendar",
     leads: "/leads",
+    wiki: "/wiki",
     settings: {
       general: "/settings/general",
       permission: "/settings/permission",

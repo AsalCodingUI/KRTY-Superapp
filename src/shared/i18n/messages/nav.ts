@@ -7,6 +7,8 @@ const id = {
   workspacePersonal: "Kantor",
   workspaceProject: "Project",
   workspaceLeads: "Leads",
+  workspaceWiki: "Wiki",
+  wikiAll: "Semua halaman",
   leadsManage: "Kelola situs",
   leadsSites: "Situs",
 
@@ -68,6 +70,8 @@ const en: Record<keyof typeof id, string> = {
   workspacePersonal: "Office",
   workspaceProject: "Project",
   workspaceLeads: "Leads",
+  workspaceWiki: "Wiki",
+  wikiAll: "All pages",
   leadsManage: "Manage sites",
   leadsSites: "Sites",
 

@@ -27,6 +27,7 @@ import { undo } from "./undo"
 import { prefs } from "./prefs"
 import { briefs } from "./briefs"
 import { leads } from "./leads"
+import { wiki } from "./wiki"
 
 /**
  * Every namespace, one file each (messages/<name>.ts). Add new namespaces
@@ -62,6 +63,7 @@ export const messages = {
   prefs,
   briefs,
   leads,
+  wiki,
 }
 
 export type Namespace = keyof typeof messages
