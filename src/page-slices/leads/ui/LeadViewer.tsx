@@ -28,7 +28,7 @@ import {
   showLead,
   snapshotLead,
 } from "../lib/desktop"
-import { hostOf, useLeadSites } from "../model/data"
+import { hostOf, useLeadSites, type LeadSite } from "../model/data"
 
 /** Small overlays the native view would cover (it's always on top of the
  *  page): it steps aside while one of them overlaps it, a picture of the
@@ -72,9 +72,19 @@ const SIDES = [
  * aside for dialogs and menus. In a browser these sites refuse to be
  * framed, so the page offers to open it in a new tab.
  */
-export function LeadViewer({ id }: { id: string }) {
+export function LeadViewer({
+  id,
+  fixed,
+}: {
+  id: string
+  /** A site that isn't in the list (Password: the studio's vault). */
+  fixed?: LeadSite
+}) {
   const t = useT("leads")
-  const { data: sites, isLoading, isError } = useLeadSites()
+  const list = useLeadSites(!fixed)
+  const sites = fixed ? [fixed] : list.data
+  const isLoading = !fixed && list.isLoading
+  const isError = !fixed && list.isError
   const site = sites?.find((s) => s.id === id)
   // The tab is named after the site (not Kelola situs, the /leads row).
   useBreadcrumbs(site ? [{ label: site.name }] : [])

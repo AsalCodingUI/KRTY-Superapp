@@ -249,6 +249,11 @@ export const BriefcaseSolid = solidGlyph("BriefcaseSolid", {
   line: "M9.279 6.831V5.199a2.176 2.176 0 0 1 2.176 -2.176h1.088a2.176 2.176 0 0 1 2.176 2.176v1.632",
   cutLine: "M2.75 13.088h18.5",
 })
+/** Lock (Lock03), solid: the body filled, the shackle a line. */
+export const LockSolid = solidGlyph("LockSolid", {
+  body: "M9.25 10.75H14.75a3 3 0 0 1 3 3V17.75a3 3 0 0 1 -3 3H9.25a3 3 0 0 1 -3 -3V13.75a3 3 0 0 1 3 -3Z",
+  line: "M8.25 10.75V7a3.75 3.75 0 0 1 7.5 0v3.75",
+})
 /** BookClosed, solid: the cover filled, the pages under it a line. */
 export const BookClosedSolid = solidGlyph("BookClosedSolid", {
   body: "M7.103 2.75h9.794a3.265 3.265 0 0 1 3.265 3.265V15.809H6.559a2.721 2.721 0 0 0 -2.721 2.721V6.015a3.265 3.265 0 0 1 3.265 -3.265Z",

@@ -9,6 +9,8 @@ const id = {
   workspaceLeads: "Leads",
   workspaceWiki: "Wiki",
   wikiAll: "Semua halaman",
+  workspaceVault: "Password",
+  vaultOpen: "Brankas password",
   leadsManage: "Kelola situs",
   leadsSites: "Situs",
 
@@ -72,6 +74,8 @@ const en: Record<keyof typeof id, string> = {
   workspaceLeads: "Leads",
   workspaceWiki: "Wiki",
   wikiAll: "All pages",
+  workspaceVault: "Passwords",
+  vaultOpen: "Password vault",
   leadsManage: "Manage sites",
   leadsSites: "Sites",
 

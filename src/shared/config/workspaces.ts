@@ -3,6 +3,7 @@ import {
   BriefcaseSolid,
   HouseWindowSolid,
   InboxSolid,
+  LockSolid,
 } from "@/components/icons"
 import { siteConfig } from "@/app/siteConfig"
 import type { MessageKey } from "@/shared/i18n/messages"
@@ -27,6 +28,7 @@ import {
   RiHome2Line,
   RiHouseWindowLine,
   RiInboxLine,
+  RiLockLine,
   RiSettings3Line,
   RiUserSmileLine,
   RiWalletLine,
@@ -39,7 +41,12 @@ import {
  * personal view for employees and the approval center for stakeholders).
  */
 
-export type WorkspaceId = "personal" | "project" | "leads" | "wiki"
+export type WorkspaceId =
+  | "personal"
+  | "project"
+  | "leads"
+  | "wiki"
+  | "vault"
 
 /** Page and workspace names are "nav" message keys, translated where shown. */
 export type NavKey = MessageKey<"nav">
@@ -260,6 +267,17 @@ export const workspaces: Workspace[] = [
     icon: RiBookClosedLine,
     activeIcon: BookClosedSolid,
     items: () => [{ name: "wikiAll", href: links.wiki, icon: RiBookOpenLine }],
+  },
+  {
+    // Password: the studio's password manager (Vaultwarden, end-to-end
+    // encrypted by Bitwarden's own web vault), opened in the app like a
+    // Leads site. PMs and stakeholders, as Leads.
+    id: "vault",
+    name: "workspaceVault",
+    icon: RiLockLine,
+    activeIcon: LockSolid,
+    can: isPmUp,
+    items: () => [{ name: "vaultOpen", href: links.vault, icon: RiLockLine }],
   },
 ]
 

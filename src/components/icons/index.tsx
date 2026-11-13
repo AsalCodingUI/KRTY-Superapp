@@ -255,6 +255,7 @@ export const HouseWindowSolid = /*#__PURE__*/ icon(C.HouseWindowSolid, "HouseWin
 export const BriefcaseSolid = /*#__PURE__*/ icon(C.BriefcaseSolid, "BriefcaseSolid")
 export const InboxSolid = /*#__PURE__*/ icon(C.InboxSolid, "InboxSolid")
 export const BookClosedSolid = /*#__PURE__*/ icon(C.BookClosedSolid, "BookClosedSolid")
+export const LockSolid = /*#__PURE__*/ icon(C.LockSolid, "LockSolid")
 export const IdCard = /*#__PURE__*/ icon(K.CreditCard01, "IdCard")
 export const Image = /*#__PURE__*/ icon(K.Image01, "Image")
 export const ImageIcon = /*#__PURE__*/ icon(K.Image01, "ImageIcon")

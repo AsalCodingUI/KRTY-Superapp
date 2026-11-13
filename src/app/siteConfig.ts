@@ -19,6 +19,7 @@ export const siteConfig = {
     calendar: "/calendar",
     leads: "/leads",
     wiki: "/wiki",
+    vault: "/vault",
     settings: {
       general: "/settings/general",
       permission: "/settings/permission",

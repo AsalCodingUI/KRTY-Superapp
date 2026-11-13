@@ -1,0 +1,43 @@
+# Kretya's password manager (Vaultwarden, the Bitwarden server), at
+# https://vault.kretyastudio.com behind Coolify's Traefik (letsencrypt).
+# Not managed by Coolify: `docker compose up -d` in /data/vaultwarden.
+# Data: ./data (db.sqlite3, rsa keys, attachments), end-to-end encrypted by
+# the Bitwarden clients; backups: ./backups (backup.sh, daily cron).
+services:
+  vaultwarden:
+    image: vaultwarden/server:1.37.5
+    container_name: vaultwarden
+    restart: unless-stopped
+    environment:
+      DOMAIN: "https://vault.kretyastudio.com"
+      # Open only until the first (owner) account exists; then false, and
+      # people join by an organization invite (INVITATIONS_ALLOWED).
+      SIGNUPS_ALLOWED: "true"
+      INVITATIONS_ALLOWED: "true"
+      SHOW_PASSWORD_HINT: "false"
+      # No ADMIN_TOKEN: the /admin page stays off.
+      IP_HEADER: "X-Forwarded-For"
+      LOGIN_RATELIMIT_SECONDS: "60"
+      LOGIN_RATELIMIT_MAX_BURST: "10"
+      TZ: "Asia/Jakarta"
+    volumes:
+      - ./data:/data
+    mem_limit: 256m
+    networks:
+      - coolify
+    labels:
+      - traefik.enable=true
+      - traefik.docker.network=coolify
+      - traefik.http.routers.vault-http.entryPoints=http
+      - traefik.http.routers.vault-http.rule=Host(`vault.kretyastudio.com`)
+      - traefik.http.routers.vault-http.middlewares=vault-https
+      - traefik.http.middlewares.vault-https.redirectscheme.scheme=https
+      - traefik.http.routers.vault.entryPoints=https
+      - traefik.http.routers.vault.rule=Host(`vault.kretyastudio.com`)
+      - traefik.http.routers.vault.tls=true
+      - traefik.http.routers.vault.tls.certresolver=letsencrypt
+      - traefik.http.services.vault.loadbalancer.server.port=80
+
+networks:
+  coolify:
+    external: true

@@ -56,6 +56,10 @@ export const PAGE_ACCESS: Record<string, AccessLevel[]> = {
   "/leads": PM_UP,
   // Kretya Wiki: the studio's shared pages; everyone reads and writes.
   "/wiki": EVERYONE,
+  // Password: the studio's Vaultwarden (vault.kretyastudio.com) in the app,
+  // for the people who sign in to Leads' sites (its own accounts decide
+  // what each sees).
+  "/vault": PM_UP,
   // PMs manage their projects' invoices.
   "/invoice-print": PM_UP,
   "/settings": STAKEHOLDER,
