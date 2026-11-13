@@ -100,17 +100,28 @@ fi
 
 # --- Upload ----------------------------------------------------------------
 # The key goes in a header file (not on the command line, where `ps` shows it).
+auth_headers() {
+  printf 'Authorization: Bearer %s\napikey: %s\n' "$SERVICE_KEY" "$SERVICE_KEY"
+}
+
+# The storage gateway cuts a request off after about 4 s (a 12 MB .dmg
+# came back 504 about half the time; resumable TUS isn't supported by its
+# S3 backend), so a 5xx is tried again, up to 10 times.
 upload() { # <storage path> <local file> <content type>
-  local code
-  code="$(curl -sS -o /dev/null -w '%{http_code}' -X POST \
-    "$SUPABASE_URL/storage/v1/object/$BUCKET/$1" \
-    -H @<(printf 'Authorization: Bearer %s\napikey: %s\n' "$SERVICE_KEY" "$SERVICE_KEY") \
-    -H "x-upsert: true" \
-    -H "cache-control: no-cache" \
-    -H "Content-Type: $3" \
-    --data-binary @"$2")"
-  [[ "$code" == 200 ]] || die "upload of $1 failed (HTTP $code)"
-  echo "  ✓ $BUCKET/$1"
+  local code try
+  for try in 1 2 3 4 5 6 7 8 9 10; do
+    code="$(curl -sS -o /dev/null -w '%{http_code}' -X POST \
+      "$SUPABASE_URL/storage/v1/object/$BUCKET/$1" \
+      -H @<(auth_headers) \
+      -H "x-upsert: true" \
+      -H "cache-control: no-cache" \
+      -H "Content-Type: $3" \
+      --data-binary @"$2")"
+    [[ "$code" == 200 ]] && { echo "  ✓ $BUCKET/$1"; return; }
+    [[ "$code" == 5* ]] || break
+    echo "  … $1: HTTP $code, again ($try)"
+  done
+  die "upload of $1 failed (HTTP $code)"
 }
 
 echo "Uploading…"
