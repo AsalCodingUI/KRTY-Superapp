@@ -197,14 +197,25 @@ export function LeadViewer({
         covered = next
         if (over) {
           // The picture first, then the view out of the way.
-          void snapshotLead(site.id).then((url) => {
+          void snapshotLead(site.id).then(async (url) => {
             // Closed again before the picture came: drop it.
             if (covered !== "small") {
               if (url) URL.revokeObjectURL(url)
               return
             }
-            if (url) setShot(url)
-            void hideLeads()
+            if (url) {
+              // The picture decoded and painted first, then the view goes:
+              // hiding it sooner showed the empty sheet for a moment (the
+              // tooltip "blinked" in).
+              const img = new Image()
+              img.src = url
+              await img.decode().catch(() => {})
+              setShot(url)
+              await new Promise((r) =>
+                requestAnimationFrame(() => requestAnimationFrame(r)),
+              )
+            }
+            if (covered === "small") void hideLeads()
           })
         } else {
           place()

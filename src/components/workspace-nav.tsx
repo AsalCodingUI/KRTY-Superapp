@@ -25,11 +25,16 @@ type WorkspaceNav = {
   routeId: WorkspaceId
   /** Switch workspace: swaps the sidebar's list; the page stays. */
   select: (id: WorkspaceId) => void
+  /** The page last open in a workspace (this tab, this session), if any:
+   *  where the rail takes you back to. */
+  lastPathOf: (id: WorkspaceId) => string | undefined
   badges: Record<string, number>
   hasBadge: (ws: VisibleWorkspace) => boolean
 }
 
 const WorkspaceNavContext = React.createContext<WorkspaceNav | null>(null)
+
+const LAST_PATHS_KEY = "workspace-last-paths"
 
 /**
  * Workspaces the viewer can open, and which one the sidebar lists. Shared by
@@ -100,6 +105,29 @@ export function WorkspaceNavProvider({
     [badges],
   )
 
+  // Each workspace's last page: the route's own workspace, or (a global
+  // page: Beranda, Kalender…) the one the sidebar shows.
+  const lastPaths = React.useRef<Partial<Record<WorkspaceId, string>>>({})
+  React.useEffect(() => {
+    try {
+      lastPaths.current = JSON.parse(
+        sessionStorage.getItem(LAST_PATHS_KEY) ?? "{}",
+      )
+    } catch {}
+  }, [])
+  const ownerId = routeMatch ?? active?.id
+  React.useEffect(() => {
+    if (!ownerId) return
+    lastPaths.current = { ...lastPaths.current, [ownerId]: pathname }
+    try {
+      sessionStorage.setItem(LAST_PATHS_KEY, JSON.stringify(lastPaths.current))
+    } catch {}
+  }, [ownerId, pathname])
+  const lastPathOf = React.useCallback(
+    (id: WorkspaceId) => lastPaths.current[id],
+    [],
+  )
+
   const value = React.useMemo<WorkspaceNav>(
     () => ({
       loading: profileLoading,
@@ -107,10 +135,20 @@ export function WorkspaceNavProvider({
       active,
       routeId: routeWorkspace,
       select,
+      lastPathOf,
       badges,
       hasBadge,
     }),
-    [profileLoading, visible, active, routeWorkspace, select, badges, hasBadge],
+    [
+      profileLoading,
+      visible,
+      active,
+      routeWorkspace,
+      select,
+      lastPathOf,
+      badges,
+      hasBadge,
+    ],
   )
 
   return (

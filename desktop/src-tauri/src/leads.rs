@@ -610,8 +610,17 @@ fn place(view: &tauri::Webview, rect: (f64, f64, f64, f64), (radius, left): (f64
             let _: () = msg_send![layer, setMasksToBounds: Bool::new(radius > 0.0)];
             let curve = NSString::from_str("continuous");
             let _: () = msg_send![layer, setCornerCurve: &*curve];
-            // CACornerMask: min-x = left, max-x = right (both y edges).
-            let mask: usize = if left { 1 | 2 | 4 | 8 } else { 2 | 8 };
+            // Only the bottom corners round (the sheet's): the site's own
+            // toolbar sits on its top edge. CACornerMask's min-y is the
+            // bottom in an unflipped view, the top in a flipped one.
+            let wrap_flipped: Bool = msg_send![wrap, isFlipped];
+            let (bottom_left, bottom_right): (usize, usize) =
+                if wrap_flipped.as_bool() { (4, 8) } else { (1, 2) };
+            let mask: usize = if left {
+                bottom_left | bottom_right
+            } else {
+                bottom_right
+            };
             let _: () = msg_send![layer, setMaskedCorners: mask];
         }
     });

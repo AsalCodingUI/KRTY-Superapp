@@ -84,6 +84,9 @@ export interface Workspace {
   activeIcon?: RemixiconComponentType
   /** Whether the workspace exists for this profile at all. */
   can?: (profile: WorkspaceProfile) => boolean
+  /** Where the rail opens it the first time (later: the page last open
+   *  in it). Default: its first page. */
+  home?: string
   /** No panel of its own: the rail opens its (first) page straight away
    *  and the panel folds while it's shown (Password: the vault alone). */
   direct?: boolean
@@ -128,6 +131,7 @@ export const workspaces: Workspace[] = [
     // Running the office: what's yours for members, everyone's for
     // stakeholders (each page decides by role).
     id: "personal",
+    home: links.dashboard,
     name: "workspacePersonal",
     // A house (Home's, with a window: not Beranda's own icon).
     icon: RiHouseWindowLine,
@@ -217,6 +221,7 @@ export const workspaces: Workspace[] = [
   {
     id: "project",
     name: "workspaceProject",
+    home: links.projects,
     icon: RiBriefcaseLine,
     activeIcon: BriefcaseSolid,
     items: () => [

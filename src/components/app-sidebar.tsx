@@ -13,7 +13,8 @@ import { Notifications } from "@/widgets/notifications/ui/Notifications"
 import { NavMain } from "@/components/nav-main"
 import { NewMenu } from "@/components/new-menu"
 import { useProjectTree } from "@/components/nav-project"
-import { useLeadTree } from "@/page-slices/leads/ui/lead-tree"
+import { leadHref, useLeadTree } from "@/page-slices/leads/ui/lead-tree"
+import { useLeadSites } from "@/page-slices/leads/model/data"
 import { WikiNewButton } from "@/page-slices/wiki/ui/WikiNewButton"
 import { useWikiTree } from "@/page-slices/wiki/ui/wiki-tree"
 import { PrefetchLink } from "@/components/prefetch-link"
@@ -498,9 +499,19 @@ export function AppRail() {
  * hidden); the one shown is filled. A dot when one has something new.
  */
 function WorkspaceRail() {
-  const { loading, visible, active, select, hasBadge } = useWorkspaceNav()
+  const { loading, visible, active, select, hasBadge, lastPathOf } =
+    useWorkspaceNav()
   const { open, setOpen } = useSidebar()
   const router = useRouter()
+  const pathname = usePathname()
+  // Leads opens on its first site (Gmail) the first time.
+  const { data: leadSites } = useLeadSites(visible.some((w) => w.id === "leads"))
+  /** Where a workspace opens: its last page, else its home. */
+  const targetOf = (ws: (typeof visible)[number]) =>
+    lastPathOf(ws.id) ??
+    (ws.id === "leads" && leadSites?.[0]
+      ? leadHref(leadSites[0].id)
+      : (ws.home ?? ws.items[0]?.href))
   const t = useT("nav")
   return (
     // ChatGPT's rail (measured): 36px buttons, 8px either side on the
@@ -536,6 +547,9 @@ function WorkspaceRail() {
                     if (shown) return setOpen(false)
                     select(ws.id)
                     if (!open) setOpen(true)
+                    // The page follows: where it was left, or its home.
+                    const href = ws.id === active?.id ? null : targetOf(ws)
+                    if (href && href !== pathname) router.push(href)
                   }}
                 >
                   {shown && ws.activeIcon ? <ws.activeIcon /> : <ws.icon />}
