@@ -1,0 +1,11 @@
+# Automatically generated - DO NOT EDIT!
+
+[[permission]]
+identifier = "allow-lead-preload"
+description = "Enables the lead_preload command without any pre-configured scope."
+commands.allow = ["lead_preload"]
+
+[[permission]]
+identifier = "deny-lead-preload"
+description = "Denies the lead_preload command without any pre-configured scope."
+commands.deny = ["lead_preload"]

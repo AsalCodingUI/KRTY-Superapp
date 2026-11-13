@@ -200,9 +200,10 @@ fn hide_all_but(app: &AppHandle, keep: Option<&str>) {
 }
 
 /// Site views kept loaded at most (each is a WebKit process; Gmail and
-/// Telegram are heavy). The sign-in lives in WebKit's store, not the view,
+/// Telegram are heavy): all the studio's sites load in the background at
+/// start (lead_preload), so their notifications come in. The sign-in lives in WebKit's store, not the view,
 /// so a closed one opens signed in again.
-const KEEP: usize = 3;
+const KEEP: usize = 8;
 
 /// `shown` becomes the most recent; views past KEEP are closed.
 fn keep_recent(app: &AppHandle, shown: &str) {
@@ -412,7 +413,49 @@ pub fn lead_show(
         focus(&view);
         return Ok(());
     }
+    let view = create_view(&app, &target, &url, rect, corners)?;
+    focus(&view);
+    fit_page(&app);
+    Ok(())
+}
 
+/// Loads a site's view in the background (hidden), when the app starts:
+/// its notifications, unread count and sign-in are live without opening
+/// it first. Nothing when it's loaded already.
+#[tauri::command]
+pub fn lead_preload(app: AppHandle, id: String, url: String) -> Result<(), String> {
+    let target = label(&id);
+    if app.get_webview(&target).is_some() {
+        return Ok(());
+    }
+    // The window's size, so the site lays out as it will be seen.
+    let (w, h) = app
+        .get_window(crate::APP)
+        .and_then(|w| {
+            let scale = w.scale_factor().ok()?;
+            let size = w.inner_size().ok()?.to_logical::<f64>(scale);
+            Some((size.width, size.height))
+        })
+        .unwrap_or((1200.0, 800.0));
+    let view = create_view(&app, &target, &url, (0.0, 0.0, w.max(1.0), h.max(1.0)), (0.0, false))?;
+    let _ = view.hide();
+    fit_page(&app);
+    Ok(())
+}
+
+/// A site's web view in the app window at `rect`: Safari's agent, the
+/// reporter and the site's tweaks, popups, downloads, 90% zoom.
+fn create_view(
+    app: &AppHandle,
+    target: &str,
+    url: &str,
+    rect: (f64, f64, f64, f64),
+    corners: (f64, bool),
+) -> Result<tauri::Webview, String> {
+    let app = app.clone();
+    let target = target.to_string();
+    let position = LogicalPosition::new(rect.0, rect.1);
+    let size = LogicalSize::new(rect.2, rect.3);
     let parsed: url::Url = url.parse().map_err(|_| "invalid url".to_string())?;
     if parsed.scheme() != "https" {
         return Err("https only".into());
@@ -517,11 +560,50 @@ pub fn lead_show(
         .map_err(|e| e.to_string())?;
     // Every site a step smaller (90%): more of it fits beside the panel.
     let _ = view.set_zoom(SITE_ZOOM);
+    keep_awake(&view);
     place(&view, rect, corners);
-    focus(&view);
-    fit_page(&app);
-    Ok(())
+    Ok(view)
 }
+
+/// A hidden site keeps its timers and connections at full speed (WebKit
+/// slows a hidden page's timers and may suspend its process): its messages
+/// and notifications come in as they happen, not when it's next shown.
+/// WebKit's own (private) preferences; skipped where they don't exist.
+#[cfg(target_os = "macos")]
+fn keep_awake(view: &tauri::Webview) {
+    let _ = view.with_webview(|platform| unsafe {
+        use objc2::runtime::{AnyObject, Bool, Sel};
+        use objc2::{msg_send, sel};
+        let web = platform.inner() as *mut AnyObject;
+        if web.is_null() {
+            return;
+        }
+        let config: *mut AnyObject = msg_send![web, configuration];
+        if config.is_null() {
+            return;
+        }
+        let prefs: *mut AnyObject = msg_send![config, preferences];
+        if prefs.is_null() {
+            return;
+        }
+        let off = |sel: Sel| -> bool {
+            let responds: Bool = msg_send![prefs, respondsToSelector: sel];
+            responds.as_bool()
+        };
+        if off(sel!(_setHiddenPageDOMTimerThrottlingEnabled:)) {
+            let _: () = msg_send![prefs, _setHiddenPageDOMTimerThrottlingEnabled: Bool::NO];
+        }
+        if off(sel!(_setHiddenPageDOMTimerThrottlingAutoIncreases:)) {
+            let _: () = msg_send![prefs, _setHiddenPageDOMTimerThrottlingAutoIncreases: Bool::NO];
+        }
+        if off(sel!(_setPageVisibilityBasedProcessSuppressionEnabled:)) {
+            let _: () = msg_send![prefs, _setPageVisibilityBasedProcessSuppressionEnabled: Bool::NO];
+        }
+    });
+}
+
+#[cfg(not(target_os = "macos"))]
+fn keep_awake(_view: &tauri::Webview) {}
 
 /// Lays the site's web view over `rect` (CSS pixels from the window's top
 /// left) with the page sheet's corners (a native view ignores the page's

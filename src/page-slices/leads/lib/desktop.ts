@@ -49,6 +49,18 @@ export async function hideLeads() {
   } catch {}
 }
 
+/** Loads a site in the background (hidden): its notifications and unread
+ *  count are live before it's opened. False outside the app or in a
+ *  build without it. */
+export async function preloadLead(id: string, url: string) {
+  try {
+    await tauri()?.core.invoke("lead_preload", { id, url })
+    return true
+  } catch {
+    return false
+  }
+}
+
 export async function closeLead(id: string) {
   try {
     await tauri()?.core.invoke("lead_close", { id })

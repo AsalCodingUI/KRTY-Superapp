@@ -875,6 +875,7 @@ pub fn run() {
             leads::lead_state,
             leads::lead_report,
             leads::lead_snapshot,
+            leads::lead_preload,
             leads::leads_reset
         ]);
     #[cfg(target_os = "macos")]

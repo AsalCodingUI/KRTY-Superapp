@@ -13,6 +13,7 @@ import { DesktopShellProvider } from "@/components/desktop-shell"
 import { ContextMenuAppScope } from "@/shared/context-menu"
 import { UndoShortcuts } from "@/shared/undo"
 import { NotificationsLive } from "@/widgets/notifications/ui/NotificationsLive"
+import { LeadsPreloader } from "@/page-slices/leads/ui/LeadsPreloader"
 import { SettingsHost } from "@/widgets/settings/ui/SettingsHost"
 import {
   DESKTOP_SHELL_COOKIE,
@@ -88,6 +89,8 @@ export default async function Layout({
         <UndoShortcuts />
         {/* New notifications live, and their sound: once for the app. */}
         <NotificationsLive />
+        {/* Kretya Flow: Leads' sites load in the background (notifications). */}
+        <LeadsPreloader />
         <Suspense>
           <SettingsHost />
         </Suspense>

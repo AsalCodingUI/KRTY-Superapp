@@ -33,6 +33,7 @@
     "allow-lead-nav",
     "allow-lead-state",
     "allow-lead-snapshot",
-    "allow-leads-reset"
+    "allow-leads-reset",
+    "allow-lead-preload"
   ]
 }

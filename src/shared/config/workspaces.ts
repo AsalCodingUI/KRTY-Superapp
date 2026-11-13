@@ -96,6 +96,9 @@ export interface Workspace {
 const isAdmin = (p: WorkspaceProfile) => isAdminRole(p.role)
 /** PMs and stakeholders (access.ts PM_UP). */
 const isPmUp = (p: WorkspaceProfile) => accessLevel(p) !== "employee"
+/** Stakeholders only (access.ts STAKEHOLDER). */
+const isStakeholder = (p: WorkspaceProfile) =>
+  accessLevel(p) === "stakeholder"
 const links = siteConfig.baseLinks
 
 /**
@@ -279,12 +282,12 @@ export const workspaces: Workspace[] = [
   {
     // Password: the studio's password manager (Vaultwarden, end-to-end
     // encrypted by Bitwarden's own web vault), opened in the app like a
-    // Leads site. PMs and stakeholders, as Leads.
+    // Leads site. Stakeholders only.
     id: "vault",
     name: "workspaceVault",
     icon: RiLockLine,
     activeIcon: LockSolid,
-    can: isPmUp,
+    can: isStakeholder,
     direct: true,
     items: () => [{ name: "vaultOpen", href: links.vault, icon: RiLockLine }],
   },
