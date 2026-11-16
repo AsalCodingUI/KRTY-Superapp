@@ -1,3 +1,4 @@
+import { defaultAiConfig } from "@/shared/api/ai-config"
 import { createClient } from "@/shared/api/supabase/server"
 import {
   AI_ACTIONS,
@@ -206,10 +207,10 @@ export async function POST(request: NextRequest) {
   } = await supabase.auth.getUser()
   if (!user) return fail("unauthorized", 401)
 
-  const baseUrl = process.env.AI_BASE_URL?.trim().replace(/\/+$/, "")
-  const apiKey = process.env.AI_API_KEY?.trim()
-  const model = process.env.AI_MODEL?.trim()
-  if (!baseUrl || !apiKey || !model) return fail("not_configured", 503)
+  // The default AI connection (Setelan → API & MCP), else the env.
+  const ai = await defaultAiConfig()
+  if (!ai) return fail("not_configured", 503)
+  const { baseUrl, apiKey, model } = ai
 
   const body = await request.json().catch(() => null)
   const text: unknown = body?.text
