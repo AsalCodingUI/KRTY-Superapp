@@ -60,7 +60,17 @@ import {
 } from "@/shared/lib/display-prefs"
 import { useDesktopPrefs } from "@/widgets/menubar/ui/MenubarPopover"
 import { useQuery, useQueryClient } from "@tanstack/react-query"
-import { Bell, Palette, Play, SlidersHorizontal, X } from "@/components/icons"
+import {
+  Bell,
+  Code,
+  Palette,
+  Play,
+  SlidersHorizontal,
+  X,
+} from "@/components/icons"
+import { accessLevel } from "@/shared/config/access"
+import { IntegrationsTab } from "./IntegrationsTab"
+import { Row, SectionLabel } from "./settings-rows"
 import { useEffect, useState, type ReactNode } from "react"
 import { toast } from "sonner"
 
@@ -70,6 +80,8 @@ const TABS = [
   { value: "general", icon: SlidersHorizontal },
   { value: "notifications", icon: Bell },
   { value: "appearance", icon: Palette },
+  // Stakeholders: the AI router, MCP and API tokens.
+  { value: "integrations", icon: Code },
 ] as const
 
 /**
@@ -86,6 +98,11 @@ export function SettingsDialog({
   onClose: () => void
 }) {
   const t = useT("prefs")
+  const { profile } = useUserProfile()
+  const stakeholder = accessLevel(profile) === "stakeholder"
+  const tabs = TABS.filter((x) => x.value !== "integrations" || stakeholder)
+  // A link to a tab this person doesn't have opens Umum.
+  if (!tabs.some((x) => x.value === tab)) tab = "general"
   return (
     <Dialog open onOpenChange={(open) => !open && onClose()}>
       <DialogContent
@@ -98,7 +115,7 @@ export function SettingsDialog({
             {t("title")}
           </DialogTitle>
           <div className="flex gap-1 sm:flex-col">
-            {TABS.map(({ value, icon: Icon }) => (
+            {tabs.map(({ value, icon: Icon }) => (
               <button
                 key={value}
                 type="button"
@@ -135,6 +152,8 @@ export function SettingsDialog({
               <GeneralTab />
             ) : tab === "notifications" ? (
               <NotificationsTab />
+            ) : tab === "integrations" ? (
+              <IntegrationsTab />
             ) : (
               <AppearanceTab />
             )}
@@ -142,46 +161,6 @@ export function SettingsDialog({
         </div>
       </DialogContent>
     </Dialog>
-  )
-}
-
-/** One setting: what it is (and a line on it), its control on the right. */
-function Row({
-  label,
-  hint,
-  children,
-  disabled,
-}: {
-  label: ReactNode
-  hint?: ReactNode
-  children?: ReactNode
-  disabled?: boolean
-}) {
-  return (
-    <div
-      className={cn(
-        "border-border flex min-h-16 items-center gap-4 border-b py-3 last:border-b-0",
-        disabled && "opacity-50",
-      )}
-    >
-      <div className="flex min-w-0 flex-1 flex-col gap-0.5">
-        <span className="text-sm">{label}</span>
-        {hint && (
-          <span className="text-muted-foreground text-meta leading-5">
-            {hint}
-          </span>
-        )}
-      </div>
-      {children && <div className="flex shrink-0 items-center">{children}</div>}
-    </div>
-  )
-}
-
-function SectionLabel({ children }: { children: ReactNode }) {
-  return (
-    <h3 className="text-muted-foreground text-meta mt-8 mb-1 font-medium first:mt-0">
-      {children}
-    </h3>
   )
 }
 
