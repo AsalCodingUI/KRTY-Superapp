@@ -13,7 +13,8 @@ import {
   splitPaneSearchClassName,
 } from "@/components/split-pane"
 import { EmptyValue } from "@/components/empty-value"
-import { RichTextField } from "@/components/rich-text-field"
+import { Markdown } from "@/components/markdown"
+import { MarkdownDocEditor } from "@/page-slices/policies/ui/doc-editor-lazy"
 import { EmptyState } from "@/components/empty-state"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
@@ -303,7 +304,7 @@ export function MyNotesPage() {
             filtered.map((note) => {
               const done = progress(note.todos)
               const preview =
-                note.body.split("\n").find((l) => l.trim()) ??
+                firstLine(note.body) ??
                 note.todos.find((td) => td.text.trim())?.text ??
                 ""
               const active = note.id === selected?.id
@@ -410,6 +411,21 @@ export function MyNotesPage() {
       />
     </SplitPane>
   )
+}
+
+/** A note's first line of text for the list: its Markdown marks (#, -,
+ *  [ ], >, a table's pipes and divider rows) left out. */
+function firstLine(markdown: string) {
+  for (const raw of markdown.split("\n")) {
+    if (/^\s*\|?\s*:?-{3,}/.test(raw)) continue
+    const line = raw
+      .replace(/^\s*(#{1,6}\s+|>\s*|[-*+]\s+(\[[ xX]\]\s+)?|\d+[.)]\s+)/, "")
+      .replace(/\s*\|\s*/g, " ")
+      .replace(/[*_`~]/g, "")
+      .trim()
+    if (line) return line
+  }
+  return undefined
 }
 
 /**
@@ -565,17 +581,26 @@ function NoteEditor({
             }}
             className={FIELD_TITLE}
           />
-          <RichTextField
-            value={body}
-            readOnly={readOnly}
-            placeholder={t("notesBodyPlaceholder")}
-            aria-label={t("notesBody")}
-            onChange={(value) => {
-              setBody(value)
-              save({ body: value })
-            }}
-            className="text-foreground/90 text-meta min-h-12 leading-relaxed"
-          />
+          {/* The documents editor, as a task's description: "/" blocks
+              (tables, lists, checklists, callouts…), Markdown underneath. */}
+          {readOnly ? (
+            <Markdown className="text-foreground/90 text-meta leading-relaxed">
+              {body}
+            </Markdown>
+          ) : (
+            <MarkdownDocEditor
+              compact
+              value={body}
+              placeholder={t("notesBodyPlaceholder")}
+              ariaLabel={t("notesBody")}
+              onChange={(value) => {
+                setBody(value)
+                save({ body: value })
+              }}
+              onBlur={() => flush()}
+              className="text-foreground/90"
+            />
+          )}
         </div>
 
         <section className="flex flex-col gap-1">

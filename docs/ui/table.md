@@ -84,8 +84,13 @@ sits inside `GroupedList` and gets `data-slot="list-row"`, `relative`,
   that way (don't wrap rows in your own `motion` components).
 - Page long lists with `ListPager` instead of rendering hundreds of rows.
 
-**Markdown tables** (`markdown.tsx`): labels on the pill, rows `h-12`, no
-lines, the sliding hover highlight.
+**Tables in written content** (`markdown.tsx` and the document editor,
+`policies/ui/doc-editor.tsx`): unlike data tables, these are a grid. One
+outer `border-foreground/12` box (`rounded-lg`), hairlines between cells
+in `border-foreground/10`, the header row tinted `bg-foreground/[0.04]`,
+rows `h-11`. Opacity of the text colour, never `border-border` / `bg-muted`:
+the same table sits on the page, a card or a muted panel, and a solid token
+vanishes on one of them.
 
 ## Don't
 

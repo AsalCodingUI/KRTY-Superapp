@@ -1,6 +1,5 @@
 "use client"
 
-import { HoverHighlight } from "@/components/sliding-indicator"
 import { cn } from "@/lib/utils"
 import { CalloutBox } from "@/components/callout-box"
 import { EmbedBlock } from "@/components/embed-block"
@@ -136,22 +135,19 @@ const components: Components = {
       {...p}
     />
   ),
-  // The app's table style (see /table): the column labels on a pill, rows
-  // with no lines, and the same sliding hover highlight as the lists.
+  // Tables in written content: a grid of hairlines and a header tint in
+  // the text colour at low opacity, so they show on any surface (page,
+  // card, muted panel) in both themes. The editor draws the same
+  // (policies/ui/doc-editor.tsx PROSE).
   table: ({ node: _, ...p }) => (
-    <div className="relative my-5 overflow-x-auto">
-      <HoverHighlight
-        itemSelector="tbody > tr"
-        className="rounded-lg bg-(--row-hover)"
-      />
+    <div className="my-5 overflow-x-auto">
       <table
         className={[
-          "w-full border-separate border-spacing-0 text-left text-sm tabular-nums",
-          "[&_th]:bg-muted dark:[&_th]:bg-muted/40 [&_th:first-child]:rounded-l-row [&_th:last-child]:rounded-r-row",
-          "[&_tbody_tr]:relative",
-          // A 2px spacer row under the labels + the highlight's 2px inset =
-          // the 4px between rows, as in the lists.
-          "[&_tbody]:before:table-row [&_tbody]:before:h-0.5",
+          "border-foreground/12 w-full border-separate border-spacing-0 rounded-lg border text-left text-sm tabular-nums",
+          "[&_td]:border-foreground/10 [&_th]:border-foreground/10 [&_td]:border-r [&_td]:border-b [&_th]:border-r [&_th]:border-b",
+          "[&_tbody_tr:last-child>*]:border-b-0 [&_tr>*:last-child]:border-r-0",
+          "[&_thead_tr>*:first-child]:rounded-tl-[7px] [&_thead_tr>*:last-child]:rounded-tr-[7px]",
+          "[&_tbody_tr:last-child>*:first-child]:rounded-bl-[7px] [&_tbody_tr:last-child>*:last-child]:rounded-br-[7px]",
         ].join(" ")}
         {...p}
       />
@@ -159,12 +155,12 @@ const components: Components = {
   ),
   th: ({ node: _, ...p }) => (
     <th
-      className="text-muted-foreground text-meta h-10 px-3 font-medium whitespace-nowrap"
+      className="bg-foreground/[0.04] text-muted-foreground text-meta h-10 px-3 font-medium whitespace-nowrap"
       {...p}
     />
   ),
   td: ({ node: _, ...p }) => (
-    <td className="h-12 px-3 py-2 align-middle first:font-medium" {...p} />
+    <td className="h-11 px-3 py-2 align-middle first:font-medium" {...p} />
   ),
   img: () => null,
 }

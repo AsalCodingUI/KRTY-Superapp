@@ -65,11 +65,15 @@ export const DOC_PROSE = cn(
   "[&_hr]:border-border [&_hr]:my-6",
   "[&_code]:bg-muted [&_code]:rounded [&_code]:px-1 [&_code]:py-0.5 [&_code]:font-mono [&_code]:text-[0.85em]",
   "[&_pre]:bg-muted [&_pre]:my-4 [&_pre]:rounded-lg [&_pre]:p-3 [&_pre]:text-meta [&_pre_code]:bg-transparent [&_pre_code]:p-0",
-  // Tables look like markdown.tsx's (the app's table style): column labels
-  // on a pill, rows with no lines.
+  // Tables as markdown.tsx's (DOC_TABLE): a grid of hairlines and a header
+  // tint drawn in the text colour at low opacity, so they show on any
+  // surface (page, card, muted panel) in both themes.
   "[&_table]:my-4 [&_table]:w-full [&_table]:border-separate [&_table]:border-spacing-0 [&_table]:text-sm",
-  "[&_th]:bg-muted dark:[&_th]:bg-muted/40 [&_th:first-child]:rounded-l-lg [&_th:last-child]:rounded-r-lg [&_th]:text-muted-foreground [&_th]:text-meta [&_th]:h-10 [&_th]:px-3 [&_th]:text-left [&_th]:font-medium",
-  "[&_td]:h-12 [&_td]:px-3 [&_td]:py-2 [&_td]:align-middle [&_td_p]:my-0 [&_th_p]:my-0",
+  "[&_table]:border-foreground/12 [&_table]:rounded-lg [&_table]:border",
+  "[&_td]:border-foreground/10 [&_th]:border-foreground/10 [&_td]:border-r [&_td]:border-b [&_th]:border-r [&_th]:border-b [&_tr>*:last-child]:border-r-0 [&_tr:last-child>*]:border-b-0",
+  "[&_th]:bg-foreground/[0.04] [&_th]:text-muted-foreground [&_th]:text-meta [&_th]:h-10 [&_th]:px-3 [&_th]:text-left [&_th]:font-medium",
+  "[&_tr:first-child>*:first-child]:rounded-tl-[7px] [&_tr:first-child>*:last-child]:rounded-tr-[7px] [&_tr:last-child>*:first-child]:rounded-bl-[7px] [&_tr:last-child>*:last-child]:rounded-br-[7px]",
+  "[&_td]:h-11 [&_td]:px-3 [&_td]:py-2 [&_td]:align-middle [&_td_p]:my-0 [&_th_p]:my-0",
   "[&_.selectedCell]:bg-primary/10",
   // A block picked with its handle: a soft blue tint, no outline.
   "[&_.ProseMirror-selectednode:not(.doc-image)]:bg-primary/[0.08] [&_.ProseMirror-selectednode:not(.doc-image)]:rounded-md [&_.ProseMirror-selectednode]:outline-none [&_.ProseMirror-selectednode:not(.doc-image)]:selection:bg-transparent [&_.ProseMirror-selectednode:not(.doc-image)]:selection:text-foreground",
