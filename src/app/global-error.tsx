@@ -2,6 +2,7 @@
 
 import { interpolate, LOCALE_COOKIE, toLocale } from "@/shared/i18n/config"
 import { shell } from "@/shared/i18n/messages/shell"
+import { reloadForStaleChunk } from "@/shared/lib/stale-chunk"
 import { useEffect, useState } from "react"
 
 /** No I18nProvider here (the root layout failed): read the cookie directly. */
@@ -29,6 +30,7 @@ export default function GlobalError({
   const t = shell[locale]
   useEffect(() => {
     console.error("Root Layout Error:", error)
+    reloadForStaleChunk(error)
   }, [error])
 
   // The root layout itself failed, so no CSS: plain inline styles that

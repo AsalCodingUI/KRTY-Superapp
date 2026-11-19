@@ -1,5 +1,11 @@
 import { useUserProfile } from "@/shared/hooks/useUserProfile"
-import { playNotificationSound } from "@/shared/lib/notification-sound"
+import { invokeApp } from "@/shared/lib/desktop-app"
+import {
+  appSoundName,
+  claimDesktopAlert,
+  desktopAlertsOn,
+  playNotificationSound,
+} from "@/shared/lib/notification-sound"
 import { Database } from "@/shared/types/database.types"
 import { useQuery, useQueryClient } from "@tanstack/react-query"
 import { createClient } from "@/shared/api/supabase/client"
@@ -359,9 +365,16 @@ export function useNotificationsRealtime() {
             queryKey: [...NOTIFICATIONS_QUERY_KEY, userId],
           })
           const n = payload.new
-          // Its sound (Settings → Notifikasi). Kretya Flow plays it with the
-          // macOS notification instead, so the app's page stays quiet.
+          // Its sound (Settings → Notifikasi). In Kretya Flow for Mac the
+          // sound comes with the macOS notification, shown from here at
+          // once (the popover's own watch could lag behind the banner).
           if (!isMacApp()) playNotificationSound(undefined, n.id)
+          else if (desktopAlertsOn() && claimDesktopAlert(n.id))
+            void invokeApp("notify", {
+              title: n.title,
+              body: n.message ?? "",
+              sound: appSoundName(),
+            })
           if (
             URGENT_NOTIFICATION_TYPES.has(n.type) &&
             document.visibilityState === "hidden" &&

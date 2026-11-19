@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+  <!-- Merged into the app's Info.plist by Tauri. macOS asks once before a
+       Leads site (Discord, Meet) may use the camera or microphone. -->
+  <key>NSCameraUsageDescription</key>
+  <string>Kretya Flow memakai kamera untuk panggilan video di situs Leads (Discord, Google Meet).</string>
+  <key>NSMicrophoneUsageDescription</key>
+  <string>Kretya Flow memakai mikrofon untuk panggilan suara di situs Leads (Discord, Google Meet).</string>
+</dict>
+</plist>

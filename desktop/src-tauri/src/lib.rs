@@ -224,6 +224,29 @@ const SHELL_SCRIPT: &str = r#"
 })();
 "#;
 
+/// No App Nap: with its window closed (in the menu bar) or covered, macOS
+/// slows a whole app down, and with it the Leads sites (their messages and
+/// notifications came in late) and the popover's watch for notifications.
+/// The Mac may still sleep when idle.
+#[cfg(target_os = "macos")]
+fn no_app_nap() {
+    use objc2::runtime::AnyObject;
+    use objc2::{class, msg_send};
+    use objc2_foundation::NSString;
+    // NSActivityUserInitiatedAllowingIdleSystemSleep.
+    const OPTIONS: u64 = 0x00FF_FFFF & !(1u64 << 20);
+    unsafe {
+        let info: *mut AnyObject = msg_send![class!(NSProcessInfo), processInfo];
+        let reason = NSString::from_str("Leads and notifications stay live in the background");
+        let token: *mut AnyObject =
+            msg_send![info, beginActivityWithOptions: OPTIONS, reason: &*reason];
+        // Held for the app's life (ending it would let App Nap back in).
+        if !token.is_null() {
+            let _: *mut AnyObject = msg_send![token, retain];
+        }
+    }
+}
+
 /// A window loading the web app, through the local loader page (which
 /// shows a "can't reach KRTY" screen when the VPN is off).
 fn web_window<'a>(
@@ -882,6 +905,8 @@ pub fn run() {
     let builder = builder.menu(app_menu).on_menu_event(on_app_menu);
     let app = builder
         .setup(move |app| {
+            #[cfg(target_os = "macos")]
+            no_app_nap();
             // The app window: the whole web app.
             let main = web_window(app, APP, "/dashboard")
                 .title("Kretya Flow")

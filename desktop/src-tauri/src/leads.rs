@@ -10,7 +10,7 @@
 //! keep their sign-in (WebKit's persistent store).
 
 use tauri::{
-    webview::{NewWindowResponse, WebviewBuilder},
+    webview::{NewWindowResponse, PermissionKind, PermissionResponse, WebviewBuilder},
     AppHandle, LogicalPosition, LogicalSize, Manager, WebviewUrl,
 };
 use tauri_plugin_opener::OpenerExt;
@@ -410,6 +410,7 @@ pub fn lead_show(
     if let Some(view) = app.get_webview(&target) {
         place(&view, rect, corners);
         let _ = view.show();
+        revive(&view, &url);
         focus(&view);
         return Ok(());
     }
@@ -515,7 +516,25 @@ fn create_view(
             }
             NewWindowResponse::Deny
         })
-        .on_navigation(|link| site_may_load(link));
+        .on_navigation(|link| site_may_load(link))
+        // Camera and microphone (Discord's calls, Meet in Gmail): only for
+        // the site on show, never one loaded in the background. macOS asks
+        // once for the app itself (Info.plist's usage texts).
+        .on_permission_request(|view, kind| match kind {
+            PermissionKind::Camera | PermissionKind::Microphone => {
+                let shown = SHOWN_LEAD
+                    .lock()
+                    .ok()
+                    .and_then(|s| s.clone())
+                    .is_some_and(|s| s == view.label());
+                if shown {
+                    PermissionResponse::Allow
+                } else {
+                    PermissionResponse::Deny
+                }
+            }
+            _ => PermissionResponse::Default,
+        });
     // Files a site downloads (Gmail's attachments) land in Downloads, under
     // a name that doesn't overwrite one already there; a notification says
     // when they're in.
@@ -604,6 +623,42 @@ fn keep_awake(view: &tauri::Webview) {
 
 #[cfg(not(target_os = "macos"))]
 fn keep_awake(_view: &tauri::Webview) {}
+
+/// A site shown again whose page is gone (its WebKit process was ended, by
+/// macOS under memory pressure or a crash, and not brought back; or it never
+/// got past a blank page): load it again instead of showing a dead view.
+#[cfg(target_os = "macos")]
+fn revive(view: &tauri::Webview, url: &str) {
+    let home: Option<url::Url> = url.parse().ok();
+    let target = view.clone();
+    let _ = view.with_webview(move |platform| {
+        let (dead, blank) = unsafe {
+            use objc2::runtime::{AnyObject, Bool};
+            use objc2::{msg_send, sel};
+            let web = platform.inner() as *mut AnyObject;
+            if web.is_null() {
+                return;
+            }
+            let responds: Bool = msg_send![web, respondsToSelector: sel!(_webProcessIdentifier)];
+            let dead = responds.as_bool() && {
+                let pid: i32 = msg_send![web, _webProcessIdentifier];
+                pid == 0
+            };
+            let address: *mut AnyObject = msg_send![web, URL];
+            (dead, address.is_null())
+        };
+        if blank {
+            if let Some(home) = home {
+                let _ = target.navigate(home);
+            }
+        } else if dead {
+            let _ = target.reload();
+        }
+    });
+}
+
+#[cfg(not(target_os = "macos"))]
+fn revive(_view: &tauri::Webview, _url: &str) {}
 
 /// Lays the site's web view over `rect` (CSS pixels from the window's top
 /// left) with the page sheet's corners (a native view ignores the page's

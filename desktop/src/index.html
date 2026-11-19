@@ -64,7 +64,11 @@
         try {
           const ctl = new AbortController()
           setTimeout(() => ctl.abort(), 8000)
-          await fetch(APP + "/login", { mode: "no-cors", signal: ctl.signal })
+          // Kretya itself answering, not just something at that name (a
+          // DNS record pointing elsewhere once opened a parked page).
+          const res = await fetch(APP + "/api/desktop/ping", { cache: "no-store", signal: ctl.signal })
+          const body = await res.json()
+          if (body?.app !== "kretya") throw new Error("not kretya")
           // Through /auth/desktop-shell, which marks this as the app.
           location.replace(APP + "/auth/desktop-shell?next=" + encodeURIComponent(TO))
         } catch {

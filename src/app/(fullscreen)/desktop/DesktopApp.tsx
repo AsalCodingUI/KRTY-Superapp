@@ -1,7 +1,10 @@
 "use client"
 
 import { afterSignOut } from "@/shared/lib/after-sign-out"
-import { appSoundName } from "@/shared/lib/notification-sound"
+import {
+  appSoundName,
+  claimDesktopAlert,
+} from "@/shared/lib/notification-sound"
 import { createClient } from "@/shared/api/supabase/client"
 import {
   NOTIFICATIONS_QUERY_KEY,
@@ -199,7 +202,8 @@ export function DesktopApp() {
     const ids = new Set(data.unread.map((n) => n.id))
     if (seen.current && prefs.notifyNew) {
       for (const n of data.unread)
-        if (!seen.current.has(n.id))
+        // Not when the app window already showed it (realtime there).
+        if (!seen.current.has(n.id) && claimDesktopAlert(n.id))
           void invoke("notify", {
             title: n.title,
             body: n.message ?? "",

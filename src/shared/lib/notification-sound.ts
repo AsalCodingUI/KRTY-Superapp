@@ -129,3 +129,39 @@ export function playNotificationSound(
     void audio.play().catch(() => {})
   } catch {}
 }
+
+const ALERT_PREFIX = "krty-alerted:"
+
+/**
+ * Kretya Flow's two web views (the app window and the menu bar popover)
+ * share this storage. Whichever hears of a notification first (realtime, or
+ * the popover's poll) shows the macOS notification with its sound, right
+ * away; the other sees it claimed. False when it was already shown.
+ */
+export function claimDesktopAlert(id: string) {
+  try {
+    const key = ALERT_PREFIX + id
+    if (localStorage.getItem(key)) return false
+    localStorage.setItem(key, String(Date.now()))
+    // Forget claims older than a day.
+    const old = Date.now() - 24 * 60 * 60_000
+    for (let i = localStorage.length - 1; i >= 0; i--) {
+      const k = localStorage.key(i)
+      if (k?.startsWith(ALERT_PREFIX) && Number(localStorage.getItem(k)) < old)
+        localStorage.removeItem(k)
+    }
+    return true
+  } catch {
+    return true
+  }
+}
+
+/** Kretya Flow's "new notifications" switch (menu bar settings). */
+export function desktopAlertsOn() {
+  try {
+    const prefs = JSON.parse(localStorage.getItem("krty-desktop-prefs") ?? "{}")
+    return prefs.notifyNew !== false
+  } catch {
+    return true
+  }
+}
