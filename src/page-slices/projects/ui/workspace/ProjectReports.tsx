@@ -18,7 +18,7 @@ import { usePathname, useSearchParams } from "next/navigation"
 import { useEffect, useState } from "react"
 import { findByLinkKey, replaceUrl } from "@/shared/lib/url-params"
 import { toast } from "sonner"
-import { useCanManageProject, useViewer, useWorkspace } from "./data"
+import { useCanEditReports, useViewer, useWorkspace } from "./data"
 import { RowMenu } from "./row-menu"
 import { ReportDialog, reportShareUrl } from "./ReportDialog"
 import { ReportViewCount } from "./ReportViews"
@@ -45,8 +45,8 @@ export function ProjectReports({ projectId }: { projectId: string }) {
   const tc = useT("common")
   const dateLocale = useDateLocale()
   const viewer = useViewer()
-  // PMs on the project manage the team's reports too (is_project_pm).
-  const canManage = useCanManageProject(projectId)
+  // The project's whole team manages its reports, as the PM does.
+  const canManage = useCanEditReports(projectId)
   const projectName = useWorkspace(projectId).data?.project?.name
   const { data: reports = [], isLoading } = useReports(projectId)
   const invalidate = useInvalidateReports(projectId)

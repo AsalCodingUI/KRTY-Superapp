@@ -19,7 +19,7 @@ import {
   Trash2,
 } from "@/components/icons"
 import { toast } from "sonner"
-import { useCanManageProject, useViewer, useWorkspace } from "./data"
+import { useCanEditReports, useViewer, useWorkspace } from "./data"
 import { useReportViews } from "./report-views-data"
 import {
   createReport,
@@ -56,7 +56,8 @@ export function useReportMenu(projectId: string) {
   const tm = useT("ctxmenu")
   const dateLocale = useDateLocale()
   const viewer = useViewer()
-  const canManage = useCanManageProject(projectId)
+  // The project's whole team manages its reports (as the PM does).
+  const canManage = useCanEditReports(projectId)
   const projectName = useWorkspace(projectId).data?.project?.name
   const reportsHref = useProjectHref(projectId, "reports")
   const { data: views } = useReportViews(projectId)

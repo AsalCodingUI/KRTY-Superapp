@@ -20,6 +20,7 @@ import { toast } from "sonner"
 import dynamic from "next/dynamic"
 import Link from "next/link"
 import { useRef, useState } from "react"
+import { useCanEditReports } from "./data"
 import type { TaskRow, TeamMember } from "./data"
 import {
   useInvalidateReports,
@@ -306,6 +307,7 @@ export function DashboardReportDialog({
   const t = useT("projects")
   const dateLocale = useDateLocale()
   const invalidate = useInvalidateReports(projectId)
+  const canEditReports = useCanEditReports(projectId)
   // Keep showing the last report while the window animates closed.
   const last = useRef<ReportSummary | null>(null)
   // The window (and its editor) loads on the first open.
@@ -331,7 +333,9 @@ export function DashboardReportDialog({
       defaultTitle={defaultTitle}
       projectId={projectId}
       viewerId={viewer.id}
-      canEdit={!report || viewer.isAdmin || report.author_id === viewer.id}
+      canEdit={
+        !report || canEditReports || report.author_id === viewer.id
+      }
       onSaved={invalidate}
     />
   )

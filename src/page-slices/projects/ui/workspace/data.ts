@@ -74,6 +74,20 @@ export function useCanManageProject(projectId: string) {
   return canManageProject(accessLevel(profile), isMember)
 }
 
+/**
+ * Everyone on this project's team (and stakeholders) edits, shares and
+ * deletes any of its reports, as its PM does (the DB agrees:
+ * team_manage_reports.sql).
+ */
+export function useCanEditReports(projectId: string) {
+  const { profile } = useUserProfile()
+  const { data } = useWorkspace(projectId)
+  const isMember = Boolean(
+    profile?.id && data?.team.some((m) => m.id === profile.id),
+  )
+  return accessLevel(profile) === "stakeholder" || isMember
+}
+
 /** The client a project is linked to (`projects.client_id` → `clients`). */
 export type ProjectClient = {
   id: string
